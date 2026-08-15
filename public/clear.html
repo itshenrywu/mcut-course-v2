@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="zh-TW">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="robots" content="noindex">
+		<link rel="icon" href="/favicon.ico" sizes="48x48">
+		<link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96">
+		<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+		<title>清除裝置上儲存的資料 | 明志科技大學選課小幫手</title>
+		<script>
+			try {
+				const stored = localStorage.getItem('mcv2-theme')
+				const dark = stored === 'dark' || ((stored === 'auto' || !stored) && matchMedia('(prefers-color-scheme: dark)').matches)
+				if (dark) document.documentElement.classList.add('dark')
+			} catch (e) {}
+		</script>
+		<style>
+			:root {
+				--color-mist-50: oklch(98.7% 0.002 197.1);
+				--color-mist-100: oklch(96.3% 0.002 197.1);
+				--color-mist-200: oklch(92.5% 0.005 214.3);
+				--color-mist-400: oklch(72.3% 0.014 214.4);
+				--color-mist-600: oklch(45% 0.017 213.2);
+				--color-mist-800: oklch(27.5% 0.011 216.9);
+				--color-mist-900: oklch(21.8% 0.008 223.9);
+				--color-mist-950: oklch(14.8% 0.004 228.8);
+				--radius: 0.625rem;
+				--c-1: var(--color-mist-50);
+				--c-2: var(--color-mist-100);
+				--c-3: var(--color-mist-200);
+				--c-5: var(--color-mist-400);
+				--c-9: var(--color-mist-800);
+				--destructive: oklch(57.7% 0.245 27.325);
+			}
+
+			.dark {
+				--c-1: var(--color-mist-950);
+				--c-2: var(--color-mist-900);
+				--c-3: var(--color-mist-800);
+				--c-5: var(--color-mist-600);
+				--c-9: var(--color-mist-200);
+				--destructive: oklch(70.4% 0.191 22.216);
+			}
+
+			*, ::before, ::after {
+				box-sizing: border-box;
+				margin: 0;
+				padding: 0;
+				border: 0 solid var(--c-3);
+			}
+
+			html {
+				-webkit-text-size-adjust: 100%;
+			}
+
+			body {
+				background-color: var(--c-2);
+				color: var(--c-9);
+				font-family: noto sans tc, noto sans sc, noto sans hk, noto sans jp, noto sans kr,
+				sf pro tc, sf pro text, sf pro icons, pingfang tc, helvetica neue, helvetica, arial,
+				microsoft jhenghei, wf_SegoeUI, segoe ui, Segoe, segoe wp, Tahoma, Verdana, Ubuntu,
+				bitstream vera sans, dejavu sans, 微軟正黑體, lihei pro, wenquanyi micro hei,
+				droid sans fallback, ar pl uming tw, Roboto, hiragino maru gothic pron, メイリオ,
+				ヒラギノ丸ゴ pron w4, Meiryo, droid sans, sans-serif;
+				line-height: 1.5;
+			}
+
+			a {
+				color: inherit;
+				text-decoration: none;
+			}
+
+			button {
+				font: inherit;
+				color: inherit;
+				background-color: transparent;
+			}
+
+			.page {
+				min-height: 100dvh;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				padding: 1.5rem;
+			}
+
+			.box {
+				width: 100%;
+				max-width: 24rem;
+				padding: 1.5rem;
+				border-width: 1px;
+				border-radius: calc(var(--radius) + 4px);
+				background-color: var(--c-1);
+				box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+				text-align: center;
+			}
+
+			.title {
+				font-size: 1.125rem;
+				line-height: 1.75rem;
+				font-weight: 500;
+			}
+
+			.actions {
+				margin-top: 1.5rem;
+				display: flex;
+				flex-wrap: wrap;
+				align-items: center;
+				justify-content: center;
+				gap: 0.75rem;
+			}
+
+			.button {
+				display: inline-flex;
+				align-items: center;
+				justify-content: center;
+				height: 2.25rem;
+				padding-inline: 1rem;
+				border-radius: calc(var(--radius) - 2px);
+				font-size: 0.875rem;
+				line-height: 1.25rem;
+				font-weight: 500;
+				white-space: nowrap;
+				box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+				cursor: pointer;
+				transition: all 0.15s ease;
+				outline: none;
+			}
+
+			.button:focus-visible {
+				border-color: var(--c-5);
+				box-shadow: 0 0 0 3px color-mix(in oklab, var(--c-5) 50%, transparent);
+			}
+
+			.button:disabled {
+				opacity: 0.5;
+				pointer-events: none;
+			}
+
+			.button-outline {
+				border-width: 1px;
+				background-color: var(--c-2);
+			}
+
+			.button-outline:hover {
+				background-color: var(--c-3);
+			}
+
+			.button-destructive {
+				background-color: var(--destructive);
+				color: #fff;
+			}
+
+			.button-destructive:hover {
+				opacity: 0.9;
+			}
+		</style>
+	</head>
+	<body class="page">
+		<main class="box">
+			<h1 class="title" id="title">清除資料？</h1>
+			<div class="actions">
+				<a class="button button-outline" href="/">回首頁</a>
+				<button class="button button-destructive" id="clear-btn" type="button">清除</button>
+			</div>
+		</main>
+		<script>
+			const KNOWN_DB_NAMES = ['mcut-course']
+
+			const title_el = document.getElementById('title')
+			const clear_btn = document.getElementById('clear-btn')
+
+			function clearStorage() {
+				try { localStorage.clear() } catch (e) {}
+				try { sessionStorage.clear() } catch (e) {}
+			}
+
+			function clearCookies() {
+				const host_parts = location.hostname.split('.')
+				const domains = ['']
+				for (let i = 0; i < host_parts.length - 1; i++) domains.push(host_parts.slice(i).join('.'))
+				for (const cookie of document.cookie.split(';')) {
+					const name = cookie.split('=')[0].trim()
+					if (!name) continue
+					for (const domain of domains) {
+						const suffix = domain ? '; domain=' + domain : ''
+						document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/' + suffix
+					}
+				}
+			}
+
+			function deleteDb(name) {
+				return new Promise(resolve => {
+					const request = indexedDB.deleteDatabase(name)
+					request.onsuccess = () => resolve()
+					request.onerror = () => resolve()
+					request.onblocked = () => resolve()
+				})
+			}
+
+			async function clearIndexedDb() {
+				let names = KNOWN_DB_NAMES
+				try {
+					if (indexedDB.databases) {
+						const list = await indexedDB.databases()
+						names = [...new Set([...names, ...list.map(item => item.name).filter(Boolean)])]
+					}
+				} catch (e) {}
+				await Promise.all(names.map(deleteDb))
+			}
+
+			async function clearCacheStorage() {
+				try {
+					const keys = await caches.keys()
+					await Promise.all(keys.map(key => caches.delete(key)))
+				} catch (e) {}
+			}
+
+			async function unregisterWorkers() {
+				try {
+					const registrations = await navigator.serviceWorker.getRegistrations()
+					await Promise.all(registrations.map(registration => registration.unregister()))
+				} catch (e) {}
+			}
+
+			async function clearAll() {
+				clear_btn.disabled = true
+				title_el.textContent = '清除中…'
+				clearStorage()
+				clearCookies()
+				await clearIndexedDb()
+				await clearCacheStorage()
+				await unregisterWorkers()
+				title_el.textContent = '已清除'
+				clear_btn.remove()
+			}
+
+			clear_btn.addEventListener('click', clearAll)
+		</script>
+	</body>
+</html>

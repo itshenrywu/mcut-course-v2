@@ -1,0 +1,31 @@
+{
+	"name": "mcut-course-v2",
+	"private": true,
+	"version": "2.0.0",
+	"type": "module",
+	"scripts": {
+		"dev": "vite",
+		"build": "vite build",
+		"preview": "vite preview"
+	},
+	"dependencies": {
+		"@lucide/vue": "^1.25.0",
+		"@vueuse/core": "^14.3.0",
+		"class-variance-authority": "^0.7.1",
+		"clsx": "^2.1.1",
+		"colord": "^2.9.3",
+		"reka-ui": "^2.10.1",
+		"tailwind-merge": "^3.0.1",
+		"vue": "^3.5.13",
+		"vue-router": "^4.6.4",
+		"vue-sonner": "^2.0.9"
+	},
+	"devDependencies": {
+		"@tailwindcss/vite": "^4.0.6",
+		"@vitejs/plugin-vue": "^5.2.1",
+		"tailwindcss": "^4.0.6",
+		"terser": "^5.49.0",
+		"tw-animate-css": "^1.2.4",
+		"vite": "^6.1.0"
+	}
+}

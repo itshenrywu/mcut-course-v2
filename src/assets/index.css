@@ -1,0 +1,190 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@custom-variant dark (&:is(.dark *));
+@custom-variant md {
+	@media (width >= 48rem) {
+		@slot;
+	}
+	@media print {
+		@slot;
+	}
+}
+
+:root {
+	--radius: 0.625rem;
+	--nav-h: 3rem;
+	--footer-h: 2rem;
+	--c-0: var(--color-white);
+	--c-1: var(--color-mist-50);
+	--c-2: var(--color-mist-100);
+	--c-3: var(--color-mist-200);
+	--c-4: var(--color-mist-300);
+	--c-5: var(--color-mist-400);
+	--c-6: var(--color-mist-500);
+	--c-7: var(--color-mist-600);
+	--c-8: var(--color-mist-700);
+	--c-9: var(--color-mist-800);
+	--c-10: var(--color-mist-900);
+	--destructive: var(--color-red-600);
+}
+
+.dark {
+	--c-0: var(--color-black);
+	--c-1: var(--color-mist-950);
+	--c-2: var(--color-mist-900);
+	--c-3: var(--color-mist-800);
+	--c-4: var(--color-mist-700);
+	--c-5: var(--color-mist-600);
+	--c-6: var(--color-mist-500);
+	--c-7: var(--color-mist-400);
+	--c-8: var(--color-mist-300);
+	--c-9: var(--color-mist-200);
+	--c-10: var(--color-mist-100);
+	--destructive: var(--color-red-400);
+}
+
+@theme inline {
+	--breakpoint-xs: 30rem;
+	--font-num: system-ui, sans-serif;
+	--radius-sm: calc(var(--radius) - 4px);
+	--radius-md: calc(var(--radius) - 2px);
+	--radius-lg: var(--radius);
+	--radius-xl: calc(var(--radius) + 4px);
+	--color-color-0: var(--c-0);
+	--color-color-1: var(--c-1);
+	--color-color-2: var(--c-2);
+	--color-color-3: var(--c-3);
+	--color-color-4: var(--c-4);
+	--color-color-5: var(--c-5);
+	--color-color-6: var(--c-6);
+	--color-color-7: var(--c-7);
+	--color-color-8: var(--c-8);
+	--color-color-9: var(--c-9);
+	--color-color-10: var(--c-10);
+	--color-destructive: var(--destructive);
+}
+
+@layer base {
+	* {
+		@apply border-color-3 outline-color-5/50;
+		touch-action: manipulation;
+	}
+	html {
+		scrollbar-width: thin;
+		scrollbar-color: var(--c-4) transparent;
+	}
+	body {
+		@apply bg-color-2 text-color-9 flex min-h-dvh flex-col;
+		font-family: noto sans tc, noto sans sc, noto sans hk, noto sans jp, noto sans kr,
+		sf pro tc, sf pro text, sf pro icons, pingfang tc, helvetica neue, helvetica, arial,
+		microsoft jhenghei, wf_SegoeUI, segoe ui, Segoe, segoe wp, Tahoma, Verdana, Ubuntu,
+		bitstream vera sans, dejavu sans, 微軟正黑體, lihei pro, wenquanyi micro hei,
+		droid sans fallback, ar pl uming tw, Roboto, hiragino maru gothic pron, メイリオ,
+		ヒラギノ丸ゴ pron w4, Meiryo, droid sans, sans-serif;
+	}
+	/* AdSense 會從 ins 一路往上把祖先設成 height:auto!important, 原本有 min-height 的還會被加上 min-height:0!important,
+	   所以整頁高度只能靠 AdSense 不會動到的 body, 底下各層一律用 flex-1 撐開 */
+	#app {
+		@apply flex flex-1 flex-col;
+	}
+}
+
+@media print {
+	@page {
+		margin: 1cm;
+	}
+	.dark {
+		--c-0: var(--color-white);
+		--c-1: var(--color-mist-50);
+		--c-2: var(--color-mist-100);
+		--c-3: var(--color-mist-200);
+		--c-4: var(--color-mist-300);
+		--c-5: var(--color-mist-400);
+		--c-6: var(--color-mist-500);
+		--c-7: var(--color-mist-600);
+		--c-8: var(--color-mist-700);
+		--c-9: var(--color-mist-800);
+		--c-10: var(--color-mist-900);
+		--destructive: var(--color-red-600);
+	}
+	html,
+	body {
+		background: var(--color-white);
+	}
+	html {
+		font-size: 87.5%;
+	}
+	* {
+		animation: none !important;
+		transition: none !important;
+		box-shadow: none !important;
+	}
+	.sticky,
+	.md\:sticky {
+		position: static !important;
+	}
+	.overflow-hidden,
+	.overflow-x-clip {
+		overflow: visible !important;
+	}
+	[data-slot='accordion-content'] {
+		height: auto !important;
+		overflow: visible !important;
+		content-visibility: visible !important;
+	}
+	tr,
+	li {
+		break-inside: avoid;
+	}
+}
+
+@layer components {
+	.rich-html {
+		@apply text-color-8 flex flex-col gap-2 text-sm leading-relaxed;
+	}
+	.rich-html > h2,
+	.rich-html > h3 {
+		@apply text-color-6 mt-6 text-xs;
+	}
+	.rich-html > :first-child {
+		@apply mt-0;
+	}
+	.rich-html > p {
+		@apply text-color-6 text-xs;
+	}
+	.rich-html > section {
+		@apply bg-color-1 -mx-4 flex flex-col gap-1.5 border p-4 md:mx-0 md:rounded-lg;
+	}
+	.rich-html > section:has(+ section) {
+		@apply md:rounded-b-none;
+	}
+	.rich-html > section + section {
+		@apply -mt-2 border-t-0 md:rounded-t-none;
+	}
+	.rich-html h3 {
+		@apply text-color-9 text-sm font-medium;
+	}
+	.rich-html ul,
+	.rich-html ol {
+		@apply marker:text-color-5 list-outside space-y-1 pl-5 marker:tabular-nums;
+	}
+	.rich-html ul {
+		@apply list-disc;
+	}
+	.rich-html ol {
+		@apply list-decimal;
+	}
+	.rich-html a {
+		@apply text-color-10 underline underline-offset-2;
+	}
+	.rich-html mark {
+		@apply text-color-10 rounded bg-amber-400/40 px-1;
+	}
+	.rich-html hr {
+		@apply border-color-3 my-1;
+	}
+	.rich-html strong {
+		@apply text-color-9 font-medium;
+	}
+}

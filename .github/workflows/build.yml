@@ -1,0 +1,91 @@
+name: Build & Deploy
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      rule_mtime:
+        description: 'Rule Data Modified Time'
+        required: false
+        default: ''
+        type: string
+      course_mtime:
+        description: 'Course Data Modified Time'
+        required: false
+        default: ''
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, 'bump')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      SITE_BASE: ${{ vars.SITE_BASE || 'https://v2-s.mcut-course.com' }}
+      API_BASE: ${{ vars.API_BASE || 'https://api-v2.mcut-course.com' }}
+    steps:
+    - uses: actions/checkout@v7
+    - uses: actions/setup-node@v7
+      with:
+        node-version: 20
+        cache: 'npm'
+    - name: Install Dependencies
+      run: npm install
+    - name: Generate Mtime JSON
+      env:
+        RULE_MTIME: ${{ inputs.rule_mtime }}
+        COURSE_MTIME: ${{ inputs.course_mtime }}
+      run: |
+        node -e '
+          const fs = require("fs")
+          const ONLINE_MTIME_URL = `${process.env.SITE_BASE}/mtime.json`
+          const fetchOnline = async () => {
+            try {
+              const res = await fetch(ONLINE_MTIME_URL)
+              if (!res.ok) return {}
+              return await res.json()
+            } catch {
+              return {}
+            }
+          }
+          const main = async () => {
+            const online = (process.env.RULE_MTIME && process.env.COURSE_MTIME) ? {} : await fetchOnline()
+            const mtime = {
+              rule_mtime: process.env.RULE_MTIME || online.rule_mtime || null,
+              course_mtime: process.env.COURSE_MTIME || online.course_mtime || null
+            }
+            fs.writeFileSync("public/mtime.json", JSON.stringify(mtime))
+            console.log(mtime)
+          }
+          main()
+        '
+    - name: Generate Pages
+      run: npm run build
+    - name: Upload Artifact
+      uses: actions/upload-pages-artifact@v5
+      with:
+        path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+    - name: Deploy
+      id: deployment
+      uses: actions/deploy-pages@v5
