@@ -27,7 +27,7 @@ defineProps({
 			<DialogHeader>
 				<DialogTitle>{{ title }}</DialogTitle>
 			</DialogHeader>
-			<ul class="text-color-8 max-h-[60dvh] list-disc space-y-2 overflow-y-auto overscroll-contain pl-5 text-sm leading-relaxed">
+			<ul class="text-color-8 marker:text-color-5 max-h-[60dvh] list-disc space-y-1 overflow-y-auto overscroll-contain pl-5 text-sm leading-relaxed">
 				<slot />
 			</ul>
 		</DialogContent>

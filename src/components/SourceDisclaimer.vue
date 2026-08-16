@@ -22,7 +22,7 @@ const props = defineProps({
 	<section class="flex flex-col gap-3">
 		<h2 v-if="props.showHeading" class="text-xl font-bold tracking-tight">資料來源及免責聲明</h2>
 		<p class="text-color-8 text-sm leading-relaxed">本站資料來源</p>
-		<ul class="text-color-8 flex list-disc flex-col gap-1.5 pl-5 text-sm">
+		<ul class="text-color-8 marker:text-color-5 flex list-disc flex-col gap-1 pl-5 text-sm">
 			<li v-for="item in SOURCE_LINKS" :key="item.url">
 				<a class="text-color-10 inline-flex items-center gap-1 underline underline-offset-2" :href="item.url" target="_blank" rel="nofollow noopener noreferrer">
 					{{ item.name }}

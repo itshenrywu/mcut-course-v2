@@ -276,7 +276,7 @@ watch(import_source, () => resetSelection())
 				</div>
 
 				<template v-else>
-					<ol class="text-color-6 list-inside list-decimal text-xs leading-relaxed">
+					<ol class="text-color-6 marker:text-color-5 list-outside list-decimal space-y-1 pl-5 text-xs leading-relaxed marker:tabular-nums">
 						<li>使用明志 App 或校園入口網，前往<b class="font-medium">學生資訊查詢系統</b></li>
 						<li>點擊選單中的課程查詢 > 課表查詢</li>
 						<li>選取整個表格並複製（含最上面的標題列）</li>

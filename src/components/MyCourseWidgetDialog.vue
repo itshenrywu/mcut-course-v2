@@ -66,7 +66,7 @@ async function copyCode() {
 			<div class="-mx-2 flex max-h-[70dvh] flex-col gap-3 overflow-y-auto overscroll-contain px-2 text-sm">
 				<p class="text-color-6 text-xs">在桌面或鎖定畫面就能看到下一堂課</p>
 
-				<ol class="text-color-8 flex list-outside list-decimal flex-col gap-4 pl-5 leading-relaxed">
+				<ol class="text-color-8 marker:text-color-5 flex list-outside list-decimal flex-col gap-4 pl-5 leading-relaxed marker:tabular-nums">
 					<li>
 						安裝
 						<a :href="SCRIPTABLE_URL" target="_blank" rel="noreferrer" class="underline underline-offset-2">Scriptable</a>

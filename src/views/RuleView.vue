@@ -249,7 +249,7 @@ watch(() => route.path, () => {
 				<div class="flex min-h-0 flex-1 flex-col px-0">
 					<div v-if="show_detail" class="flex flex-col gap-4 mb-4">
 						<SectionCard title="說明" :section-class="SECTION_CLASS" :title-class="TITLE_CLASS" :card-class="CARD_CLASS">
-							<ul class="flex flex-col gap-2 p-4 pl-8 text-sm list-disc">
+							<ul class="marker:text-color-5 flex list-disc flex-col gap-1 p-4 pl-9 text-sm">
 								<template v-if="has_dept">
 									<li v-if="show_program_hint">須修畢<b class="font-medium">入學課程總表</b>，並須<b class="font-medium">任選一個學分學程</b>（跨領域或第二專長）才能畢業。</li>
 									<li v-else>須修畢<b class="font-medium">入學課程總表</b>才能畢業。</li>
