@@ -1,9 +1,11 @@
 <script setup>
-import { computed, watch } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { isDayBachelorDept } from '@/lib/dept'
+import { useSearchHistory } from '@/lib/search-history'
 import TermSelect from '@/components/TermSelect.vue'
 import FilterField from '@/components/FilterField.vue'
 import SelectFilterField from '@/components/SelectFilterField.vue'
+import SearchHistory from '@/components/SearchHistory.vue'
 import { formatMixed, canShowMixedGrade, collectGradeInfo, isAltCourse } from '@/lib/course'
 import { Input } from '@/components/ui/input'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectGroup, SelectLabel, SelectItem } from '@/components/ui/select'
@@ -70,6 +72,17 @@ const dept = defineModel('dept', { type: String, default: 'any' })
 const grade_class = defineModel('gradeClass', { type: String, default: 'any' })
 const enroll_type = defineModel('enrollType', { type: String, default: 'any' })
 const conflict_mode = defineModel('conflictMode', { type: String, default: 'show' })
+
+const { search_history, addSearchHistory } = useSearchHistory()
+
+const keyword_focused = ref(false)
+
+const show_history = computed(() => keyword_focused.value && !props.disabled && search_history.value.length > 0)
+
+function selectHistory(value) {
+	keyword.value = value
+	keyword_focused.value = false
+}
 
 function deptGroup(dept) {
 	if (dept.includes('進修部')) return '進修部'
@@ -197,7 +210,17 @@ watch(() => props.courseList, list => {
 
 		<FilterField label="課程名稱 / 老師 / 序號">
 			<div class="relative">
-				<Input v-model="keyword" :disabled="disabled" placeholder="輸入關鍵字" aria-label="課程名稱 / 老師 / 序號" class="bg-color-1 placeholder:text-sm pr-8" />
+				<Input
+					v-model="keyword"
+					:disabled="disabled"
+					placeholder="輸入關鍵字"
+					aria-label="課程名稱 / 老師 / 序號"
+					class="bg-color-1 placeholder:text-sm pr-8"
+					@focus="keyword_focused = true"
+					@click="keyword_focused = true"
+					@keyup.enter="addSearchHistory(keyword)"
+					@blur="keyword_focused = false; addSearchHistory(keyword)"
+				/>
 				<button
 					v-if="keyword && !disabled"
 					type="button"
@@ -207,6 +230,10 @@ watch(() => props.courseList, list => {
 				>
 					<X class="size-4" />
 				</button>
+			</div>
+
+			<div v-if="show_history" class="border-color-3 bg-color-1 overflow-hidden rounded-md border" @mousedown.prevent>
+				<SearchHistory compact @select="selectHistory($event)" />
 			</div>
 		</FilterField>
 

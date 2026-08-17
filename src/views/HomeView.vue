@@ -5,9 +5,11 @@ import { List, Dumbbell, BookOpen, Users, Globe, Leaf, Palette, ChevronRight } f
 import { isAltCourse, useCourseList, courseRoutePath, isClassScheduleDept, canShowMixedGrade, collectGradeInfo, formatDeptClass, courseMatchesKeyword, courseKeywordIndex, GRADE_LABELS } from '@/lib/course'
 import { termIdFromCourseId, formatTermLabel, isSummerTerm, normalizeTermId } from '@/lib/term'
 import { useDebouncedRef } from '@/lib/utils'
+import { useSearchHistory } from '@/lib/search-history'
 import LoadingOverlay from '@/components/LoadingOverlay.vue'
 import LoadError from '@/components/LoadError.vue'
 import TermSelect from '@/components/TermSelect.vue'
+import SearchHistory from '@/components/SearchHistory.vue'
 import { Input } from '@/components/ui/input'
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion'
 import { toast } from '@/components/ui/sonner'
@@ -135,6 +137,11 @@ if ('term_id' in route.query) {
 const keyword = ref('')
 const debounced_keyword = useDebouncedRef(keyword)
 const search_open = ref(false)
+const { search_history, addSearchHistory } = useSearchHistory()
+
+function rememberKeyword(value) {
+	addSearchHistory(value ?? debounced_keyword.value)
+}
 
 const search_results = computed(() => {
 	const kw = debounced_keyword.value.trim().toLowerCase()
@@ -336,7 +343,10 @@ function onLockedButton() {
 							/>
 
 							<div v-if="search_open" class="absolute top-full right-0 left-0 z-50 mt-4 max-h-[60dvh] sm:-right-3 overflow-y-auto rounded-lg border bg-color-1 text-left shadow-sm" @mousedown.prevent>
-								<p v-if="!debounced_keyword.trim()" class="text-color-6 px-5 py-8 text-center text-base">請輸入關鍵字</p>
+								<template v-if="!debounced_keyword.trim()">
+									<SearchHistory v-if="search_history.length" @select="keyword = $event" />
+									<p v-else class="text-color-6 px-5 py-8 text-center text-base">請輸入關鍵字</p>
+								</template>
 								<template v-else-if="has_results">
 									<template v-if="course_results.length">
 										<div class="bg-color-2/50 flex items-center justify-between px-5 py-2">
@@ -349,6 +359,7 @@ function onLockedButton() {
 													grade_class: 'any',
 													enroll_type: 'any'
 												} }"
+												@click="rememberKeyword()"
 											>
 												顯示 {{ course_results.length }} 筆相符課程
 												<ChevronRight class="size-3.5" />
@@ -359,6 +370,7 @@ function onLockedButton() {
 											:key="course.id"
 											class="hover:bg-color-2 flex w-full flex-col gap-1 border-b px-5 py-3 text-left sm:flex-row sm:items-center sm:gap-4"
 											:to="courseRoutePath(course.id)"
+											@click="rememberKeyword()"
 										>
 											<span class="w-full truncate text-base font-medium sm:min-w-0 sm:flex-1">{{ course.name }}</span>
 											<span class="text-color-6 w-full text-xs sm:w-auto sm:shrink-0">{{ formatDeptClass(course) }}・{{ course.enroll_type }} {{ course.credit }} 學分・{{ course.teacher }} 老師</span>
@@ -377,6 +389,7 @@ function onLockedButton() {
 													grade_class: 'any',
 													enroll_type: 'any'
 												} }"
+												@click="rememberKeyword(teacher.name)"
 											>
 												<span class="font-medium">{{ teacher.name }}</span>
 												<span class="text-color-6 text-xs">{{ teacher.count }}</span>
