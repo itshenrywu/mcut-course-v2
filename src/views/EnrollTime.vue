@@ -84,7 +84,7 @@ watch(enroll_list, markEnrollTimeSeen, { immediate: true })
 
 		<SectionCard title="說明" card-class="py-4 pr-4 pl-9">
 			<ol class="text-color-8 marker:text-color-5 list-outside list-decimal space-y-1 text-sm leading-relaxed marker:tabular-nums">
-				<li>四技部必修課程已由系統自動預選，選修課程（如四技通識、專業課程等）須自行選課。</li>
+				<li>四技部必修課程已由系統自動預選，選修課程（如四技通識、專業課程等）須自行選課，外系課程加退選期間才能選課。</li>
 				<li>選課學分數須介於上下限之間。</li>
 				<li>通識課程每學期限制最多選修兩門。</li>
 				<li>選課完成後，記得要在選課系統的<span class="font-medium">選課確認</span>中檢查是否都有選到。</li>
