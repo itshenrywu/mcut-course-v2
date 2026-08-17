@@ -62,7 +62,7 @@ const QUICK_BUTTONS = [{
 	{
 		key: 'pe',
 		title: '自選體育',
-		description: '大二至大四自選兩門',
+		description: '二上二下各須選一門，也可大四時修',
 		icon: Dumbbell,
 		lock: {
 			kind: 'pe'
@@ -81,7 +81,7 @@ const QUICK_BUTTONS = [{
 	{
 		key: 'ge_social',
 		title: '社會科學',
-		description: '通識選修',
+		description: '通識選修類型',
 		icon: Users,
 		lock: {
 			kind: 'ge',
@@ -91,7 +91,7 @@ const QUICK_BUTTONS = [{
 	{
 		key: 'ge_language',
 		title: '語言與全球化',
-		description: '通識選修',
+		description: '通識選修類型',
 		icon: Globe,
 		lock: {
 			kind: 'ge',
@@ -101,7 +101,7 @@ const QUICK_BUTTONS = [{
 	{
 		key: 'ge_nature',
 		title: '自然科學',
-		description: '通識選修',
+		description: '通識選修類型',
 		icon: Leaf,
 		lock: {
 			kind: 'ge',
@@ -111,7 +111,7 @@ const QUICK_BUTTONS = [{
 	{
 		key: 'ge_humanity',
 		title: '人文藝術',
-		description: '通識選修',
+		description: '通識選修類型',
 		icon: Palette,
 		lock: {
 			kind: 'ge',
