@@ -9,8 +9,12 @@ const AD_SLOT = '3164180037'
 // 可用寬度不足 250px 時 fluid 會報錯, 改用多媒體廣告
 const AD_SLOT_NARROW = '8301598166'
 
-// 等待多久還拿不到廣告狀態, 就當作被擋廣告 (ms)
-const AD_CHECK_DELAY = 2000
+// 第一次確認廣告狀態要等多久 (ms)
+const AD_CHECK_DELAY = 1500
+// 之後每隔多久再確認一次 (ms)
+const AD_RETRY_DELAY = 1500
+// 腳本還在載時最多再確認幾次, 免得把慢的網路當成擋廣告
+const AD_PENDING_RETRY = 3
 
 const IS_DEV = import.meta.env.DEV
 
@@ -59,6 +63,8 @@ const ins_ref = useTemplateRef('ins')
 
 let check_timer = 0
 let observer = null
+let has_retried = false
+let pending_count = 0
 
 function stopWatch() {
 	if (check_timer) clearTimeout(check_timer)
@@ -77,6 +83,39 @@ function setStateByStatus(status) {
 	stopWatch()
 }
 
+function retryCheck() {
+	check_timer = setTimeout(checkStatus, AD_RETRY_DELAY)
+}
+
+function checkStatus() {
+	check_timer = 0
+	const status = adStatus()
+	if (status) {
+		setStateByStatus(status)
+		return
+	}
+	if (window.ad_script_failed) {
+		ad_state.value = 'blocked'
+		return
+	}
+	// loaded 卻一直沒狀態, 多半是擋廣告工具塞的假 adsbygoogle (push 是空的), 再給一次機會就好
+	if (window.adsbygoogle?.loaded) {
+		if (has_retried) {
+			ad_state.value = 'blocked'
+			return
+		}
+		has_retried = true
+		retryCheck()
+		return
+	}
+	if (pending_count >= AD_PENDING_RETRY) {
+		ad_state.value = 'blocked'
+		return
+	}
+	pending_count++
+	retryCheck()
+}
+
 onMounted(() => {
 	try {
 		window.adsbygoogle = window.adsbygoogle || []
@@ -84,22 +123,16 @@ onMounted(() => {
 	} catch (error) {
 		console.error(error)
 	}
-	if (!ins_ref.value) return
+	if (!ins_ref.value || window.ad_script_failed) {
+		ad_state.value = 'blocked'
+		return
+	}
 	observer = new MutationObserver(() => {
 		const status = adStatus()
 		if (status) setStateByStatus(status)
 	})
 	observer.observe(ins_ref.value, { attributes: true, attributeFilter: ['data-ad-status'] })
-	check_timer = setTimeout(() => {
-		check_timer = 0
-		const status = adStatus()
-		if (status) {
-			setStateByStatus(status)
-			return
-		}
-		if (window.adsbygoogle?.loaded) return
-		ad_state.value = 'blocked'
-	}, AD_CHECK_DELAY)
+	check_timer = setTimeout(checkStatus, AD_CHECK_DELAY)
 })
 
 onUnmounted(stopWatch)
@@ -119,7 +152,7 @@ onUnmounted(stopWatch)
 
 		<ins
 			ref="ins"
-			class="adsbygoogle w-full max-w-full"
+			:class="cn('adsbygoogle w-full max-w-full', ad_state === 'blocked' && 'h-0! min-h-0! overflow-hidden')"
 			style="display:block; text-align:center"
 			:data-ad-client="AD_CLIENT"
 			v-bind="ad_attrs"
