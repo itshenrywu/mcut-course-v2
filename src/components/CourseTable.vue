@@ -11,7 +11,7 @@ import CourseListDialog from '@/components/CourseListDialog.vue'
 import CourseEmpty from '@/components/CourseEmpty.vue'
 import CourseBlock from '@/components/CourseBlock.vue'
 import CourseHoverDetail from '@/components/CourseHoverDetail.vue'
-import { SECTION_ORDER, SECTION_TIME, WEEKDAY_LABELS, MAX_TABLE_COLS, visibleSections, isAltCourse, isMultiAltCourse, courseOrAltRoutePath } from '@/lib/course'
+import { SECTION_ORDER, SECTION_TIME, WEEKDAY_LABELS, MAX_TABLE_COLS, visibleSections, isAltCourse, isMultiAltCourse, courseOrAltRoutePath, otherClassGroupLabel } from '@/lib/course'
 
 // 節次列高與左側時間欄寬 (rem)
 const SECTION_ROW_HEIGHT = 3.5
@@ -37,6 +37,10 @@ const props = defineProps({
 	narrowDays: {
 		type: Array,
 		default: null
+	},
+	gradeClass: {
+		type: String,
+		default: 'any'
 	}
 })
 
@@ -153,6 +157,10 @@ const block_font_size = computed(() => {
 	return `${Math.min(remToPx(FONT_MAX), Math.max(remToPx(FONT_MIN), size)).toFixed(1)}px`
 })
 
+function classGroupLabel(course) {
+	return otherClassGroupLabel(course, props.gradeClass)
+}
+
 const unscheduled = computed(() =>
 	props.courses.filter(course => !(course.time || []).some(time => time.day >= 1 && time.day <= 5))
 )
@@ -237,7 +245,7 @@ function blockStyle(item) {
 								class="absolute p-0.25 text-left"
 								:style="blockStyle(item)"
 							>
-								<CourseBlock :course="item.course" fill :style="block_font_size && { fontSize: block_font_size }" />
+								<CourseBlock :course="item.course" fill :class-group="classGroupLabel(item.course)" :style="block_font_size && { fontSize: block_font_size }" />
 							</RouterLink>
 						</HoverCardTrigger>
 						<HoverCardContent align="start" class="w-72 text-sm">
@@ -263,6 +271,7 @@ function blockStyle(item) {
 				:key="course.id"
 				:course="course"
 				:time="true"
+				:class-group="classGroupLabel(course)"
 				:as="isMultiAltCourse(course) ? 'button' : RouterLink"
 				:to="isMultiAltCourse(course) ? undefined : courseOrAltRoutePath(course)"
 				:type="isMultiAltCourse(course) ? 'button' : undefined"

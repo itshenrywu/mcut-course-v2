@@ -2,7 +2,7 @@
 import { ref, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { CalendarOff, Funnel, Star, TriangleAlert } from '@lucide/vue'
-import { formatMixed, isAltCourse, altFor, narrowWeekdays, narrowWeekdayDept, maxTableStack, MAX_TABLE_COLS, favoriteCourseId, useCourseList, useConflictIds } from '@/lib/course'
+import { formatMixed, isAltCourse, altFor, narrowWeekdays, narrowWeekdayDept, maxTableStack, hasMultiClassElective, MAX_TABLE_COLS, favoriteCourseId, useCourseList, useConflictIds } from '@/lib/course'
 import { ANY_FILTER, altForKey, isClassRequiredCourse, matchCourses, matchAltCourses, countMatchedCourses, filterCount, relaxOptions } from '@/lib/course-filter'
 import { formatTermShort, termIdFromCourseId } from '@/lib/term'
 import { useFavorite } from '@/lib/favorite'
@@ -136,6 +136,12 @@ const table_view_disabled = computed(() => {
 	if (!filtered_course_list.value.length) return false
 	if (narrow_weekday_dept.value) return !narrow_weekdays.value
 	return maxTableStack(filtered_course_list.value) > MAX_TABLE_COLS
+})
+
+const table_grade_class = computed(() => {
+	if (selected_enroll_type.value !== 'mixed') return 'any'
+	if (!hasMultiClassElective(course_list.value, selected_dept.value, selected_grade_class.value)) return 'any'
+	return selected_grade_class.value
 })
 
 const filter_summary = computed(() => {
@@ -323,7 +329,7 @@ watch(selected_enroll_type, enroll_type => {
 							</div>
 						</template>
 					</CourseEmpty>
-					<CourseTable v-else-if="view_mode === 'table'" :courses="filtered_course_list" :narrow-days="narrow_weekdays" @alt-click="openAlt($event)" />
+					<CourseTable v-else-if="view_mode === 'table'" :courses="filtered_course_list" :narrow-days="narrow_weekdays" :grade-class="table_grade_class" @alt-click="openAlt($event)" />
 					<CourseList v-else :courses="filtered_course_list" :conflict-ids="conflict_ids" @alt-click="openAlt($event)" />
 
 					<SponsorAd v-if="filtered_course_list.length" section-class="mt-4 print:hidden" title-class="px-3" card-class="mx-0 rounded-none md:rounded-none md:border-x-0 lg:mx-3 lg:rounded-lg lg:border-x-3" />

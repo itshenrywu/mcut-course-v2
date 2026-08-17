@@ -1,4 +1,4 @@
-import { isAltCourse, isForeignerClassGroup, courseMatchesKeyword, altFor } from '@/lib/course-format'
+import { isAltCourse, hasOwnCourseRuleGroup, courseMatchesKeyword, altFor } from '@/lib/course-format'
 
 export const ANY_FILTER = { dept: 'any', grade_class: 'any', enroll_type: 'any', kw: '' }
 
@@ -27,7 +27,7 @@ function makeMatcher(filter) {
 		if (isAltCourse(course)) return false
 		if (dept !== 'any' && course.dept !== dept) return false
 		if (enroll_type === 'mixed') {
-			if (isForeignerClassGroup(course.dept, course.class_group)) return false
+			if (hasOwnCourseRuleGroup(course.dept, course.class_group, course.grade)) return false
 			const is_class_required = isClassRequiredCourse(course, dept, grade_class)
 			const is_grade_elective = String(course.grade) === grade && course.enroll_type === '選修'
 			if (!is_class_required && !is_grade_elective) return false

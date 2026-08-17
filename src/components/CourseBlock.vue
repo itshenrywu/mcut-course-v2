@@ -11,7 +11,8 @@ const props = defineProps({
 	as: { type: null, default: 'div' },
 	fill: { type: Boolean, default: false },
 	class: { type: null, default: '' },
-	time: { type: Boolean, default: false }
+	time: { type: Boolean, default: false },
+	classGroup: { type: String, default: '' }
 })
 
 const is_multi_alt = computed(() => isMultiAltCourse(props.course))
@@ -36,7 +37,10 @@ const normalizedCourseName = computed(() => {
 		<div v-if="time" class="text-[90%] opacity-70" :class="fill ? 'mt-auto shrink-0 overflow-hidden whitespace-nowrap' : 'truncate'">
 			{{ formatCourseTimes(course) }}
 		</div>
-		<div v-if="!is_multi_alt" class="text-[90%] opacity-70" :class="fill ? 'mt-auto shrink-0 overflow-hidden whitespace-nowrap' : 'truncate'">{{ course.teacher }}</div>
+		<div v-if="!is_multi_alt" class="text-[90%] leading-tight opacity-70" :class="fill && 'mt-auto shrink-0'">
+			<div v-if="classGroup" :class="fill ? 'overflow-hidden whitespace-nowrap' : 'truncate'">{{ classGroup }}</div>
+			<div :class="fill ? 'overflow-hidden whitespace-nowrap' : 'truncate'">{{ course.teacher }}</div>
+		</div>
 		<ChevronRight v-if="is_multi_alt" class="absolute right-0.5 bottom-0.5 size-3 opacity-70" />
 	</Primitive>
 </template>

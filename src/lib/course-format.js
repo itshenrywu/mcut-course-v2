@@ -7,8 +7,10 @@ const SATURDAY_CLASS_DEPT_KEYWORDS = ['進修部', '碩專']
 // 各班必修課表要排除的科系關鍵字 (含這些字者不視為可顯示班級必修的科系)
 const CLASS_SCHEDULE_EXCLUDE_KEYWORDS = ['學院', '通識', '進修部', '組', 'TAICA']
 
-// 外國學生專班 / 分組 (這些班不併年級選修顯示, 不提供 mixed)
-const FOREIGNER_CLASS_GROUP = {
+// 例如外國學生專班 or 分群班級, 課程與同年級其他班不共通
+// 這些班不併年級選修顯示, 不提供 mixed
+// 值可寫班別 (甲) 代表該系所有年級, 或年級+班別 (1甲) 只指定該年級
+const HAS_OWN_COURSE_RULE_GROUP = {
 	'四技機械系': ['甲', '乙', '丙', '丁'],
 	'四技工設系': ['乙'],
 	'四技經管系': ['丙'],
@@ -253,16 +255,18 @@ export function isClassScheduleDept(dept) {
 	return !CLASS_SCHEDULE_EXCLUDE_KEYWORDS.some(keyword => dept.includes(keyword))
 }
 
-export function isForeignerClassGroup(dept, class_group) {
-	const class_groups = FOREIGNER_CLASS_GROUP[dept]
+export function hasOwnCourseRuleGroup(dept, class_group, grade) {
+	const class_groups = HAS_OWN_COURSE_RULE_GROUP[dept]
 	if (!class_groups) return false
-	return class_groups.includes(class_group)
+	if (class_groups.includes(class_group)) return true
+	if (grade == null || grade === '') return false
+	return class_groups.includes(`${grade}${class_group}`)
 }
 
 export function collectGradeInfo(grade_map, key, course) {
 	let grade_info = grade_map.get(key)
 	if (!grade_info) {
-		grade_info = { class_groups: new Set(), has_elective: false }
+		grade_info = { grade: course.grade, class_groups: new Set(), has_elective: false }
 		grade_map.set(key, grade_info)
 	}
 	grade_info.class_groups.add(course.class_group)
@@ -273,11 +277,11 @@ export function collectGradeInfo(grade_map, key, course) {
 export function canShowMixedGrade(dept, class_group, grade_info) {
 	if (!dept || !grade_info) return false
 	if (!isClassScheduleDept(dept)) return false
-	if (isForeignerClassGroup(dept, class_group)) return false
+	if (hasOwnCourseRuleGroup(dept, class_group, grade_info.grade)) return false
 
 	let count = 0
 	for (const cg of grade_info.class_groups) {
-		if (!isForeignerClassGroup(dept, cg)) count++
+		if (!hasOwnCourseRuleGroup(dept, cg, grade_info.grade)) count++
 	}
 	if (count < 2) return false
 
@@ -287,6 +291,30 @@ export function canShowMixedGrade(dept, class_group, grade_info) {
 export function formatMixed(grade_class) {
 	const grade = grade_class && grade_class !== 'any' ? grade_class.split('-')[0] : ''
 	return `必修 + ${grade} 年級選修`
+}
+
+export function hasMultiClassElective(courses, dept, grade_class) {
+	if (!dept || dept === 'any' || !grade_class || grade_class === 'any') return false
+	const grade = grade_class.split('-')[0]
+	const class_groups = new Set()
+	for (const course of courses) {
+		if (isAltCourse(course)) continue
+		if (course.dept !== dept) continue
+		if (String(course.grade) !== grade) continue
+		if (course.enroll_type !== '選修') continue
+		if (hasOwnCourseRuleGroup(dept, course.class_group, course.grade)) continue
+		class_groups.add(course.class_group)
+		if (class_groups.size > 1) return true
+	}
+	return false
+}
+
+export function otherClassGroupLabel(course, grade_class) {
+	if (!grade_class || grade_class === 'any') return ''
+	if (isAltCourse(course)) return ''
+	const [grade, class_group] = grade_class.split('-')
+	if (String(course.grade) === grade && course.class_group === class_group) return ''
+	return [course.grade, course.class_group].filter(v => v != null && v !== '').join(' ')
 }
 
 export function narrowWeekdayDept(courses) {
