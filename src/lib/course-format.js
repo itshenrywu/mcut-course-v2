@@ -79,6 +79,18 @@ export const ENROLL_TYPE_TABLE_CLASSES = {
 	DEFAULT: 'border-color-3 bg-color-3 text-color-9 hover:bg-color-4'
 }
 
+const PE_COURSE_NAME_RE = /^體育[(（].+?[)）](.+)$/
+
+export function peCourseItem(course) {
+	return (course?.name || '').match(PE_COURSE_NAME_RE)?.[1] || ''
+}
+
+export function isPeElectiveCourse(course) {
+	if (course?.dept !== '體育組-四技(日)') return false
+	if (`${course.grade ?? ''}${course.class_group ?? ''}` !== '2甲') return false
+	return Boolean(peCourseItem(course))
+}
+
 export function formatDeptClass(course) {
 	return [course.dept, course.grade, course.class_group].filter(v => v != null && v !== '').join(' ')
 }

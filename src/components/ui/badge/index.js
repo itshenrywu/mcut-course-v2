@@ -10,7 +10,7 @@ export const badgeVariants = cva(
 				default: 'border-transparent bg-color-10 text-color-1 [a&]:hover:bg-color-10/90',
 				secondary: 'border-transparent bg-color-3 text-color-9 [a&]:hover:bg-color-3/90',
 				destructive: 'border-transparent bg-destructive text-white [a&]:hover:bg-destructive/90',
-				outline: 'text-color-10 [a&]:hover:bg-color-2 [a&]:hover:text-color-10'
+				outline: 'border-color-4 text-color-10 [a&]:hover:bg-color-2 [a&]:hover:text-color-10'
 			}
 		},
 		defaultVariants: {

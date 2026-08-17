@@ -4,7 +4,7 @@ import { Primitive } from 'reka-ui'
 import { ChevronRight } from '@lucide/vue'
 import { cn } from '@/lib/utils'
 import { ENROLL_TYPE_TABLE_CLASSES, isMultiAltCourse } from '@/lib/course'
-import { formatCourseTimes } from '@/lib/course-format'
+import { formatCourseTimes, peCourseItem } from '@/lib/course-format'
 
 const props = defineProps({
 	course: { type: Object, required: true },
@@ -18,8 +18,7 @@ const props = defineProps({
 const is_multi_alt = computed(() => isMultiAltCourse(props.course))
 
 const normalizedCourseName = computed(() => {
-	const name = props.course.name || ''
-	return name.match(/^體育[(（].+?[)）](.+)$/)?.[1] || name
+	return peCourseItem(props.course) || props.course.name || ''
 })
 </script>
 
