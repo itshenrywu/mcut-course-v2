@@ -55,12 +55,12 @@ const routes = [
 	{
 		path: '/calendar',
 		name: 'calendar',
-		component: () => import('@/views/Calendar.vue')
+		component: () => import('@/views/CalendarView.vue')
 	},
 	{
 		path: '/enroll-time',
 		name: 'enroll-time',
-		component: () => import('@/views/EnrollTime.vue')
+		component: () => import('@/views/EnrollTimeView.vue')
 	},
 	{
 		path: '/enroll-guide',
@@ -80,7 +80,7 @@ const routes = [
 	{
 		path: '/goal-course-route',
 		name: 'goal-course-route',
-		component: () => import('@/views/GoalCourseRoute.vue')
+		component: () => import('@/views/GoalCourseRouteView.vue')
 	},
 	{
 		path: '/rule/:year?/:dept_id?/:rule_id?',
