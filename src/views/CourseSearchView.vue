@@ -144,6 +144,11 @@ const table_grade_class = computed(() => {
 	return selected_grade_class.value
 })
 
+const table_filter = computed(() => ({
+	dept: selected_dept.value,
+	grade_class: selected_grade_class.value
+}))
+
 const filter_summary = computed(() => {
 	const info = []
 	if (selected_term_id.value) info.push(formatTermShort(selected_term_id.value))
@@ -329,7 +334,7 @@ watch(selected_enroll_type, enroll_type => {
 							</div>
 						</template>
 					</CourseEmpty>
-					<CourseTable v-else-if="view_mode === 'table'" :courses="filtered_course_list" :narrow-days="narrow_weekdays" :grade-class="table_grade_class" @alt-click="openAlt($event)" />
+					<CourseTable v-else-if="view_mode === 'table'" :courses="filtered_course_list" :narrow-days="narrow_weekdays" :grade-class="table_grade_class" :filter="table_filter" @alt-click="openAlt($event)" />
 					<CourseList v-else :courses="filtered_course_list" :conflict-ids="conflict_ids" @alt-click="openAlt($event)" />
 
 					<SponsorAd v-if="filtered_course_list.length" section-class="mt-4 print:hidden" title-class="px-3" card-class="mx-0 rounded-none md:rounded-none md:border-x-0 lg:mx-3 lg:rounded-lg lg:border-x-3" />

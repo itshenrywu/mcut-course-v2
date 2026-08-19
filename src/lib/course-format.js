@@ -79,16 +79,26 @@ export const ENROLL_TYPE_TABLE_CLASSES = {
 	DEFAULT: 'border-color-3 bg-color-3 text-color-9 hover:bg-color-4'
 }
 
-const PE_COURSE_NAME_RE = /^體育[(（].+?[)）](.+)$/
-
 export function peCourseItem(course) {
-	return (course?.name || '').match(PE_COURSE_NAME_RE)?.[1] || ''
+	return (course?.name || '').match(/^體育[(（].+?[)）](.+)$/)?.[1] || ''
+}
+
+function isPeSelfPickClass(course) {
+	if (course?.dept !== '體育組-四技(日)') return false
+	return `${course.grade ?? ''}${course.class_group ?? ''}` === '2甲'
 }
 
 export function isPeElectiveCourse(course) {
-	if (course?.dept !== '體育組-四技(日)') return false
-	if (`${course.grade ?? ''}${course.class_group ?? ''}` !== '2甲') return false
+	if (!isPeSelfPickClass(course)) return false
 	return Boolean(peCourseItem(course))
+}
+
+export function peInternationalLabel(course, dept, grade_class) {
+	if (dept !== '體育組-四技(日)' || grade_class !== '2-甲') return ''
+	if (!/^體育[(（][三四][)）]$/.test(course?.name || '')) return ''
+	const remark = course?.remark || ''
+	if (!['外國', '國際'].some(keyword => remark.includes(keyword))) return ''
+	return '限國際專班'
 }
 
 export function formatDeptClass(course) {
