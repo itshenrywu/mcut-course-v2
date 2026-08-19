@@ -195,7 +195,6 @@ export function useCourseList(options = {}) {
 	}
 
 	watch(selected_term_id, (term_id, old_term_id) => {
-		if (term_id) localStorage.setItem('mcv2-selected-term-id', term_id)
 		if (old_term_id) loadCourseList(term_id)
 	})
 

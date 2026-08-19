@@ -2,9 +2,9 @@
 import { ref, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { CalendarOff, Funnel, Star, TriangleAlert } from '@lucide/vue'
-import { formatMixed, isAltCourse, altFor, narrowWeekdays, narrowWeekdayDept, maxTableStack, hasMultiClassElective, MAX_TABLE_COLS, favoriteCourseId, useCourseList, useConflictIds } from '@/lib/course'
+import { formatMixed, isAltCourse, altFor, narrowWeekdays, narrowWeekdayDept, maxTableStack, hasMultiClassElective, isGradeClass, MAX_TABLE_COLS, favoriteCourseId, useCourseList, useConflictIds } from '@/lib/course'
 import { ANY_FILTER, altForKey, isClassRequiredCourse, matchCourses, matchAltCourses, countMatchedCourses, filterCount, relaxOptions } from '@/lib/course-filter'
-import { formatTermShort, termIdFromCourseId } from '@/lib/term'
+import { formatTermShort, termIdFromCourseId, applyUrlTermId } from '@/lib/term'
 import { useFavorite } from '@/lib/favorite'
 import { useLocalRef } from '@/lib/storage'
 import { useDebouncedRef } from '@/lib/utils'
@@ -35,11 +35,12 @@ const { alt_dialog, openAlt } = useAltCourseDialog()
 
 const route = useRoute()
 const router = useRouter()
+applyUrlTermId(route, router)
 const { favorite_ids, isFavorite, addFavorites, removeFavorites } = useFavorite()
 const keyword = ref(typeof route.query.kw === 'string' ? route.query.kw : '')
 const debounced_keyword = useDebouncedRef(keyword)
 const selected_dept = useLocalRef('mcv2-selected-dept', 'any', route.query.dept)
-const selected_grade_class = useLocalRef('mcv2-selected-grade-class', 'any', route.query.grade_class, v => v === 'any' || /^\d+-\S+$/.test(v))
+const selected_grade_class = useLocalRef('mcv2-selected-grade-class', 'any', route.query.grade_class, v => v === 'any' || isGradeClass(v))
 const selected_enroll_type = useLocalRef('mcv2-selected-enroll-type', 'any', route.query.enroll_type)
 const selected_conflict_mode = useLocalRef('mcv2-conflict-mode', 'show', undefined, v => ['show', 'bottom', 'hide'].includes(v))
 

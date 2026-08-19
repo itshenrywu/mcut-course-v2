@@ -3,7 +3,7 @@ import { ref, computed } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { List, Dumbbell, BookOpen, Users, Globe, Leaf, Palette, ChevronRight } from '@lucide/vue'
 import { isAltCourse, useCourseList, courseRoutePath, isClassScheduleDept, canShowMixedGrade, collectGradeInfo, formatDeptClass, courseMatchesKeyword, courseKeywordIndex, GRADE_LABELS } from '@/lib/course'
-import { termIdFromCourseId, formatTermLabel, isSummerTerm, normalizeTermId } from '@/lib/term'
+import { termIdFromCourseId, formatTermLabel, isSummerTerm, applyUrlTermId } from '@/lib/term'
 import { useDebouncedRef } from '@/lib/utils'
 import { useSearchHistory } from '@/lib/search-history'
 import LoadingOverlay from '@/components/LoadingOverlay.vue'
@@ -127,13 +127,7 @@ const { selected_term_id, term_list, course_list, loading, load_error, loadCours
 
 const route = useRoute()
 const router = useRouter()
-const url_term_id = typeof route.query.term_id === 'string' ? route.query.term_id : ''
-if (/^\d{3}-[1-4]$/.test(url_term_id)) selected_term_id.value = normalizeTermId(url_term_id)
-if ('term_id' in route.query) {
-	const query = { ...route.query }
-	delete query.term_id
-	router.replace({ query })
-}
+applyUrlTermId(route, router)
 const keyword = ref('')
 const debounced_keyword = useDebouncedRef(keyword)
 const search_open = ref(false)

@@ -1,10 +1,10 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { RouterLink, useRoute } from 'vue-router'
 import { Users, Clock, CalendarClock, Info, ChevronRight } from '@lucide/vue'
 import TeacherIcon from '@/components/icons/TeacherIcon.vue'
 import { getCourseDetail, getSimilarCourses } from '@/api/course'
-import { formatCourseTime, formatCourseTimes, formatSectionRange, courseIdFromRoute, getCourseBasic, getCourseMap, formatLimit, formatDeptClass, hasRemark, isNoFixedTime, isBlockCourse, isAltCourse, conflictingCourses, FULL_WEEKDAY_LABELS } from '@/lib/course'
+import { formatCourseTime, formatCourseTimes, formatSectionRange, courseIdFromRoute, getCourseBasic, getCourseMap, formatLimit, formatDeptClass, courseGradeClass, teacherName, hasRemark, isNoFixedTime, isBlockCourse, isAltCourse, conflictingCourses, FULL_WEEKDAY_LABELS } from '@/lib/course'
 import { termIdFromCourseId, formatTermLabel, getStoredTermList } from '@/lib/term'
 import { useLatestRequest } from '@/lib/loader'
 import { setPageMeta } from '@/lib/meta'
@@ -85,6 +85,29 @@ const has_course_info = computed(() =>
 )
 
 const deptClass = computed(() => course.value ? formatDeptClass(course.value) : '')
+
+const teacher_name = computed(() => teacherName(course.value))
+
+const dept_class_query = computed(() => {
+	if (!course.value?.dept) return null
+	return {
+		term_id: termIdFromCourseId(course.value.id),
+		dept: course.value.dept,
+		grade_class: courseGradeClass(course.value) || 'any',
+		enroll_type: 'any'
+	}
+})
+
+const teacher_query = computed(() => {
+	if (!teacher_name.value) return null
+	return {
+		term_id: termIdFromCourseId(course.value.id),
+		kw: teacher_name.value,
+		dept: 'any',
+		grade_class: 'any',
+		enroll_type: 'any'
+	}
+})
 
 const no_fixed_time = computed(() => isNoFixedTime(course.value))
 
@@ -241,11 +264,29 @@ watch([() => course.value?.id, favorite_ids], ([id]) => {
 			<div class="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
 				<div class="flex items-center gap-2">
 					<Users class="text-color-5 size-4 shrink-0" />
-					<span>{{ deptClass }}</span>
+					<RouterLink
+						v-if="dept_class_query"
+						class="hover:text-color-6 flex items-center gap-2"
+						:to="{ name: 'course', query: dept_class_query }"
+						aria-label="搜尋這個班級的課程"
+					>
+						<span>{{ deptClass }}</span>
+						<ChevronRight class="text-color-5 size-4 shrink-0" />
+					</RouterLink>
+					<span v-else>{{ deptClass }}</span>
 				</div>
 				<div class="flex items-center gap-2">
 					<TeacherIcon class="text-color-5 size-4 shrink-0" />
-					<span>{{ course.teacher }} 老師</span>
+					<RouterLink
+						v-if="teacher_query"
+						class="hover:text-color-6 flex items-center gap-2"
+						:to="{ name: 'course', query: teacher_query }"
+						aria-label="搜尋這位老師的課程"
+					>
+						<span>{{ course.teacher }} 老師</span>
+						<ChevronRight class="text-color-5 size-4 shrink-0" />
+					</RouterLink>
+					<span v-else>{{ course.teacher }} 老師</span>
 				</div>
 				<div class="col-span-full flex items-start gap-2">
 					<Clock class="text-color-5 mt-0.5 size-4 shrink-0" />
@@ -253,7 +294,7 @@ watch([() => course.value?.id, favorite_ids], ([id]) => {
 						<Dialog v-if="course.time?.length">
 							<DialogTrigger class="hover:text-color-6 flex items-center gap-2" aria-label="查看上課時間">
 								<span>{{ formatCourseTimes(course) }}</span>
-								<ChevronRight class="text-color-5 size-4" />
+								<Info class="text-color-5 size-4" />
 							</DialogTrigger>
 							<DialogContent class="max-w-xs">
 								<DialogHeader>

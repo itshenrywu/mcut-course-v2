@@ -105,6 +105,20 @@ export function formatDeptClass(course) {
 	return [course.dept, course.grade, course.class_group].filter(v => v != null && v !== '').join(' ')
 }
 
+export function isGradeClass(value) {
+	return /^\d+-\S+$/.test(value)
+}
+
+export function courseGradeClass(course) {
+	const grade_class = `${course?.grade ?? ''}-${course?.class_group ?? ''}`
+	return isGradeClass(grade_class) ? grade_class : ''
+}
+
+export function teacherName(course) {
+	const teacher = course?.teacher || ''
+	return teacher === '視分班而定' ? '' : teacher
+}
+
 function formatSection(section) {
 	return section.length > 1 ? `${section[0]}~${section[section.length - 1]}` : `${section[0]}`
 }
@@ -255,7 +269,7 @@ export function formatCourseMeta(course) {
 	const parts = []
 	const dept_class = formatDeptClass(course)
 	if (dept_class) parts.push(dept_class)
-	if (course.teacher && course.teacher !== '視分班而定') parts.push(`${course.teacher} 老師`)
+	if (teacherName(course)) parts.push(`${course.teacher} 老師`)
 	const enroll_credit = [course.enroll_type, course.credit ? `${course.credit} 學分` : ''].filter(Boolean).join(' ')
 	if (enroll_credit) parts.push(enroll_credit)
 	if (!isAltCourse(course)) parts.push(course.id)
