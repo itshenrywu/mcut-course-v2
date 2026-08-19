@@ -315,6 +315,16 @@ async function downloadImage() {
 			</FilterSidebar>
 
 			<div class="flex min-h-0 w-full min-w-0 flex-1 flex-col lg:flex-row lg:gap-6 lg:pl-6">
+				<div class="bg-color-2/90 sticky top-[var(--nav-h)] z-30 flex items-center gap-2 px-3 py-0.5 lg:hidden print:hidden">
+					<button
+						class="-ml-3 flex min-w-0 items-center justify-start gap-2 px-3 py-2 text-sm font-medium"
+						@click="sidebar_open = true"
+					>
+						<SlidersHorizontal class="size-5 shrink-0" />
+						<span>課表設定</span>
+					</button>
+				</div>
+
 				<div class="relative flex aspect-[9/16] w-full min-w-0 flex-col lg:aspect-auto lg:min-h-0 lg:flex-1">
 					<MyCourseTable
 						ref="table"
@@ -341,15 +351,6 @@ async function downloadImage() {
 					title-class="px-3 lg:px-0"
 					card-class="mx-0 rounded-none md:rounded-none md:border-x-0 lg:rounded-lg lg:border-x-3"
 				/>
-
-				<Button
-					size="icon"
-					class="fixed right-5 bottom-[calc(var(--footer-h)+1.25rem)] z-30 size-11 rounded-full shadow-lg lg:hidden"
-					aria-label="課表設定"
-					@click="sidebar_open = true"
-				>
-					<SlidersHorizontal class="size-5" />
-				</Button>
 			</div>
 		</div>
 
