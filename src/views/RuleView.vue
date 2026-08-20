@@ -3,9 +3,10 @@ import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ChevronDown, ChevronsDownUp, ChevronsUpDown, Clock, Copy, FileDown, Info, Mail, Phone, Users } from '@lucide/vue'
 import { findRule, findDept, ruleRoutePath, splitRuleName, sortRuleCourses, useRuleList, useRuleDetail, useEnrollCourses, DEFAULT_ID } from '@/lib/rule'
-import { formatCourseTimes, formatDeptClass, hasRemark } from '@/lib/course'
-import { formatTermLabel } from '@/lib/term'
+import { conflictingCourses, favoriteCourseId, formatCourseTimes, formatDeptClass, hasRemark } from '@/lib/course'
+import { formatTermLabel, useSelectedTerm } from '@/lib/term'
 import { useEnrollTime } from '@/lib/enroll-time'
+import { useFavorite } from '@/lib/favorite'
 import { useLocalRef } from '@/lib/storage'
 import { schoolTel } from '@/lib/utils'
 import { rulePageMeta } from '@/config/page-meta'
@@ -74,6 +75,29 @@ const cross_program = computed(() => selected_rule.value?.type === '跨領域')
 const enroll_course_term_id = computed(() => detail.value ? selected_enroll_term_id.value : '')
 
 const { course_map } = useEnrollCourses(enroll_course_term_id)
+
+const { isFavorite } = useFavorite()
+
+const { selected_term_id } = useSelectedTerm()
+
+const enroll_favorite_courses = computed(() => {
+	const list = []
+	for (const courses of course_map.value.values()) {
+		for (const course of courses) {
+			if (isFavorite(favoriteCourseId(course))) list.push(course)
+		}
+	}
+	return list
+})
+
+const count_dialog_conflict_ids = computed(() => {
+	const ids = new Set()
+	if (!count_dialog_open.value) return ids
+	for (const course of count_dialog_course.value?.course_info || []) {
+		if (conflictingCourses(course, enroll_favorite_courses.value).length) ids.add(course.id)
+	}
+	return ids
+})
 
 const selected_dept_name = computed(() => findDept(dept_map.value, selected_year.value, selected_dept.value)?.name || '')
 
@@ -161,6 +185,10 @@ function toggleAllSubs() {
 	}
 	open_subs.value = categories.value.map(() => [])
 	open_guide_subs.value = guide_categories.value.map(() => [])
+}
+
+function syncEnrollTerm() {
+	if (selected_enroll_term_id.value) selected_term_id.value = selected_enroll_term_id.value
 }
 
 function openCount({ course, courses }) {
@@ -345,6 +373,9 @@ watch(() => route.path, () => {
 				:key="course.id"
 				:course="course"
 				target_blank
+				favorite
+				:conflict="count_dialog_conflict_ids.has(course.id)"
+				@add="syncEnrollTerm()"
 				@click="count_dialog_open = false"
 			>
 				<template #meta>

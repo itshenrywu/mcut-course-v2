@@ -27,7 +27,7 @@ const props = defineProps({
 	}
 })
 
-const emit = defineEmits(['confirm-remove'])
+const emit = defineEmits(['confirm-remove', 'add'])
 
 const { isCourseFavorite, favoriteLabel, toggleCourseFavorite } = useFavoriteToggle()
 
@@ -37,7 +37,9 @@ const label = computed(() => favoriteLabel(props.course, props.conflict))
 
 function onClick() {
 	if (props.confirmRemove && is_favorite.value) return emit('confirm-remove', props.course)
+	const added = !is_favorite.value
 	toggleCourseFavorite(props.course)
+	if (added) emit('add', props.course)
 }
 </script>
 

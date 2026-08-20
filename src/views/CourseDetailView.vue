@@ -5,7 +5,7 @@ import { Users, Clock, CalendarClock, Info, ChevronRight } from '@lucide/vue'
 import TeacherIcon from '@/components/icons/TeacherIcon.vue'
 import { getCourseDetail, getSimilarCourses } from '@/api/course'
 import { formatCourseTime, formatCourseTimes, formatSectionRange, courseIdFromRoute, getCourseBasic, getCourseMap, formatLimit, formatDeptClass, courseGradeClass, teacherName, hasRemark, isNoFixedTime, isBlockCourse, isAltCourse, conflictingCourses, FULL_WEEKDAY_LABELS } from '@/lib/course'
-import { termIdFromCourseId, formatTermLabel, getStoredTermList } from '@/lib/term'
+import { termIdFromCourseId, formatTermLabel, getStoredTermList, useSelectedTerm } from '@/lib/term'
 import { useLatestRequest } from '@/lib/loader'
 import { setPageMeta } from '@/lib/meta'
 import { sendPageView } from '@/lib/analytics'
@@ -28,6 +28,7 @@ import SponsorAd from '@/components/SponsorAd.vue'
 
 const route = useRoute()
 const { favorite_ids } = useFavorite()
+const { selected_term_id } = useSelectedTerm()
 
 const loading = ref(false)
 const detail_loading = ref(false)
@@ -119,6 +120,10 @@ const is_alt = computed(() => !!course.value && isAltCourse(course.value))
 
 const year = computed(() => course.value?.id.slice(0, 3) || '')
 const term_label = computed(() => course.value ? formatTermLabel(termIdFromCourseId(course.value.id)) : '')
+
+function syncCourseTerm(favorite_course) {
+	selected_term_id.value = termIdFromCourseId(favorite_course.id)
+}
 
 async function loadBasic(id, isLatest) {
 	try {
@@ -258,6 +263,7 @@ watch([() => course.value?.id, favorite_ids], ([id]) => {
 					:course="course"
 					:conflict="conflict_courses.length > 0"
 					size="lg"
+					@add="syncCourseTerm($event)"
 				/>
 			</div>
 

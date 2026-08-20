@@ -21,6 +21,8 @@ defineProps({
 		default: false
 	}
 })
+
+defineEmits(['add'])
 </script>
 
 <template>
@@ -44,6 +46,7 @@ defineProps({
 			class="absolute inset-y-0 right-0 flex items-center px-3"
 			:course="course"
 			:conflict="conflict"
+			@add="$emit('add', course)"
 		/>
 	</div>
 </template>
