@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, watch, useTemplateRef, defineAsyncComponent } from 'vue'
-import { SlidersHorizontal, Plus, Import, ImageDown, Smartphone, Trash2 } from '@lucide/vue'
+import { SlidersHorizontal, Plus, Import, ImageDown, Smartphone, Trash2, Download } from '@lucide/vue'
 import { useMyCourse, useMyStyle, nextSection, findConflict, MY_STYLE_FIELDS, MY_BG_COLORS, MY_THEMES, MARGIN_MIN, MARGIN_MAX, RADIUS_MIN, RADIUS_MAX, TRANSPARENCY_MIN, TRANSPARENCY_MAX } from '@/lib/my-course'
 import { useMyCourseSync, resyncMyCourse } from '@/lib/my-course-sync'
 import { useFavoriteSync } from '@/lib/favorite'
@@ -11,6 +11,7 @@ import { toast } from '@/components/ui/sonner'
 import { Button } from '@/components/ui/button'
 import { Slider } from '@/components/ui/slider'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover'
 import FilterField from '@/components/FilterField.vue'
 import FilterSidebar from '@/components/FilterSidebar.vue'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
@@ -29,8 +30,8 @@ import SponsorAd from '@/components/SponsorAd.vue'
 const MyCourseSyncDialog = defineAsyncComponent(() => import('@/components/MyCourseSyncDialog.vue'))
 
 const SIDEBAR_TABS = [
-	{ value: 'table', label: '課表' },
-	{ value: 'course', label: '課程' }
+	{ value: 'course', label: '課程' },
+	{ value: 'table', label: '課表' }
 ]
 
 const IMPORT_SOURCE_LABELS = {
@@ -56,6 +57,7 @@ const import_dialog_open = ref(false)
 const widget_dialog_open = ref(false)
 const clear_dialog_open = ref(false)
 const preview_dialog_open = ref(false)
+const export_open = ref(false)
 const preview_url = ref('')
 const editing_course = ref(null)
 const dialog_defaults = ref(null)
@@ -124,6 +126,16 @@ function openImport() {
 function openWidget() {
 	widget_dialog_open.value = true
 	sidebar_open.value = false
+}
+
+function exportImage() {
+	export_open.value = false
+	downloadImage()
+}
+
+function exportWidget() {
+	export_open.value = false
+	openWidget()
 }
 
 function importCourses({ blocks, count, source }) {
@@ -288,9 +300,9 @@ async function downloadImage() {
 						</div>
 					</div>
 
-					<FilterField label="匯出" class="border-color-3 mt-auto border-t pt-4 lg:border-t-0 lg:pt-2">
+					<FilterField label="匯出" class="mt-auto hidden lg:flex lg:pt-2">
 						<div class="grid gap-2" :class="show_widget ? 'grid-cols-2' : 'grid-cols-1'">
-							<Button variant="outline" :disabled="!has_course" @click="downloadImage">
+							<Button variant="outline" @click="downloadImage">
 								<ImageDown />
 								圖片
 							</Button>
@@ -322,6 +334,35 @@ async function downloadImage() {
 					>
 						<SlidersHorizontal class="size-5 shrink-0" />
 						<span>課表設定</span>
+					</button>
+
+					<Popover v-if="show_widget" v-model:open="export_open">
+						<PopoverTrigger
+							class="-mr-3 ml-auto flex shrink-0 items-center gap-2 px-3 py-2 text-sm font-medium"
+							aria-label="匯出課表"
+						>
+							<Download class="size-5 shrink-0" />
+							<span>匯出</span>
+						</PopoverTrigger>
+						<PopoverContent align="end" class="w-40 p-1">
+							<Button variant="ghost" class="w-full justify-start" @click="exportImage()">
+								<ImageDown />
+								圖片
+							</Button>
+							<Button variant="ghost" class="w-full justify-start" @click="exportWidget()">
+								<Smartphone />
+								小工具
+							</Button>
+						</PopoverContent>
+					</Popover>
+
+					<button
+						v-else
+						class="-mr-3 ml-auto flex shrink-0 items-center gap-2 px-3 py-2 text-sm font-medium"
+						@click="downloadImage"
+					>
+						<Download class="size-5 shrink-0" />
+						<span>下載</span>
 					</button>
 				</div>
 
