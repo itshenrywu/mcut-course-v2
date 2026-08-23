@@ -1,6 +1,6 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
-import { Star, School } from '@lucide/vue'
+import { Star, School, Info } from '@lucide/vue'
 import { getCourseList } from '@/api/course'
 import { useLatestRequest } from '@/lib/loader'
 import { useFavoriteTermCount } from '@/lib/favorite'
@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Textarea } from '@/components/ui/textarea'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import TermSelect from '@/components/TermSelect.vue'
 import InlineLoading from '@/components/InlineLoading.vue'
@@ -54,6 +55,7 @@ const paste_html = ref('')
 const paste_html_text = ref('')
 const parse_error = ref('')
 const school_courses = ref([])
+const school_system = ref('info')
 
 const startRequest = useLatestRequest()
 
@@ -232,13 +234,13 @@ watch(import_source, () => resetSelection())
 
 <template>
 	<Dialog v-model:open="open">
-		<DialogContent class="max-w-md">
+		<DialogContent class="max-w-lg">
 			<DialogHeader>
 				<DialogTitle>匯入課程</DialogTitle>
 			</DialogHeader>
 
-			<div class="flex flex-col gap-3">
-				<Tabs v-model="import_source">
+			<div class="flex h-[75dvh] max-h-[36rem] flex-col gap-3">
+				<Tabs v-model="import_source" class="shrink-0">
 					<TabsList class="bg-color-1 border-color-3 w-full border" aria-label="匯入來源">
 						<TabsTrigger value="favorite">
 							<Star class="size-4" />
@@ -258,47 +260,89 @@ watch(import_source, () => resetSelection())
 						:disabled="loading"
 						:note-map="term_note_map"
 						trigger-class="w-full bg-color-1"
+						class="shrink-0"
 					/>
 
-					<InlineLoading v-if="loading" text="課程資料讀取中…" container-class="py-10" />
+					<p class="text-color-6 mb-2 flex items-start gap-1 text-xs">
+						<Info class="mt-px size-3.5 shrink-0" />
+						<span>開課資料可能與實際課表有些微差（如老師 / 上課時間），建議等選課結束後再從「學校系統」匯入</span>
+					</p>
 
-					<div v-else-if="load_error" class="flex flex-col items-center gap-3 py-8">
+					<InlineLoading v-if="loading" text="課程資料讀取中…" container-class="flex-1" />
+
+					<div v-else-if="load_error" class="flex flex-1 flex-col items-center justify-center gap-3">
 						<p class="text-color-6 text-sm">課程資料讀取失敗</p>
 						<Button variant="outline" size="sm" @click="loadCourses()">重試</Button>
 					</div>
 
-					<EmptyHint v-else-if="!items.length">這個學期沒有收藏的課程</EmptyHint>
+					<EmptyHint v-else-if="!items.length" class="flex flex-1 items-center justify-center">這個學期沒有收藏的課程</EmptyHint>
 				</template>
 
-				<div v-else-if="school_courses.length" class="text-color-6 flex items-center justify-between gap-2 text-xs">
+				<div v-else-if="school_courses.length" class="text-color-6 flex shrink-0 items-center justify-between gap-2 text-xs">
 					<span>已辨識出 {{ school_courses.length }} 門課程</span>
 					<Button variant="ghost" size="sm" class="-mr-2" @click="resetSchool()">重貼一次</Button>
 				</div>
 
-				<template v-else>
-					<ol class="text-color-6 marker:text-color-5 list-outside list-decimal space-y-1 pl-5 text-xs leading-relaxed marker:tabular-nums">
-						<li>使用明志 App 或校園入口網，前往<b class="font-medium">學生資訊查詢系統</b></li>
-						<li>點擊選單中的課程查詢 > 課表查詢</li>
-						<li>選取整個表格並複製（含最上面的標題列）</li>
-						<li>貼到下面的欄位</li>
-					</ol>
+				<div v-else class="-mx-1 flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto overscroll-contain px-1">
+					<Select v-model="school_system">
+						<SelectTrigger class="bg-color-1 w-full shrink-0" aria-label="課表來源系統">
+							<SelectValue />
+						</SelectTrigger>
+						<SelectContent :side-offset="12">
+							<SelectItem value="info">學生資訊查詢系統</SelectItem>
+							<SelectItem value="enroll">選課系統</SelectItem>
+						</SelectContent>
+					</Select>
+
+					<div>
+						<template v-if="school_system === 'info'">
+							<p class="text-color-6 mb-2 flex items-start gap-1 text-xs">
+								<Info class="mt-px size-3.5 shrink-0" />
+								<span>「學生資訊查詢系統」在選課結束後幾天才會更新課表資料</span>
+							</p>
+							<p class="text-color-6 text-xs mb-1">
+								操作步驟：
+							</p>
+							<ol class="text-color-6 marker:text-color-5 list-outside list-decimal space-y-0.5 pl-5 text-xs leading-relaxed marker:tabular-nums">
+								<li>使用明志 App 或校園入口網，前往<b class="font-medium">學生資訊查詢系統</b></li>
+								<li>點擊選單中的課程查詢 > 課表查詢</li>
+								<li>選取整個表格並複製（含最上面的標題列）</li>
+								<li>貼到下面的欄位</li>
+							</ol>
+						</template>
+						<template v-else-if="school_system === 'enroll'">
+							<p class="text-color-6 mb-2 flex items-start gap-1 text-xs">
+								<Info class="mt-px size-3.5 shrink-0" />
+								<span>建議等選課結束再使用「學生資訊查詢系統」匯入，才能查看教室位置！</span>
+							</p>
+							<p class="text-color-6 text-xs mb-1">
+								操作步驟：
+							</p>
+							<ol class="text-color-6 marker:text-color-5 list-outside list-decimal space-y-0.5 pl-5 text-xs leading-relaxed marker:tabular-nums">
+								<li>前往<a href="http://day.course.mcut.edu.tw/" rel="noopener noreferrer" target="_blank" class="underline">選課系統</a>並登入</li>
+								<li>點擊<b class="font-medium">選課確認</b></li>
+								<li>選取整個表格並複製（含最上面的標題列）</li>
+								<li>貼到下面的欄位</li>
+							</ol>
+						</template>
+					</div>
 
 					<Textarea
 						v-model="paste_text"
-						class="bg-color-1 h-24 resize-none"
-						placeholder="在這裡貼上從學校系統複製的課表"
+						class="bg-color-1 h-24 shrink-0 resize-none"
+						placeholder="在這裡貼上複製的課表"
 						aria-label="學校系統課表內容"
 						@paste="pasteSchool"
 					/>
 
 					<p v-if="parse_error" class="text-destructive text-xs">{{ parse_error }}</p>
-				</template>
+				</div>
 
 				<template v-if="list_visible">
 					<Checkbox
 						:model-value="all_state"
 						:disabled="!importable_items.length"
-						class="border-color-3 border-b px-2 pb-2"
+						class="border-color-3 shrink-0 border-b px-2 pb-2"
 						@update:model-value="toggleAll()"
 					>
 						<span class="flex items-center justify-between gap-2">
@@ -307,7 +351,7 @@ watch(import_source, () => resetSelection())
 						</span>
 					</Checkbox>
 
-					<div class="-mx-2 flex max-h-[45dvh] flex-col gap-0.5 overflow-y-auto overscroll-contain px-2">
+					<div class="-mx-2 flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto overscroll-contain px-2">
 						<Checkbox
 							v-for="item in items"
 							:key="item.id"

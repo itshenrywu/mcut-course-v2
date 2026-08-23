@@ -1,15 +1,16 @@
 import { SECTION_ORDER, sectionSpan } from '@/lib/course-format'
 
 // 學校課表表頭的欄位關鍵字, 比對時長關鍵字優先 (避免「課程」誤中「課程代號」)
+// 英文版表頭一律小寫且不含空白 (比對前會正規化), 也不能只寫 course/name 這種會誤中其他欄位的字
 const COLUMN_KEYWORDS = {
-	name: ['課程名稱', '科目名稱', '課程'],
-	code: ['科目代號', '課程代號', '科目編號', '代號'],
-	day: ['星期'],
-	start: ['起始節次', '開始節次'],
-	end: ['結束節次'],
-	room: ['教室', '上課地點'],
-	drop: ['停修'],
-	exempt: ['抵免']
+	name: ['課程名稱', '科目名稱', '課程', 'coursename', 'subjectname'],
+	code: ['開課序號', '科目代號', '課程代號', '科目編號', '代號', 'serialno', 'coursecode', 'subjectcode'],
+	day: ['星期', 'week'],
+	start: ['起始節次', '開始節次', '節次起', 'sessionfrom'],
+	end: ['結束節次', '節次迄', '節次訖', 'sessiontill', 'sessionto'],
+	room: ['上課教室', '上課地點', '教室', 'classroom'],
+	drop: ['停修', 'withdraw'],
+	exempt: ['抵免', 'exempt']
 }
 
 const COLUMN_MATCHERS = Object.entries(COLUMN_KEYWORDS)
@@ -61,11 +62,17 @@ function rowCandidates(text, html) {
 	return rows.length ? [rows] : []
 }
 
+// 表頭有寫成「節次(起)」「Session (from)」這種夾括號或帶空白的寫法, 去掉後才比對得到關鍵字
+function headerText(cell) {
+	return cell.replace(/[()（）[\]【】〔〕\s]/g, '').toLowerCase()
+}
+
 function columnsFromHeader(cells) {
 	const columns = {}
 	cells.forEach((cell, index) => {
-		if (!cell) return
-		const matched = COLUMN_MATCHERS.find(([keyword]) => cell.includes(keyword))
+		const text = headerText(cell)
+		if (!text) return
+		const matched = COLUMN_MATCHERS.find(([keyword]) => text.includes(keyword))
 		if (!matched) return
 		if (columns[matched[1]] == null) columns[matched[1]] = index
 	})
