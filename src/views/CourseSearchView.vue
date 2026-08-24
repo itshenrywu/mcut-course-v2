@@ -6,6 +6,7 @@ import { formatMixed, isAltCourse, altFor, narrowWeekdays, narrowWeekdayDept, ma
 import { ANY_FILTER, altForKey, isClassRequiredCourse, matchCourses, matchAltCourses, countMatchedCourses, filterCount, relaxOptions } from '@/lib/course-filter'
 import { formatTermShort, termIdFromCourseId, applyUrlTermId } from '@/lib/term'
 import { useFavorite } from '@/lib/favorite'
+import { useCrossTermSearch } from '@/lib/course-search'
 import { useLocalRef } from '@/lib/storage'
 import { useDebouncedRef } from '@/lib/utils'
 import { isDayBachelorDept } from '@/lib/dept'
@@ -16,6 +17,7 @@ import HelpDialog from '@/components/HelpDialog.vue'
 import FilterSidebar from '@/components/FilterSidebar.vue'
 import FilterSummary from '@/components/FilterSummary.vue'
 import CourseEmpty from '@/components/CourseEmpty.vue'
+import CrossTermResult from '@/components/CrossTermResult.vue'
 import CourseList from '@/components/CourseList.vue'
 import CourseTable from '@/components/CourseTable.vue'
 import AltCourseDialog, { useAltCourseDialog } from '@/components/AltCourseDialog.vue'
@@ -118,6 +120,21 @@ const empty_state = computed(() => {
 		description: '請嘗試修改搜尋條件，或選擇其他學期'
 	}
 })
+
+const cross_term_enabled = computed(() =>
+	loaded.value && !loading.value && !!current_filter.value.kw && !filtered_course_list.value.length && !hidden_conflict_count.value
+)
+
+const { result: cross_term_result, loading: cross_term_loading } = useCrossTermSearch(debounced_keyword, cross_term_enabled)
+
+const has_empty_extra = computed(() => !!empty_actions.value.length || cross_term_loading.value || !!cross_term_result.value.total)
+
+function switchTermKeywordOnly(term_id) {
+	selected_dept.value = ANY_FILTER.dept
+	selected_grade_class.value = ANY_FILTER.grade_class
+	selected_enroll_type.value = ANY_FILTER.enroll_type
+	selected_term_id.value = term_id
+}
 
 function applyEmptyAction(action) {
 	if (action.key === 'conflict') {
@@ -304,8 +321,8 @@ watch(selected_enroll_type, enroll_type => {
 					<CourseEmpty v-if="empty_state" :title="empty_state.title" container-class="h-auto flex-1 px-3 py-20">
 						{{ empty_state.description }}
 						<span v-if="short_id_hint" class="mt-1 block">{{ short_id_hint }}</span>
-						<template v-if="empty_actions.length" #extra>
-							<div class="mt-2 flex flex-wrap justify-center gap-2">
+						<template #extra>
+							<div v-if="has_empty_extra" class="mt-2 flex flex-wrap justify-center gap-2">
 								<Button
 									v-for="action in empty_actions"
 									:key="action.key"
@@ -317,6 +334,11 @@ watch(selected_enroll_type, enroll_type => {
 									{{ action.label }}
 									<span v-if="action.count" class="text-color-6">{{ action.count }} 門</span>
 								</Button>
+								<CrossTermResult
+									:result="cross_term_result"
+									:loading="cross_term_loading"
+									@select-term="switchTermKeywordOnly($event)"
+								/>
 							</div>
 						</template>
 					</CourseEmpty>

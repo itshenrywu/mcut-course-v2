@@ -224,7 +224,7 @@ watch(() => props.courseList, list => {
 				<button
 					v-if="keyword && !disabled"
 					type="button"
-					class="text-color-6 hover:text-color-9 absolute top-1/2 right-2 -translate-y-1/2"
+					class="text-color-6 hover:text-color-9 absolute top-1/2 right-3 -translate-y-1/2"
 					aria-label="清除關鍵字"
 					@click="keyword = ''"
 				>

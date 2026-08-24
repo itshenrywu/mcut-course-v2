@@ -1,5 +1,5 @@
 import { API_BASE_URL } from '@/config'
-import { fetchJson } from '@/api/cache'
+import { fetchJson, cachedFetch } from '@/api/cache'
 import { idbGet, idbSet, idbKeys, idbDelete } from '@/lib/db'
 import { normalizeTermId, termIdFromCourseId, getStoredTermList, saveTermList } from '@/lib/term'
 
@@ -109,6 +109,14 @@ export async function deleteCachedTerm(term_id) {
 
 export function getCourseDetail(id) {
 	return fetchJson(`${API_BASE_URL}/course/detail/${encodeURIComponent(id)}`, '課程詳情')
+}
+
+export function searchCourses(kw, options = {}) {
+	const { exclude_term_id = '', limit = 0 } = options
+	const params = new URLSearchParams({ kw, limit: String(limit) })
+	if (exclude_term_id) params.set('exclude_term_id', exclude_term_id)
+	const query = params.toString()
+	return cachedFetch(`course/search/${query}`, `${API_BASE_URL}/course/search?${query}`, { label: '跨學期搜尋' })
 }
 
 export async function getSimilarCourses(id) {

@@ -3,13 +3,15 @@ import { ref, computed } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { List, Dumbbell, BookOpen, Users, Globe, Leaf, Palette, ChevronRight } from '@lucide/vue'
 import { isAltCourse, useCourseList, courseRoutePath, isClassScheduleDept, canShowMixedGrade, collectGradeInfo, formatDeptClass, courseMatchesKeyword, courseKeywordIndex, GRADE_LABELS } from '@/lib/course'
-import { termIdFromCourseId, formatTermLabel, isSummerTerm, applyUrlTermId } from '@/lib/term'
+import { isSummerTerm, applyUrlTermId } from '@/lib/term'
 import { useDebouncedRef } from '@/lib/utils'
 import { useSearchHistory } from '@/lib/search-history'
+import { useCrossTermSearch } from '@/lib/course-search'
 import LoadingOverlay from '@/components/LoadingOverlay.vue'
 import LoadError from '@/components/LoadError.vue'
 import TermSelect from '@/components/TermSelect.vue'
 import SearchHistory from '@/components/SearchHistory.vue'
+import CrossTermResult from '@/components/CrossTermResult.vue'
 import { Input } from '@/components/ui/input'
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion'
 import { toast } from '@/components/ui/sonner'
@@ -159,14 +161,11 @@ const visible_courses = computed(() => course_results.value.slice(0, 5))
 
 const has_results = computed(() => course_results.value.length > 0 || teacher_results.value.length > 0)
 
-const suggested_term = computed(() => {
-	const kw = debounced_keyword.value.trim()
-	if (!/^[A-Za-z0-9]{4,}$/.test(kw)) return null
-	const term_id = termIdFromCourseId(kw)
-	if (term_id === selected_term_id.value) return null
-	if (!term_list.value.includes(term_id)) return null
-	return { term_id, label: formatTermLabel(term_id) }
-})
+const cross_term_enabled = computed(() =>
+	search_open.value && !loading.value && !!debounced_keyword.value.trim() && !has_results.value
+)
+
+const { result: cross_term_result, loading: cross_term_loading } = useCrossTermSearch(debounced_keyword, cross_term_enabled)
 
 function switchTermAndSearch(term_id) {
 	selected_term_id.value = term_id
@@ -391,12 +390,16 @@ function onLockedButton() {
 										</div>
 									</template>
 								</template>
-								<p v-else class="text-color-6 px-5 py-8 text-center text-base">
-									找不到符合的課程
-									<span v-if="suggested_term" class="mt-2 block">
-										<a class="text-color-10 cursor-pointer underline" @click="switchTermAndSearch(suggested_term.term_id)">切換到 {{ suggested_term.label }}</a>查詢？
-									</span>
-								</p>
+								<div v-else class="px-5 py-8">
+									<p class="text-color-6 text-center text-base">這個學期找不到符合的課程</p>
+									<div class="mt-4 flex flex-wrap justify-center gap-2">
+										<CrossTermResult
+											:result="cross_term_result"
+											:loading="cross_term_loading"
+											@select-term="switchTermAndSearch($event)"
+										/>
+									</div>
+								</div>
 							</div>
 						</div>
 					</div>
