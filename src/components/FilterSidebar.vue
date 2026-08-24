@@ -34,7 +34,7 @@ trackOverlay(computed(() => open.value && !is_desktop.value))
 
 	<!-- Mobile -->
 	<div v-if="open" class="fixed inset-0 z-50 bg-black/50 lg:hidden print:hidden" @click="open = false"></div>
-	<aside :class="[DRAWER_BASE, open ? DRAWER_OPEN : DRAWER_CLOSED]">
+	<aside :class="[DRAWER_BASE, open ? DRAWER_OPEN : DRAWER_CLOSED]" :inert="open ? undefined : true">
 		<div class="flex-1 overflow-y-auto overscroll-contain p-4">
 			<slot />
 		</div>
