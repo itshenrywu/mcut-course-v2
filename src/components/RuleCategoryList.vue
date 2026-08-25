@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion'
 import { Badge } from '@/components/ui/badge'
-import { DEFAULT_ID } from '@/lib/rule'
+import { CROSS_DEPT_BADGE_CLASS, DEFAULT_ID } from '@/lib/rule'
 import { spaceText } from '@/lib/utils'
 
 const props = defineProps({
@@ -62,13 +62,13 @@ const category_rows = computed(() => props.categories.map(category =>
 		:key="category.name"
 	>
 		<div class="flex items-center gap-2 px-4 py-2 lg:px-0">
-			<h2 class="text-color-6 text-xs">{{ category.display_name }}</h2>
+			<h2 class="text-xs text-color-6">{{ category.display_name }}</h2>
 			<Badge v-if="category.label" variant="outline" class="bg-color-3">{{ spaceText(category.label) }}</Badge>
 		</div>
-		<div class="bg-color-1 overflow-hidden rounded-none lg:rounded-lg border">
+		<div class="overflow-hidden rounded-none border bg-color-1 lg:rounded-lg">
 			<div v-if="category.req || category.remark" class="px-4 py-2 text-sm">
-				<p v-if="category.req" class="text-color-7 mt-1 text-xs">{{ category.req }}</p>
-				<p v-if="category.remark" class="text-color-7 mt-1 text-xs whitespace-pre-line">{{ category.remark }}</p>
+				<p v-if="category.req" class="mt-1 text-xs text-color-7">{{ category.req }}</p>
+				<p v-if="category.remark" class="mt-1 text-xs whitespace-pre-line text-color-7">{{ category.remark }}</p>
 			</div>
 			<Accordion v-model="open_subs[category_index]" type="multiple" class="flex flex-col">
 				<AccordionItem
@@ -77,7 +77,7 @@ const category_rows = computed(() => props.categories.map(category =>
 					:value="String(sub_index)"
 					class="border-t border-b-0 last:border-b-0"
 				>
-					<AccordionTrigger class="bg-color-3 rounded-none px-4 py-2 text-base hover:no-underline">
+					<AccordionTrigger class="rounded-none bg-color-3 px-4 py-2 text-base hover:no-underline">
 						<span class="flex flex-wrap items-center gap-2 font-medium">
 							{{ sub.display_name }}
 							<Badge v-if="sub.label" variant="outline" class="bg-color-1">{{ spaceText(sub.label) }}</Badge>
@@ -98,12 +98,9 @@ const category_rows = computed(() => props.categories.map(category =>
 									:key="row.course.id"
 									class="grid grid-cols-[minmax(0,1fr)_2.5rem_4rem] gap-x-2 border-b px-4 py-2 align-top last:border-0 md:table-row md:px-0 md:py-0"
 								>
-									<td class="min-w-0 break-words font-medium md:px-4 md:py-2">
+									<td class="min-w-0 font-medium break-words md:px-4 md:py-2">
 										{{ row.course.name }}
-										<Badge
-											v-if="row.dept_label"
-											class="relative -top-px ml-1 border-transparent bg-blue-500 px-1.5 py-0 align-middle text-[10px] leading-4 text-white"
-										>{{ row.dept_label }}</Badge>
+										<Badge v-if="row.dept_label" size="sm" :class="['ml-1', CROSS_DEPT_BADGE_CLASS]">{{ row.dept_label }}</Badge>
 									</td>
 									<td class="text-right whitespace-nowrap md:table-cell md:px-2 md:py-2 md:text-left">{{ row.course.term }}</td>
 									<td class="text-right whitespace-nowrap md:table-cell md:px-2 md:py-2 md:text-left">{{ row.course.credit }} 學分</td>
@@ -114,13 +111,13 @@ const category_rows = computed(() => props.categories.map(category =>
 										<button
 											v-if="row.open_courses.length"
 											type="button"
-											class="text-color-10 hover:text-color-9 underline decoration-dotted underline-offset-2"
+											class="text-color-10 underline decoration-dotted underline-offset-2 hover:text-color-9"
 											@click="emit('count-click', { course: row.course, courses: row.open_courses })"
 										>{{ row.open_courses.length }} 門開課</button>
 										<span v-else-if="courseMap.size" class="text-color-5">未開課</span>
 									</td>
 									<td
-										class="text-color-7 col-span-3 mt-1 text-xs break-words md:col-span-1 md:mt-0 md:table-cell md:px-4 md:py-2 md:text-sm md:text-inherit"
+										class="col-span-3 mt-1 text-xs break-words text-color-7 md:col-span-1 md:mt-0 md:table-cell md:px-4 md:py-2 md:text-sm md:text-inherit"
 										:class="row.remark ? '' : 'hidden md:table-cell'"
 									>
 										{{ row.remark }}

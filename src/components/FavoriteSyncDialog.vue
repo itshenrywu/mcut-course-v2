@@ -134,15 +134,15 @@ watch(conflict_open, open => {
 				<div v-for="group in group_list" :key="group.key" class="flex flex-col gap-1">
 					<Checkbox
 						:model-value="groupState(group.ids)"
-						class="bg-color-2 items-start px-3 py-2"
+						class="items-start bg-color-2 px-3 py-2"
 						@update:model-value="value => toggleGroup(group.ids, value === true)"
 					>
 						<span class="flex items-center gap-2">
-							<component :is="group.icon" class="text-color-6 size-4 shrink-0" />
+							<component :is="group.icon" class="size-4 shrink-0 text-color-6" />
 							<span class="flex-1 font-medium">{{ group.title }}</span>
-							<span class="text-color-6 text-xs">{{ group.ids.length }} 門</span>
+							<span class="text-xs text-color-6">{{ group.ids.length }} 門</span>
 						</span>
-						<span v-if="group.note" class="text-color-6 mt-0.5 block pl-6 text-xs">{{ group.note }}</span>
+						<span v-if="group.note" class="mt-0.5 block pl-6 text-xs text-color-6">{{ group.note }}</span>
 					</Checkbox>
 
 					<Checkbox
@@ -153,7 +153,7 @@ watch(conflict_open, open => {
 						@update:model-value="value => toggleId(id, value === true)"
 					>
 						<span class="block">{{ formatTermShort(termIdFromCourseId(id)) }} {{ courseDisplayName(courseOf(id)) }}</span>
-						<span v-if="courseOf(id).name" class="text-color-6 block text-xs break-words">{{ formatCourseMeta(courseOf(id)) }}</span>
+						<span v-if="courseOf(id).name" class="block text-xs break-words text-color-6">{{ formatCourseMeta(courseOf(id)) }}</span>
 					</Checkbox>
 				</div>
 			</div>

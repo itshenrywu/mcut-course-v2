@@ -23,10 +23,10 @@ trackOverlay(computed(() => open.value && !is_desktop.value))
 <template>
 	<!-- PC -->
 	<aside class="hidden w-60 shrink-0 lg:block lg:border-r lg:pr-4 print:hidden">
-		<div class="sticky top-[calc(var(--nav-h)+1rem)] flex h-[calc(100dvh-var(--nav-h)-var(--footer-h)-1.5rem)] flex-col gap-6 overflow-y-auto overscroll-contain -ml-2 px-2">
+		<div class="sticky top-[calc(var(--nav-h)+1rem)] -ml-2 flex h-[calc(100dvh-var(--nav-h)-var(--footer-h)-1.5rem)] flex-col gap-6 overflow-y-auto overscroll-contain px-2">
 			<slot />
 
-			<div v-if="$slots.footer" class="mt-auto flex shrink-0 justify-start pb-1 pt-2">
+			<div v-if="$slots.footer" class="mt-auto flex shrink-0 justify-start pt-2 pb-1">
 				<slot name="footer" />
 			</div>
 		</div>

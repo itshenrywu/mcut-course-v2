@@ -200,12 +200,12 @@ function blockStyle(item) {
 	<div v-else>
 		<div
 			ref="grid"
-			class="grid overflow-hidden border-t border-l bg-color-1 mt-4 lg:rounded-lg lg:mx-3"
+			class="mt-4 grid overflow-hidden border-t border-l bg-color-1 lg:mx-3 lg:rounded-lg"
 			:style="{ gridTemplateColumns: `${TIME_COL_WIDTH}rem repeat(${weekdays.length}, minmax(0, 1fr))` }"
 		>
 			<button
 				type="button"
-				class="bg-color-2 text-color-5 hover:text-color-8 flex cursor-pointer items-center justify-center border-r border-b"
+				class="flex cursor-pointer items-center justify-center border-r border-b bg-color-2 text-color-5 hover:text-color-8"
 				aria-label="節次時間說明"
 				@click="section_dialog_open = true"
 			>
@@ -214,16 +214,16 @@ function blockStyle(item) {
 			<div
 				v-for="day in weekdays"
 				:key="day"
-				class="bg-color-2 text-color-9 border-r border-b py-2 text-center text-sm font-medium"
+				class="border-r border-b bg-color-2 py-2 text-center text-sm font-medium text-color-9"
 			>
 				{{ WEEKDAY_LABELS[day] }}
 			</div>
 
-			<div class="bg-color-2 flex flex-col border-r">
+			<div class="flex flex-col border-r bg-color-2">
 				<div
 					v-for="section in visible_sections"
 					:key="section"
-					class="text-color-6 flex items-center justify-center border-b text-xs"
+					class="flex items-center justify-center border-b text-xs text-color-6"
 					:style="{ height: `${SECTION_ROW_HEIGHT}rem` }"
 				>
 					{{ section }}
@@ -268,7 +268,7 @@ function blockStyle(item) {
 					</HoverCard>
 
 					<button v-else type="button" class="absolute p-0.5" :style="blockStyle(item)" :aria-label="`此時段共 ${item.courses.length} 門課`" @click="openOverflow(item)">
-						<div class="bg-color-2 text-color-9 flex h-full w-full cursor-pointer flex-col items-center justify-center gap-0.5 rounded-md border" :style="block_font_size && { fontSize: block_font_size }">
+						<div class="flex h-full w-full cursor-pointer flex-col items-center justify-center gap-0.5 rounded-md border bg-color-2 text-color-9" :style="block_font_size && { fontSize: block_font_size }">
 							<Layers class="size-3 opacity-70" />
 							<span class="text-[.55rem] font-medium">
 								{{ item.overflow_count }}+
@@ -304,17 +304,17 @@ function blockStyle(item) {
 					<div
 						v-for="section in SECTION_ORDER"
 						:key="section"
-						class="border-color-3 flex items-center justify-between gap-4 border-b py-1.5 last:border-b-0"
+						class="flex items-center justify-between gap-4 border-b border-color-3 py-1.5 last:border-b-0"
 					>
-						<span class="text-color-9 font-num w-8 shrink-0 font-medium tabular-nums">{{ section }}</span>
-						<span class="text-color-6 font-num tabular-nums">{{ SECTION_TIME[section][0] }} ~ {{ SECTION_TIME[section][1] }}</span>
+						<span class="w-8 shrink-0 font-num font-medium text-color-9 tabular-nums">{{ section }}</span>
+						<span class="font-num text-color-6 tabular-nums">{{ SECTION_TIME[section][0] }} ~ {{ SECTION_TIME[section][1] }}</span>
 					</div>
 				</div>
 			</DialogContent>
 		</Dialog>
 
 		<div v-if="unscheduled.length" class="mt-6">
-			<div class="text-color-6 mb-2 text-sm font-medium mx-3">無固定星期課程</div>
+			<div class="mx-4 mb-2 text-sm font-medium text-color-6 lg:mx-3">無固定星期課程</div>
 			<CourseList :courses="unscheduled" embedded @alt-click="emit('alt-click', $event)" />
 		</div>
 	</div>

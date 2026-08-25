@@ -5,6 +5,7 @@ import { badgeVariants } from '.'
 
 const props = defineProps({
 	variant: { type: String, default: 'default' },
+	size: { type: String, default: 'default' },
 	as: { type: String, default: 'span' },
 	class: { type: null, default: '' }
 })
@@ -14,7 +15,7 @@ const props = defineProps({
 	<Primitive
 		:as="as"
 		data-slot="badge"
-		:class="cn(badgeVariants({ variant }), props.class)"
+		:class="cn(badgeVariants({ variant, size }), props.class)"
 	>
 		<slot />
 	</Primitive>

@@ -9,7 +9,7 @@ export const buttonVariants = cva(
 			variant: {
 				default: 'bg-color-10 text-color-1 shadow-xs hover:bg-color-10/90',
 				destructive: 'bg-destructive text-white shadow-xs hover:bg-destructive/90',
-				outline: 'border bg-color-2 shadow-xs hover:bg-color-2 hover:text-color-10',
+				outline: 'border bg-color-2 shadow-xs hover:bg-color-3 hover:text-color-10',
 				secondary: 'bg-color-2 text-color-10 shadow-xs hover:bg-color-2/80',
 				ghost: 'hover:bg-color-2 hover:text-color-10',
 				'destructive-ghost': 'text-destructive hover:bg-destructive/10',
@@ -17,6 +17,7 @@ export const buttonVariants = cva(
 			},
 			size: {
 				default: 'h-9 px-4 py-2 has-[>svg]:px-3',
+				xs: `h-7 rounded-md gap-1 px-2 text-xs [&_svg:not([class*='size-'])]:size-3.5`,
 				sm: 'h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5',
 				lg: 'h-10 rounded-md px-6 has-[>svg]:px-4',
 				icon: 'size-9'

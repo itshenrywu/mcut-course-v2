@@ -65,7 +65,7 @@ useValidOption(selected_level, level_options, { enabled: () => exam_list.value.l
 	<PageContainer title="英文段考時間與考場" container-class="gap-6">
 		<div class="flex flex-col gap-4">
 			<Tabs v-if="grade_options.length" v-model="selected_course">
-				<TabsList class="bg-color-1 border-color-3 h-auto w-full border" aria-label="年級">
+				<TabsList class="h-auto w-full border border-color-3 bg-color-1" aria-label="年級">
 					<TabsTrigger
 						v-for="option in grade_options"
 						:key="option.course"
@@ -78,7 +78,7 @@ useValidOption(selected_level, level_options, { enabled: () => exam_list.value.l
 				</TabsList>
 			</Tabs>
 
-			<div class="grid gap-4 grid-cols-2">
+			<div class="grid grid-cols-2 gap-4">
 				<SelectFilterField
 					v-model="selected_college"
 					label="學院 / 系所"
@@ -101,7 +101,7 @@ useValidOption(selected_level, level_options, { enabled: () => exam_list.value.l
 			<InfoTable :headers="EXAM_TABLE_HEADERS" fixed>
 				<tr v-for="item in filtered_list" :key="item.class_name">
 					<td class="px-3 py-2.5 font-medium">{{ spaceText(item.class_name) }}</td>
-					<td class="text-color-8 px-3 py-2.5">{{ cellText(item.teacher) }}</td>
+					<td class="px-3 py-2.5 text-color-8">{{ cellText(item.teacher) }}</td>
 					<td class="px-3 py-2.5" :class="cellClass(item.place)">{{ cellText(item.place) }}</td>
 				</tr>
 			</InfoTable>

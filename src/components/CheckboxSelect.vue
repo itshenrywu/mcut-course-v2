@@ -51,7 +51,7 @@ function toggle(option, value) {
 	<FilterField :label="label">
 		<Popover>
 			<PopoverTrigger
-				class="border-color-3 bg-color-1 focus-visible:border-color-5 focus-visible:ring-color-5/50 flex h-9 w-full items-center justify-between gap-2 rounded-md border px-3 py-2 text-sm shadow-xs outline-none focus-visible:ring-[3px]"
+				class="flex h-9 w-full items-center justify-between gap-2 rounded-md border border-color-3 bg-color-1 px-3 py-2 text-sm shadow-xs outline-none focus-visible:border-color-5 focus-visible:ring-[3px] focus-visible:ring-color-5/50"
 				:aria-label="label"
 			>
 				<span class="truncate">{{ summary }}</span>
@@ -63,7 +63,7 @@ function toggle(option, value) {
 					:key="option.key"
 					:model-value="model[option.key]"
 					:disabled="isDisabled(option)"
-					class="hover:bg-color-2 rounded-sm py-1.5 pr-2"
+					class="rounded-sm py-1.5 pr-2 hover:bg-color-2"
 					:class="option.parent ? 'pl-7' : 'pl-2'"
 					@update:model-value="toggle(option, $event)"
 				>{{ option.label }}</Checkbox>

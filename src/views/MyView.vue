@@ -202,16 +202,17 @@ async function downloadImage() {
 
 <template>
 	<div class="flex min-h-0 w-full flex-1 flex-col">
+		<h1 class="sr-only">我的課表</h1>
 		<div class="mx-auto flex min-h-0 w-full max-w-7xl flex-1 lg:px-4">
 			<FilterSidebar v-model:open="sidebar_open">
 				<div class="flex grow flex-col gap-4">
 					<Tabs v-model="sidebar_tab">
-						<TabsList class="border-color-3 h-auto w-full rounded-none border-b bg-transparent p-0" aria-label="課表設定分頁">
+						<TabsList class="h-auto w-full rounded-none border-b border-color-3 bg-transparent p-0" aria-label="課表設定分頁">
 							<TabsTrigger
 								v-for="tab in SIDEBAR_TABS"
 								:key="tab.value"
 								:value="tab.value"
-								class="data-[state=active]:text-color-10 data-[state=active]:border-color-10 h-auto rounded-none border-0 border-b-2 px-1 pb-2 data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+								class="h-auto rounded-none border-0 border-b-2 px-1 pb-2 data-[state=active]:border-color-10 data-[state=active]:bg-transparent data-[state=active]:text-color-10 data-[state=active]:shadow-none"
 							>{{ tab.label }}</TabsTrigger>
 						</TabsList>
 					</Tabs>
@@ -237,7 +238,7 @@ async function downloadImage() {
 
 							<FilterField label="外距">
 								<template #label-extra>
-									<span class="text-color-6 ml-auto text-xs">{{ my_style.margin }}%</span>
+									<span class="ml-auto text-xs text-color-6">{{ my_style.margin }}%</span>
 								</template>
 								<Slider
 									v-model="margin"
@@ -274,7 +275,7 @@ async function downloadImage() {
 
 							<FilterField label="圓角">
 								<template #label-extra>
-									<span class="text-color-6 ml-auto text-xs">{{ my_style.radius }}</span>
+									<span class="ml-auto text-xs text-color-6">{{ my_style.radius }}</span>
 								</template>
 								<Slider
 									v-model="radius"
@@ -287,7 +288,7 @@ async function downloadImage() {
 
 							<FilterField label="透明度">
 								<template #label-extra>
-									<span class="text-color-6 ml-auto text-xs">{{ my_style.transparency }}%</span>
+									<span class="ml-auto text-xs text-color-6">{{ my_style.transparency }}%</span>
 								</template>
 								<Slider
 									v-model="transparency"
@@ -327,9 +328,10 @@ async function downloadImage() {
 			</FilterSidebar>
 
 			<div class="flex min-h-0 w-full min-w-0 flex-1 flex-col lg:flex-row lg:gap-6 lg:pl-6">
-				<div class="bg-color-2/90 sticky top-[var(--nav-h)] z-30 flex items-center gap-2 px-3 py-0.5 lg:hidden print:hidden">
+				<div class="sticky top-[var(--nav-h)] z-30 flex items-center gap-2 bg-color-2/90 px-4 py-0.5 lg:hidden print:hidden">
 					<button
-						class="-ml-3 flex min-w-0 items-center justify-start gap-2 px-3 py-2 text-sm font-medium"
+						type="button"
+						class="-ml-4 flex min-w-0 items-center justify-start gap-2 px-4 py-2 text-sm font-medium"
 						@click="sidebar_open = true"
 					>
 						<SlidersHorizontal class="size-5 shrink-0" />
@@ -338,7 +340,7 @@ async function downloadImage() {
 
 					<Popover v-if="show_widget" v-model:open="export_open">
 						<PopoverTrigger
-							class="-mr-3 ml-auto flex shrink-0 items-center gap-2 px-3 py-2 text-sm font-medium"
+							class="-mr-4 ml-auto flex shrink-0 items-center gap-2 px-4 py-2 text-sm font-medium"
 							aria-label="匯出課表"
 						>
 							<Download class="size-5 shrink-0" />
@@ -358,7 +360,8 @@ async function downloadImage() {
 
 					<button
 						v-else
-						class="-mr-3 ml-auto flex shrink-0 items-center gap-2 px-3 py-2 text-sm font-medium"
+						type="button"
+						class="-mr-4 ml-auto flex shrink-0 items-center gap-2 px-4 py-2 text-sm font-medium"
 						@click="downloadImage"
 					>
 						<Download class="size-5 shrink-0" />
@@ -379,9 +382,9 @@ async function downloadImage() {
 
 					<div
 						v-if="image_loading"
-						class="bg-color-2/70 absolute inset-0 flex items-center justify-center backdrop-blur-sm"
+						class="absolute inset-0 flex items-center justify-center bg-color-2/70 backdrop-blur-sm"
 					>
-						<InlineLoading text="背景圖片讀取中…" size="size-7" container-class="text-color-9 flex-col gap-3" />
+						<InlineLoading text="背景圖片讀取中…" size="size-7" container-class="flex-col gap-3 text-color-9" />
 					</div>
 				</div>
 
@@ -389,7 +392,7 @@ async function downloadImage() {
 					narrow
 					keep-space
 					section-class="w-full shrink-0 pt-4 pb-2 lg:w-60 lg:self-center lg:py-2"
-					title-class="px-3 lg:px-0"
+					title-class="px-4 lg:px-0"
 					card-class="mx-0 rounded-none md:rounded-none md:border-x-0 lg:rounded-lg lg:border-x-3"
 				/>
 			</div>

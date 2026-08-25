@@ -18,9 +18,9 @@ const { year_groups, loading, load_error, loadChangelog } = useChangelog()
 		<template v-for="(group, index) in year_groups" :key="group.year">
 			<SectionCard :title="String(group.year)" title-class="px-4 md:px-0" card-class="mx-0 flex flex-col divide-y overflow-hidden">
 				<article v-for="item in group.items" :key="item.key" class="flex flex-col gap-1.5 px-4 py-3 sm:flex-row sm:gap-4">
-					<span class="text-color-6 shrink-0 pt-0.5 text-xs sm:w-10">{{ item.date }}</span>
+					<span class="shrink-0 pt-0.5 text-xs text-color-6 sm:w-10">{{ item.date }}</span>
 					<div class="flex min-w-0 flex-col gap-1.5">
-						<div v-if="CHANGE_TYPES[item.type]|| item.tag.length" class="flex flex-wrap items-center gap-1.5">
+						<div v-if="CHANGE_TYPES[item.type] || item.tag.length" class="flex flex-wrap items-center gap-1.5">
 							<Badge v-if="CHANGE_TYPES[item.type]" variant="secondary" :class="['border-transparent', CHANGE_TYPE_CLASSES[item.type]]">
 								{{ CHANGE_TYPES[item.type] }}
 							</Badge>
@@ -28,7 +28,7 @@ const { year_groups, loading, load_error, loadChangelog } = useChangelog()
 								{{ tag }}
 							</Badge>
 						</div>
-						<p class="text-color-8 text-sm leading-relaxed">{{ item.description }}</p>
+						<p class="text-sm leading-relaxed text-color-8">{{ item.description }}</p>
 					</div>
 				</article>
 			</SectionCard>

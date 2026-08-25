@@ -17,7 +17,7 @@ const emit = defineEmits(['select'])
 </script>
 
 <template>
-	<div class="bg-color-1 -mx-4 flex flex-col border border-x-0 md:mx-0 md:rounded-lg md:border-x">
+	<div class="-mx-4 flex flex-col border border-x-0 bg-color-1 md:mx-0 md:rounded-lg md:border-x">
 		<div class="grid grid-cols-7 border-b">
 			<div v-for="(label, index) in FULL_WEEKDAY_LABELS" :key="label" class="py-1.5 text-center text-xs" :class="index === 0 || index === 6 ? 'text-color-5' : 'text-color-6'">
 				{{ label }}
@@ -43,7 +43,7 @@ const emit = defineEmits(['select'])
 					<span
 						v-for="day in week.days"
 						:key="day.key"
-						class="font-num mx-auto grid size-6 place-items-center rounded-full text-xs tabular-nums"
+						class="mx-auto grid size-6 place-items-center rounded-full font-num text-xs tabular-nums"
 						:class="[
 							day.is_today ? 'bg-color-10 text-color-1 font-medium' : day.in_month ? 'text-color-9' : 'text-color-5',
 							!day.is_today && day.key === selectedKey && 'ring-color-6 ring-1'

@@ -1,6 +1,7 @@
 <script setup>
 import { computed } from 'vue'
 import { Sun, Moon } from '@lucide/vue'
+import { Button } from '@/components/ui/button'
 import { useTheme } from '@/composables/useTheme'
 import { useDevice } from '@/composables/useDevice'
 import { overlay_open } from '@/lib/overlay'
@@ -18,14 +19,15 @@ const current = computed(() => theme_meta.value[mode.value])
 </script>
 
 <template>
-	<button
+	<Button
 		v-if="!overlay_open"
-		type="button"
+		variant="outline"
+		size="icon"
 		:title="`主題:${current.label}`"
 		:aria-label="`切換主題,目前為${current.label}`"
-		class="fixed bottom-3 right-3 z-50 border bg-color-2 shadow-md print:hidden flex size-8 items-center justify-center rounded-md text-color-6 hover:bg-color-2 hover:text-color-10"
+		class="fixed right-3 bottom-3 z-50 size-8 text-color-6 shadow-md print:hidden"
 		@click="cycleTheme"
 	>
 		<component :is="current.icon" class="size-5" />
-	</button>
+	</Button>
 </template>

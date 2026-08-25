@@ -98,7 +98,7 @@ onUnmounted(() => {
 			</DialogHeader>
 
 			<Tabs v-model="tab">
-				<TabsList class="bg-color-1 border-color-3 w-full border" aria-label="課表來源">
+				<TabsList class="w-full border border-color-3 bg-color-1" aria-label="課表來源">
 					<TabsTrigger value="local" aria-label="這台裝置的課表">
 						<component :is="device_icon" />
 						這台裝置
@@ -110,7 +110,7 @@ onUnmounted(() => {
 				</TabsList>
 			</Tabs>
 
-			<div class="text-color-6 flex items-center justify-between text-xs">
+			<div class="flex items-center justify-between text-xs text-color-6">
 				<span>{{ preview_courses.length }} 門課程</span>
 				<span v-if="is_remote && remote_time_text">更新於 {{ remote_time_text }}</span>
 			</div>
@@ -125,9 +125,9 @@ onUnmounted(() => {
 				/>
 				<div
 					v-if="is_remote && background_loading"
-					class="bg-color-2/70 absolute inset-0 flex items-center justify-center rounded-lg backdrop-blur-sm"
+					class="absolute inset-0 flex items-center justify-center rounded-lg bg-color-2/70 backdrop-blur-sm"
 				>
-					<InlineLoading text="背景圖片下載中…" size="size-7" container-class="text-color-9 flex-col gap-3" />
+					<InlineLoading text="背景圖片下載中…" size="size-7" container-class="flex-col gap-3 text-color-9" />
 				</div>
 			</div>
 

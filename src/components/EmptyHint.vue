@@ -1,3 +1,3 @@
 <template>
-	<p class="text-color-6 py-8 text-center text-sm"><slot /></p>
+	<p class="py-8 text-center text-sm text-color-6"><slot /></p>
 </template>

@@ -84,7 +84,10 @@ defineExpose({ openAlt })
 			@click="dialog_open = false"
 		>
 			<template #meta>
-				<span class="flex items-center gap-1"><Info class="text-color-5 mt-0.5 size-3.5 shrink-0" /> {{ course.remark }}</span>
+				<span class="flex w-full items-start gap-1">
+					<Info class="size-3.5 h-[1lh] shrink-0 text-color-5" />
+					<span class="min-w-0 flex-1 break-words">{{ course.remark }}</span>
+				</span>
 			</template>
 		</CourseRow>
 	</CourseListDialog>

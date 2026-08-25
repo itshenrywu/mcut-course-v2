@@ -26,7 +26,7 @@ const props = defineProps({
 <template>
 	<Dialog v-model:open="open">
 		<DialogContent class="max-w-sm">
-			<DialogHeader class="pr-6">
+			<DialogHeader>
 				<DialogTitle>{{ props.title }}</DialogTitle>
 				<DialogDescription v-if="props.description">{{ props.description }}</DialogDescription>
 			</DialogHeader>

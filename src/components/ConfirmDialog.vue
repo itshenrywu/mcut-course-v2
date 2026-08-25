@@ -51,11 +51,11 @@ function onAlt() {
 <template>
 	<Dialog v-model:open="open">
 		<DialogContent class="max-w-sm" :show-close-button="!!props.altText">
-			<DialogHeader :class="props.altText && 'pr-6'">
+			<DialogHeader>
 				<DialogTitle>{{ props.title }}</DialogTitle>
 				<DialogDescription v-if="props.description">{{ props.description }}</DialogDescription>
 			</DialogHeader>
-			<DialogFooter class="mt-2 gap-4">
+			<DialogFooter>
 				<Button v-if="props.altText" :variant="props.altVariant" class="flex-1" @click="onAlt()">{{ props.altText }}</Button>
 				<DialogClose v-else as-child>
 					<Button variant="secondary" class="flex-1">{{ props.cancelText }}</Button>

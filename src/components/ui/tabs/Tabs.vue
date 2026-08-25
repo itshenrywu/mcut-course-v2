@@ -1,36 +1,30 @@
 <script setup>
-import { reactiveOmit } from "@vueuse/core";
-import { TabsRoot, useForwardPropsEmits } from "reka-ui";
-import { cn } from "@/lib/utils";
+import { TabsRoot, useForwardPropsEmits } from 'reka-ui'
+import { reactiveOmit } from '@vueuse/core'
+import { cn } from '@/lib/utils'
 
 const props = defineProps({
-  defaultValue: { type: null, required: false },
-  orientation: { type: String, required: false },
-  dir: { type: String, required: false },
-  activationMode: { type: String, required: false },
-  modelValue: { type: null, required: false },
-  unmountOnHide: { type: Boolean, required: false },
-  asChild: { type: Boolean, required: false },
-  as: { type: null, required: false },
-  class: {
-    type: [Boolean, null, String, Object, Array],
-    required: false,
-    skipCheck: true,
-  },
-});
-const emits = defineEmits(["update:modelValue"]);
+	defaultValue: { type: null, required: false },
+	orientation: { type: String, required: false },
+	dir: { type: String, required: false },
+	activationMode: { type: String, required: false },
+	modelValue: { type: null, required: false },
+	unmountOnHide: { type: Boolean, required: false },
+	class: { type: null, default: '' }
+})
+const emits = defineEmits(['update:modelValue'])
 
-const delegatedProps = reactiveOmit(props, "class");
-const forwarded = useForwardPropsEmits(delegatedProps, emits);
+const delegated_props = reactiveOmit(props, 'class')
+const forwarded = useForwardPropsEmits(delegated_props, emits)
 </script>
 
 <template>
-  <TabsRoot
-    v-slot="slotProps"
-    data-slot="tabs"
-    v-bind="forwarded"
-    :class="cn('flex flex-col gap-2', props.class)"
-  >
-    <slot v-bind="slotProps" />
-  </TabsRoot>
+	<TabsRoot
+		v-slot="slot_props"
+		data-slot="tabs"
+		v-bind="forwarded"
+		:class="cn('flex flex-col gap-2', props.class)"
+	>
+		<slot v-bind="slot_props" />
+	</TabsRoot>
 </template>

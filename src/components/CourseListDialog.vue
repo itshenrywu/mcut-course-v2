@@ -26,7 +26,7 @@ const open = defineModel('open', { type: Boolean, default: false })
 		<DialogContent>
 			<DialogHeader>
 				<DialogTitle class="flex items-center gap-2">
-					<span>{{ title }} <span class="text-color-6 text-sm font-normal">({{ count }})</span></span>
+					<span>{{ title }} <span class="text-sm font-normal text-color-6">({{ count }})</span></span>
 					<slot name="title-extra" />
 				</DialogTitle>
 				<DialogDescription v-if="$slots.description">

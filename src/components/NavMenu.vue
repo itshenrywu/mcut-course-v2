@@ -64,23 +64,23 @@ function isItemActive(item) {
 						<component v-else :is="item.icon" class="size-5" />
 						<Badge
 							v-if="item.to === '/favorite' && favorite_count"
-							class="absolute -bottom-1.5 -right-2.5 h-4 min-w-4 border-0 bg-amber-500 px-1 text-white sm:hidden text-[9px]"
+							class="absolute -right-2.5 -bottom-1.5 h-4 min-w-4 border-0 bg-amber-500 px-1 text-[9px] text-white sm:hidden"
 						>{{ favorite_count }}</Badge>
 						<span
 							v-if="item.to === '/more' && more_update"
-							class="absolute -bottom-0.5 -right-1.5 size-2 rounded-full bg-red-500 sm:hidden"
+							class="absolute -right-1.5 -bottom-0.5 size-2 rounded-full bg-red-500 sm:hidden"
 						/>
 					</span>
 					<span class="relative text-[10px] xs:text-xs sm:text-sm">
 						{{ item.label }}
 						<span
 							v-if="item.to === '/more' && more_update"
-							class="absolute -right-3 -top-1 hidden size-2 rounded-full bg-red-500 sm:block"
+							class="absolute -top-1 -right-3 hidden size-2 rounded-full bg-red-500 sm:block"
 						/>
 					</span>
 					<Badge
 						v-if="item.to === '/favorite'"
-						class="hidden h-4 min-w-6 px-2 border-0 bg-color-3 text-color-6 sm:inline-flex"
+						class="hidden h-4 min-w-6 border-0 bg-color-3 px-2 text-color-6 sm:inline-flex"
 						:class="{ 'bg-amber-500 text-white': favorite_count > 0 }"
 					>{{ favorite_count }}</Badge>
 				</a>

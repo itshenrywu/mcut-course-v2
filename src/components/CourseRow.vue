@@ -31,13 +31,13 @@ defineEmits(['add'])
 			:to="courseRoutePath(course.id)"
 			:target="target_blank ? '_blank' : undefined"
 			:rel="target_blank ? 'noopener noreferrer' : undefined"
-			class="hover:bg-color-2 flex flex-col gap-1 rounded-md px-2 py-2"
+			class="flex flex-col gap-1 rounded-md px-2 py-2 hover:bg-color-2"
 			:class="favorite && 'pr-10'"
 		>
 			<span class="font-medium">
-				{{ course.name }} <span class="text-color-6 font-normal text-sm">{{ course.teacher }} 老師</span>
+				{{ course.name }} <span class="text-sm font-normal text-color-6">{{ course.teacher }} 老師</span>
 			</span>
-			<div class="text-color-6 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs">
+			<div class="flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-color-6">
 				<slot name="meta" />
 			</div>
 		</RouterLink>

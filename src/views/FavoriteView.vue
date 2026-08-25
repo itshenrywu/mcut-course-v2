@@ -8,7 +8,7 @@ import { useFavorite, useFavoriteTermCount, resyncFavorite } from '@/lib/favorit
 import { useLocalRef } from '@/lib/storage'
 import { CREDIT_LIMITS } from '@/lib/enroll-time'
 import { toast } from '@/components/ui/sonner'
-import { Button } from '@/components/ui/button'
+import { Button, buttonVariants } from '@/components/ui/button'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
 import LoadingOverlay from '@/components/LoadingOverlay.vue'
 import LoadError from '@/components/LoadError.vue'
@@ -91,9 +91,10 @@ function clearArchivedCourses() {
 	<LoadingOverlay v-if="loading" text="課表讀取中…" />
 	<LoadError v-else-if="load_error" @retry="loadCourseList()" />
 
-	<div class="flex w-full flex-1 flex-col mt-4">
+	<div class="mt-4 flex w-full flex-1 flex-col">
+		<h1 class="sr-only">收藏的課程</h1>
 		<div class="mx-auto flex w-full max-w-5xl flex-1 flex-col lg:px-4">
-			<div class="bg-color-2/90 sticky top-[var(--nav-h)] z-30 flex items-center gap-2 px-3 py-1.5">
+			<div class="sticky top-[var(--nav-h)] z-30 flex items-center gap-2 bg-color-2/90 px-4 py-1.5">
 				<TermSelect
 					v-model="selected_term_id"
 					:term-list="term_list"
@@ -106,7 +107,7 @@ function clearArchivedCourses() {
 			</div>
 
 			<template v-if="loaded">
-				<div v-if="archived_ids.length" class="mx-3 mt-1.5 rounded-md border border-amber-500/20 bg-amber-500/5 p-2.5">
+				<div v-if="archived_ids.length" class="mx-4 mt-1.5 rounded-md border border-amber-500/20 bg-amber-500/5 p-2.5">
 					<div class="flex items-center gap-2">
 						<TriangleAlert class="size-4 shrink-0 text-amber-600" />
 						<div class="min-w-0 flex-1 text-sm font-medium">
@@ -114,17 +115,17 @@ function clearArchivedCourses() {
 						</div>
 						<Button
 							variant="ghost"
-							size="sm"
-							class="text-color-6 hover:text-destructive h-7 gap-1 px-2 -mr-1 text-xs"
+							size="xs"
+							class="-mr-1 text-color-6 hover:text-destructive"
 							:disabled="archived_loading"
 							@click="archived_dialog_open = true"
 						>
-							<Trash2 class="size-3.5" />
+							<Trash2 />
 							全部移除
 						</Button>
 					</div>
 
-					<p class="text-color-6 ml-6 text-xs">請重新搜尋並收藏，如有疑問請洽開課單位</p>
+					<p class="ml-6 text-xs text-color-6">請重新搜尋並收藏，如有疑問請洽開課單位</p>
 
 					<InlineLoading v-if="archived_loading" text="課程資料讀取中…" size="size-6" container-class="mt-2 flex-col py-8" />
 
@@ -132,15 +133,15 @@ function clearArchivedCourses() {
 						<li
 							v-for="{ course, title, meta } in archived_rows"
 							:key="course.id"
-							class="bg-color-1 flex items-center gap-2 rounded-md px-2 py-1.5"
+							class="flex items-center gap-2 rounded-md bg-color-1 px-2 py-1.5"
 						>
 							<div class="min-w-0 flex-1">
 								<div v-if="title" class="text-sm font-medium">{{ title }}</div>
-								<div v-if="meta" class="text-color-6 text-xs break-words">{{ meta }}</div>
+								<div v-if="meta" class="text-xs break-words text-color-6">{{ meta }}</div>
 							</div>
 							<button
 								type="button"
-								class="text-color-5 hover:text-destructive shrink-0 p-1"
+								class="shrink-0 p-1 text-color-5 hover:text-destructive"
 								:aria-label="title ? `移除 ${title}` : '移除下架課程'"
 								@click="removeArchivedCourse(course, title)"
 							>
@@ -151,29 +152,29 @@ function clearArchivedCourses() {
 				</div>
 
 				<template v-if="favorite_courses.length">
-					<div class="flex items-center gap-2 px-3 pt-1 pb-1.5">
-						<div class="text-color-6 min-w-0 truncate text-xs">
+					<div class="flex items-center gap-2 px-4 pt-1 pb-1.5">
+						<div class="min-w-0 truncate text-xs text-color-6">
 							{{ favorite_courses.length }} 門課・{{ total_credit }} 學分
 						</div>
 
 						<Button
 							variant="link"
-							size="sm"
-							class="text-color-6 hover:text-color-10 h-7 gap-1 px-1 -ml-1 text-xs hover:no-underline"
+							size="xs"
+							class="-ml-1 px-1 text-color-6 hover:text-color-10 hover:no-underline"
 							@click="limit_dialog_open = true"
 						>
-							<Info class="size-3" />
+							<Info />
 							學分上下限
 						</Button>
 
 						<Button
 							v-if="current_term_favorite_count"
 							variant="ghost"
-							size="sm"
-							class="text-color-6 hover:text-destructive ml-auto h-7 gap-1 px-2 -mr-2 text-xs"
+							size="xs"
+							class="-mr-2 ml-auto text-color-6 hover:text-destructive"
 							@click="clear_dialog_open = true"
 						>
-							<Trash2 class="size-3.5" />
+							<Trash2 />
 							清除本學期收藏課程
 						</Button>
 					</div>
@@ -182,19 +183,14 @@ function clearArchivedCourses() {
 						<CourseTable v-if="view_mode === 'table'" :courses="favorite_courses" @alt-click="openAlt($event)" />
 						<CourseList v-else :courses="favorite_courses" :conflict-ids="conflict_ids" confirm-remove @alt-click="openAlt($event)" />
 
-						<SponsorAd section-class="mt-4 print:hidden" title-class="px-3" card-class="mx-0 rounded-none md:rounded-none md:border-x-0 lg:mx-3 lg:rounded-lg lg:border-x-3" />
+						<SponsorAd section-class="mt-4 print:hidden" title-class="px-4" card-class="mx-0 rounded-none md:rounded-none md:border-x-0 lg:mx-3 lg:rounded-lg lg:border-x-3" />
 					</div>
 				</template>
 
-				<CourseEmpty v-else :title="empty_title" :icon="Star" container-class="h-auto flex-1 px-3 py-20">
-					在課程列表點擊 <Star class="inline-block size-3.5 align-middle -mt-1" /> 就能收藏有興趣的課程！
+				<CourseEmpty v-else :title="empty_title" :icon="Star" container-class="h-auto flex-1 px-4 py-20">
+					在課程列表點擊 <Star class="inline-block size-3.5 align-middle" /> 就能收藏有興趣的課程！
 					<template #extra>
-						<RouterLink
-							to="/course"
-							class="bg-color-10 text-color-1 hover:bg-color-9 mt-2 rounded-md px-4 py-2 text-sm font-medium"
-						>
-							前往搜尋課程
-						</RouterLink>
+						<RouterLink to="/course" :class="[buttonVariants(), 'mt-2']">前往搜尋課程</RouterLink>
 					</template>
 				</CourseEmpty>
 			</template>
@@ -207,26 +203,26 @@ function clearArchivedCourses() {
 				<DialogTitle>四技日間部選課學分上下限</DialogTitle>
 			</DialogHeader>
 			<table class="w-full table-fixed text-sm">
-				<thead class="text-color-7 text-xs">
+				<thead class="bg-color-3 text-xs text-color-7">
 					<tr class="border-b">
-						<th rowspan="2" class="px-2 py-2 font-medium">年級</th>
-						<th colspan="2" class="px-2 py-2 font-medium">上學期</th>
-						<th colspan="2" class="px-2 py-2 font-medium">下學期</th>
+						<th rowspan="2" class="px-3 py-2 font-medium">年級</th>
+						<th colspan="2" class="px-3 py-2 font-medium">上學期</th>
+						<th colspan="2" class="px-3 py-2 font-medium">下學期</th>
 					</tr>
-					<tr class="border-b">
-						<th class="px-2 py-2 font-medium">下限</th>
-						<th class="px-2 py-2 font-medium">上限</th>
-						<th class="px-2 py-2 font-medium">下限</th>
-						<th class="px-2 py-2 font-medium">上限</th>
+					<tr>
+						<th class="px-3 py-2 font-medium">下限</th>
+						<th class="px-3 py-2 font-medium">上限</th>
+						<th class="px-3 py-2 font-medium">下限</th>
+						<th class="px-3 py-2 font-medium">上限</th>
 					</tr>
 				</thead>
 				<tbody class="divide-y text-center">
 					<tr v-for="row in CREDIT_LIMITS" :key="row[0]">
-						<td class="px-2 py-2 font-medium">{{ row[0] }}</td>
-						<td class="text-color-8 px-2 py-2">{{ row[1] }}</td>
-						<td class="text-color-8 px-2 py-2">{{ row[2] }}</td>
-						<td class="text-color-8 px-2 py-2">{{ row[3] }}</td>
-						<td class="text-color-8 px-2 py-2">{{ row[4] }}</td>
+						<td class="px-3 py-2 font-medium">{{ row[0] }}</td>
+						<td class="px-3 py-2 text-color-8">{{ row[1] }}</td>
+						<td class="px-3 py-2 text-color-8">{{ row[2] }}</td>
+						<td class="px-3 py-2 text-color-8">{{ row[3] }}</td>
+						<td class="px-3 py-2 text-color-8">{{ row[4] }}</td>
 					</tr>
 				</tbody>
 			</table>

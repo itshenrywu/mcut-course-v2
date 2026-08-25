@@ -40,11 +40,11 @@ async function copyLink() {
 					你正在 App 內建瀏覽器中使用本網站。收藏與我的課表存在這個瀏覽器裡，離開 App 後可能會遺失，下載課表圖片也可能失敗，也可能無法正常登入後同步資料。
 				</DialogDescription>
 			</DialogHeader>
-			<p class="text-color-8 bg-color-2 rounded-md p-3 text-sm leading-relaxed">
-				請點 <span class="font-medium">⋯</span> 或分享按鈕，選擇「以預設瀏覽器開啟」，用一般瀏覽器繼續操作。
+			<p class="rounded-md bg-color-2 p-3 text-sm leading-relaxed text-color-8">
+				請點 <b class="font-medium">⋯</b> 或分享按鈕，選擇「以預設瀏覽器開啟」，用一般瀏覽器繼續操作。
 			</p>
 			<Checkbox v-model="dont_remind" class="text-color-6">不再提醒</Checkbox>
-			<DialogFooter class="mt-1 gap-4">
+			<DialogFooter>
 				<Button variant="secondary" class="flex-1" @click="copyLink()">
 					<Link />
 					複製連結

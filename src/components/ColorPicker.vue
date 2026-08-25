@@ -85,7 +85,7 @@ function normalizeHex() {
 <template>
 	<div class="flex flex-col gap-3">
 		<div
-			class="border-color-3 relative h-32 w-full cursor-crosshair touch-none rounded-md border select-none"
+			class="relative h-32 w-full cursor-crosshair touch-none rounded-md border border-color-3 select-none"
 			:style="panel_style"
 			@pointerdown="startPanel"
 			@pointermove="movePanel"
@@ -111,7 +111,7 @@ function normalizeHex() {
 		/>
 
 		<div class="flex items-center gap-2">
-			<span class="border-color-4 size-6 shrink-0 rounded-full border" :style="{ background: model }"></span>
+			<span class="size-6 shrink-0 rounded-full border border-color-4" :style="{ background: model }"></span>
 			<Input
 				v-model="hex_text"
 				class="h-8 font-mono uppercase"

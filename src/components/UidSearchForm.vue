@@ -44,6 +44,6 @@ const uid = defineModel({ type: String, default: '' })
 				查詢
 			</Button>
 		</form>
-		<p v-if="formatError" class="text-color-6 px-1 text-xs">請輸入正確的學號</p>
+		<p v-if="formatError" class="px-1 text-xs text-color-6">請輸入正確的學號</p>
 	</section>
 </template>

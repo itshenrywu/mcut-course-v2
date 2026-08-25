@@ -1,8 +1,9 @@
 <script setup>
 import { onMounted } from 'vue'
-import { RouterLink, useRoute, useRouter } from 'vue-router'
-import { ExternalLink, ChevronRight } from '@lucide/vue'
+import { useRoute, useRouter } from 'vue-router'
 import AccountCard from '@/components/AccountCard.vue'
+import LinkRow from '@/components/LinkRow.vue'
+import PageContainer from '@/components/PageContainer.vue'
 import SectionCard from '@/components/SectionCard.vue'
 import SponsorAd from '@/components/SponsorAd.vue'
 import { toast } from '@/components/ui/sonner'
@@ -28,29 +29,25 @@ onMounted(() => {
 </script>
 
 <template>
-	<div class="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-8 px-4 md:py-8">
+	<PageContainer title="更多功能" title-class="sr-only" container-class="py-0 md:py-8">
 		<AccountCard />
 
 		<SectionCard v-for="section in visible_sections" :key="section.title" :title="section.title" title-class="px-0" card-class="flex flex-col divide-y overflow-hidden">
-			<template v-for="item in section.items">
-				<RouterLink v-if="item.to" :key="item.to" :to="item.to" class="flex items-center gap-3 px-4 py-3 text-sm hover:bg-color-2">
-					<component :is="item.icon" class="text-color-6 size-4 shrink-0" />
-					{{ item.label }}
-					<span v-if="hasItemUpdate(item)" class="size-2 shrink-0 rounded-full bg-red-500" />
-					<ChevronRight class="text-color-5 ml-auto size-4 shrink-0" />
-				</RouterLink>
-				<a v-else :key="item.href" :href="item.href" target="_blank" rel="noopener noreferrer" class="flex items-center gap-3 px-4 py-3 text-sm hover:bg-color-2">
-					<component :is="item.icon" class="text-color-6 size-4 shrink-0" />
-					{{ item.label }}
-					<ExternalLink class="text-color-5 ml-auto size-4 shrink-0" />
-				</a>
-			</template>
+			<LinkRow
+				v-for="item in section.items"
+				:key="item.to || item.href"
+				:to="item.to"
+				:href="item.href"
+				:icon="item.icon"
+				:label="item.label"
+				:dot="hasItemUpdate(item)"
+			/>
 		</SectionCard>
 
 		<SponsorAd />
 
-		<div class="text-color-5 px-1 font-mono text-xs">
+		<div class="px-1 font-mono text-xs text-color-5">
 			{{ build_time_text }}・<a :href="git_commit_url" target="_blank" rel="noopener noreferrer">{{ git_sha_short }}</a><template v-if="api_sha"> / {{ api_sha }}</template>
 		</div>
-	</div>
+	</PageContainer>
 </template>

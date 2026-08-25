@@ -25,6 +25,7 @@ import DefinitionList from '@/components/DefinitionList.vue'
 import DefinitionRow from '@/components/DefinitionRow.vue'
 import InlineLoading from '@/components/InlineLoading.vue'
 import SponsorAd from '@/components/SponsorAd.vue'
+import SectionCard from '@/components/SectionCard.vue'
 
 const route = useRoute()
 const { favorite_ids } = useFavorite()
@@ -246,11 +247,11 @@ watch([() => course.value?.id, favorite_ids], ([id]) => {
 
 	<NotFoundState v-else-if="!course" title="找不到這門課程" description="此門課程可能已下架" link-to="/course" link-text="重新查詢" />
 
-	<div v-else class="mx-auto flex w-full max-w-4xl flex-col gap-8 py-6 px-3 lg:px-0">
+	<div v-else class="mx-auto flex w-full max-w-4xl flex-col gap-8 px-4 py-6 lg:px-0">
 		<section class="flex flex-col gap-4">
 			<div class="flex items-start justify-between">
 				<div class="flex flex-col gap-1.5">
-					<div class="text-color-6 text-sm">
+					<div class="text-sm text-color-6">
 						{{ term_label }}<template v-if="!is_alt">・<span class="font-mono">{{ course.id }}</span></template>
 					</div>
 					<h1 class="text-2xl font-bold tracking-tight">{{ course.name }}</h1>
@@ -259,7 +260,7 @@ watch([() => course.value?.id, favorite_ids], ([id]) => {
 					</div>
 				</div>
 				<FavoriteStar
-					class="hover:bg-color-2 flex size-10 shrink-0 items-center justify-center rounded-lg"
+					class="flex size-10 shrink-0 items-center justify-center rounded-lg hover:bg-color-2"
 					:course="course"
 					:conflict="conflict_courses.length > 0"
 					size="lg"
@@ -269,57 +270,57 @@ watch([() => course.value?.id, favorite_ids], ([id]) => {
 
 			<div class="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
 				<div class="flex items-center gap-2">
-					<Users class="text-color-5 size-4 shrink-0" />
+					<Users class="size-4 shrink-0 text-color-5" />
 					<RouterLink
 						v-if="dept_class_query"
-						class="hover:text-color-6 flex items-center gap-2"
+						class="flex items-center gap-2 hover:text-color-6"
 						:to="{ name: 'course', query: dept_class_query }"
 						aria-label="搜尋這個班級的課程"
 					>
 						<span>{{ deptClass }}</span>
-						<ChevronRight class="text-color-5 size-4 shrink-0" />
+						<ChevronRight class="size-4 shrink-0 text-color-5" />
 					</RouterLink>
 					<span v-else>{{ deptClass }}</span>
 				</div>
 				<div class="flex items-center gap-2">
-					<TeacherIcon class="text-color-5 size-4 shrink-0" />
+					<TeacherIcon class="size-4 shrink-0 text-color-5" />
 					<RouterLink
 						v-if="teacher_query"
-						class="hover:text-color-6 flex items-center gap-2"
+						class="flex items-center gap-2 hover:text-color-6"
 						:to="{ name: 'course', query: teacher_query }"
 						aria-label="搜尋這位老師的課程"
 					>
 						<span>{{ course.teacher }} 老師</span>
-						<ChevronRight class="text-color-5 size-4 shrink-0" />
+						<ChevronRight class="size-4 shrink-0 text-color-5" />
 					</RouterLink>
 					<span v-else>{{ course.teacher }} 老師</span>
 				</div>
 				<div class="col-span-full flex items-start gap-2">
-					<Clock class="text-color-5 mt-0.5 size-4 shrink-0" />
+					<Clock class="size-4 h-[1lh] shrink-0 text-color-5" />
 					<div class="flex flex-wrap items-center gap-x-3 gap-y-1">
 						<Dialog v-if="course.time?.length">
-							<DialogTrigger class="hover:text-color-6 flex items-center gap-2" aria-label="查看上課時間">
+							<DialogTrigger class="flex items-center gap-2 hover:text-color-6" aria-label="查看上課時間">
 								<span>{{ formatCourseTimes(course) }}</span>
-								<Info class="text-color-5 size-4" />
+								<Info class="size-4 text-color-5" />
 							</DialogTrigger>
 							<DialogContent class="max-w-xs">
 								<DialogHeader>
 									<DialogTitle>上課時間</DialogTitle>
 								</DialogHeader>
-								<p v-if="block_course" class="text-color-6 text-sm">
+								<p v-if="block_course" class="text-sm text-color-6">
 									塊狀課程實際上課日期請參考備註及教學進度表，或詢問授課老師及開課單位。
 								</p>
-								<p v-else-if="no_fixed_time" class="text-color-6 text-sm">
+								<p v-else-if="no_fixed_time" class="text-sm text-color-6">
 									系統上無表定上課時間，請參考備註及教學進度表，或詢問授課老師及開課單位。
 								</p>
 								<div v-else class="flex flex-col">
 									<div class="flex max-h-[60dvh] flex-col overflow-y-auto">
 										<div v-for="(time, index) in course.time" :key="index" class="flex items-center justify-between gap-3 py-1 text-sm">
 											<span>{{ formatCourseTime(time, course) }}</span>
-											<span class="text-color-6 font-num text-xs tabular-nums">{{ formatSectionRange(time.section) }}</span>
+											<span class="font-num text-xs text-color-6 tabular-nums">{{ formatSectionRange(time.section) }}</span>
 										</div>
 									</div>
-									<p class="text-color-6 mt-2 text-xs">
+									<p class="mt-2 text-xs text-color-6">
 										實際上課日期請參考備註及教學進度表，或詢問授課老師及開課單位。
 									</p>
 								</div>
@@ -329,7 +330,7 @@ watch([() => course.value?.id, favorite_ids], ([id]) => {
 					</div>
 				</div>
 				<div v-if="hasRemark(course)" class="col-span-full flex items-start gap-2">
-					<Info class="text-color-5 mt-0.5 size-4 shrink-0" />
+					<Info class="size-4 h-[1lh] shrink-0 text-color-5" />
 					<span class="whitespace-pre-line">{{ course.remark }}</span>
 				</div>
 			</div>
@@ -337,19 +338,19 @@ watch([() => course.value?.id, favorite_ids], ([id]) => {
 			<CourseListDialog v-if="other_similar.length" v-model:open="similar_open" title="歷年開課 / 各系所開課" :count="other_similar.length" list-class="gap-0">
 				<template #trigger>
 					<DialogTrigger
-						class="bg-color-1 hover:bg-color-3 flex w-full items-center gap-3 rounded-lg border p-4 text-left text-sm"
+						class="flex w-full items-center gap-3 rounded-lg border bg-color-1 p-4 text-left text-sm hover:bg-color-3"
 					>
-						<CalendarClock class="text-color-6 size-5 shrink-0" />
+						<CalendarClock class="size-5 shrink-0 text-color-6" />
 						<span class="flex-1">
 							<template v-if="has_newest_year">正在查看前幾學期的開課資料，這門課在 {{ newest_year }} 學年也有開設！</template>
 							<template v-else-if="has_other_year">這門課有在其他學年開設過，點此可查看歷年開課紀錄！</template>
 							<template v-else>這門課也有其他系所開設，點此可查看開課資料！</template>
 						</span>
-						<ChevronRight class="text-color-5 size-4 shrink-0" />
+						<ChevronRight class="size-4 shrink-0 text-color-5" />
 					</DialogTrigger>
 				</template>
 				<div v-for="group in grouped_similar" :key="group.term_id" class="flex flex-col gap-1 pb-3 last:pb-0">
-					<div class="text-color-6 bg-color-1 sticky -top-[2px] z-10 px-2 pt-2 pb-1 text-xs font-medium">
+					<div class="sticky -top-[2px] z-10 bg-color-1 px-2 pt-2 pb-1 text-xs font-medium text-color-6">
 						{{ group.label }}
 					</div>
 					<CourseRow
@@ -368,12 +369,11 @@ watch([() => course.value?.id, favorite_ids], ([id]) => {
 			</CourseListDialog>
 		</section>
 
-		<section v-if="has_course_info" class="flex flex-col gap-3">
-			<h2 class="text-color-6 text-xs">課程資訊</h2>
+		<SectionCard v-if="has_course_info" title="課程資訊" :card="false">
 			<DefinitionList>
 				<DefinitionRow v-if="course.hour != null" label="時數">
 					{{ course.hour }} 小時
-					<span class="text-color-6 text-xs">(實際上課時間以課表為準)</span>
+					<span class="text-xs text-color-6">(實際上課時間以課表為準)</span>
 				</DefinitionRow>
 				<DefinitionRow v-if="has_limit" label="人數限制">{{ formatLimit(course.min, course.max) }}</DefinitionRow>
 				<DefinitionRow
@@ -384,7 +384,7 @@ watch([() => course.value?.id, favorite_ids], ([id]) => {
 				>
 					<template v-if="tags">
 						<Badge v-for="tag in tags" :key="tag" variant="secondary">{{ tag }}</Badge>
-						<span v-if="!tags.length" class="text-color-4 text-sm">—</span>
+						<span v-if="!tags.length" class="text-sm text-color-4">—</span>
 					</template>
 					<template v-else>
 						<span v-if="(content || '').trim()">{{ content }}</span>
@@ -392,43 +392,41 @@ watch([() => course.value?.id, favorite_ids], ([id]) => {
 					</template>
 				</DefinitionRow>
 			</DefinitionList>
-		</section>
+		</SectionCard>
 
-		<InlineLoading v-if="detail_loading" text="課程詳細資料讀取中…" container-class="border-y border-dashed py-10 text-center -mx-3 rounded-none sm:mx-0 sm:rounded-lg sm:border" />
+		<InlineLoading v-if="detail_loading" text="課程詳細資料讀取中…" container-class="-mx-4 rounded-none border-y border-dashed py-10 text-center sm:mx-0 sm:rounded-lg sm:border" />
 
-		<p v-else-if="!has_extra" class="text-color-6 border-y border-dashed py-10 text-center text-sm -mx-3 rounded-none sm:mx-0 sm:rounded-lg sm:border">
+		<p v-else-if="!has_extra" class="-mx-4 rounded-none border-y border-dashed py-10 text-center text-sm text-color-6 sm:mx-0 sm:rounded-lg sm:border">
 			授課老師尚未填寫課程詳細資料
 		</p>
 
-		<section v-if="office_time.length" class="flex flex-col gap-3">
-			<h2 class="text-color-6 text-xs">Office Hours</h2>
-			<div class="flex flex-col divide-y border-y bg-color-1 -mx-3 rounded-none sm:mx-0 sm:rounded-lg sm:border">
-				<div v-for="([teacher, time], index) in office_time" :key="index" class="flex flex-col gap-0.5 items-start p-4 text-sm">
-					<span class="font-bold">{{ teacher }}</span>
-					<span class="text-color-6 whitespace-pre-line">{{ (time || '').trim() || '未提供時間' }}</span>
+		<SectionCard v-if="office_time.length" title="Office Hours" :card="false">
+			<div class="-mx-4 flex flex-col divide-y rounded-none border-y bg-color-1 sm:mx-0 sm:rounded-lg sm:border">
+				<div v-for="([teacher, time], index) in office_time" :key="index" class="flex flex-col items-start gap-0.5 p-4 text-sm">
+					<span class="font-medium">{{ teacher }}</span>
+					<span class="whitespace-pre-line text-color-6">{{ (time || '').trim() || '未提供時間' }}</span>
 				</div>
 			</div>
-		</section>
+		</SectionCard>
 
-		<SponsorAd card-class="-mx-3 rounded-none sm:mx-0 sm:rounded-lg sm:border-x-3" />
+		<SponsorAd card-class="-mx-4 rounded-none sm:mx-0 sm:rounded-lg sm:border-x-3" />
 
-		<section v-if="schedule.length" class="flex flex-col gap-3">
-			<h2 class="text-color-6 text-xs">教學進度表</h2>
-			<div class="border-y bg-color-1 -mx-3 rounded-none sm:mx-0 sm:rounded-lg sm:border">
+		<SectionCard v-if="schedule.length" title="教學進度表" :card="false">
+			<div class="-mx-4 rounded-none border-y bg-color-1 sm:mx-0 sm:rounded-lg sm:border">
 				<table class="w-full text-sm">
-					<tbody>
-						<tr v-for="({ row, date_text }, index) in schedule_rows" :key="index" class="border-b last:border-0 align-top">
-							<td class="text-color-6 w-28 px-4 py-3 align-top whitespace-nowrap sm:w-36 text-sm font-medium">
+					<tbody class="divide-y">
+						<tr v-for="({ row, date_text }, index) in schedule_rows" :key="index" class="align-top">
+							<td class="w-28 px-4 py-3 align-top text-sm font-medium whitespace-nowrap text-color-6 sm:w-36">
 								<div>{{ date_text }}</div>
 								<div v-if="(row[4] || '').trim()" class="mt-0.5">{{ row[4] }} 老師</div>
 							</td>
 							<td class="px-4 py-3 align-top">
-								<div v-if="(row[5] || '').trim()" class="font-bold whitespace-pre-line">{{ row[5] }}</div>
-								<div v-if="(row[7] || '').trim()" class="text-color-6 mt-1 whitespace-pre-line">{{ row[7] }}</div>
-								<div v-if="(row[6] || '').trim()" class="text-color-6 mt-1 flex flex-wrap items-baseline gap-1.5 text-xs whitespace-pre-line">
+								<div v-if="(row[5] || '').trim()" class="font-medium whitespace-pre-line">{{ row[5] }}</div>
+								<div v-if="(row[7] || '').trim()" class="mt-1 whitespace-pre-line text-color-6">{{ row[7] }}</div>
+								<div v-if="(row[6] || '').trim()" class="mt-1 flex flex-wrap items-baseline gap-1.5 text-xs whitespace-pre-line text-color-6">
 									<Badge variant="secondary">作業</Badge>{{ row[6] }}
 								</div>
-								<div v-if="(row[8] || '').trim()" class="text-color-6 mt-1 flex flex-wrap items-baseline gap-1.5 text-xs whitespace-pre-line">
+								<div v-if="(row[8] || '').trim()" class="mt-1 flex flex-wrap items-baseline gap-1.5 text-xs whitespace-pre-line text-color-6">
 									<Badge variant="secondary">備註</Badge>{{ row[8] }}
 								</div>
 							</td>
@@ -436,6 +434,6 @@ watch([() => course.value?.id, favorite_ids], ([id]) => {
 					</tbody>
 				</table>
 			</div>
-		</section>
+		</SectionCard>
 	</div>
 </template>

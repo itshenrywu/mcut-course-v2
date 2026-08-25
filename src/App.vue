@@ -2,6 +2,7 @@
 import { ref, watch, onMounted, onUnmounted, defineAsyncComponent } from 'vue'
 import { RouterView, useRouter } from 'vue-router'
 import NavMenu from '@/components/NavMenu.vue'
+import TextLink from '@/components/TextLink.vue'
 import AnnouncementBanner from '@/components/AnnouncementBanner.vue'
 import BreakpointIndicator from '@/components/BreakpointIndicator.vue'
 import LoadingOverlay from '@/components/LoadingOverlay.vue'
@@ -87,7 +88,7 @@ if (is_logged_in.value) loadProfile()
 		</main>
 		<footer ref="page_footer" class="sticky bottom-0 mt-2 border-t bg-color-1 py-1.5 text-center text-xs text-color-6 print:hidden">
 			Made by
-			<a href="https://henrywu.tw" target="_blank" rel="noopener noreferrer" class="font-medium text-color-10 underline underline-offset-4">Henry Wu</a>
+			<TextLink href="https://henrywu.tw">Henry Wu</TextLink>
 		</footer>
 
 		<LoadingOverlay v-if="route_loading" text="頁面讀取中…" />

@@ -1,5 +1,8 @@
 export const DEFAULT_ID = '000'
 
+// 標示非入學系所的課程, 夾在內文中所以要自己對齊基線
+export const CROSS_DEPT_BADGE_CLASS = 'relative -top-px border-transparent bg-blue-500 align-middle text-white'
+
 function parseRuleTerm(term) {
 	const text = (term || '').trim()
 	const half = text.includes('上') ? 1 : text.includes('下') ? 2 : 99

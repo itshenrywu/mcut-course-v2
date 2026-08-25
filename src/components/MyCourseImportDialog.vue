@@ -16,7 +16,9 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import TermSelect from '@/components/TermSelect.vue'
 import InlineLoading from '@/components/InlineLoading.vue'
+import HintList from '@/components/HintList.vue'
 import EmptyHint from '@/components/EmptyHint.vue'
+import TextLink from '@/components/TextLink.vue'
 
 const NO_TIME_REASON = '沒有星期一至五的固定時段，無法匯入'
 const BLOCKED_REASONS = {
@@ -241,7 +243,7 @@ watch(import_source, () => resetSelection())
 
 			<div class="flex h-[75dvh] max-h-[36rem] flex-col gap-3">
 				<Tabs v-model="import_source" class="shrink-0">
-					<TabsList class="bg-color-1 border-color-3 w-full border" aria-label="匯入來源">
+					<TabsList class="w-full border border-color-3 bg-color-1" aria-label="匯入來源">
 						<TabsTrigger value="favorite">
 							<Star class="size-4" />
 							收藏的課程
@@ -263,29 +265,29 @@ watch(import_source, () => resetSelection())
 						class="shrink-0"
 					/>
 
-					<p class="text-color-6 mb-2 flex items-start gap-1 text-xs">
-						<Info class="mt-px size-3.5 shrink-0" />
+					<p class="mb-2 flex items-start gap-1 text-xs text-color-6">
+						<Info class="size-3.5 h-[1lh] shrink-0" />
 						<span>開課資料可能與實際課表有些微差（如老師 / 上課時間），建議等選課結束後再從「學校系統」匯入</span>
 					</p>
 
 					<InlineLoading v-if="loading" text="課程資料讀取中…" container-class="flex-1" />
 
 					<div v-else-if="load_error" class="flex flex-1 flex-col items-center justify-center gap-3">
-						<p class="text-color-6 text-sm">課程資料讀取失敗</p>
+						<p class="text-sm text-color-6">課程資料讀取失敗</p>
 						<Button variant="outline" size="sm" @click="loadCourses()">重試</Button>
 					</div>
 
 					<EmptyHint v-else-if="!items.length" class="flex flex-1 items-center justify-center">這個學期沒有收藏的課程</EmptyHint>
 				</template>
 
-				<div v-else-if="school_courses.length" class="text-color-6 flex shrink-0 items-center justify-between gap-2 text-xs">
+				<div v-else-if="school_courses.length" class="flex shrink-0 items-center justify-between gap-2 text-xs text-color-6">
 					<span>已辨識出 {{ school_courses.length }} 門課程</span>
 					<Button variant="ghost" size="sm" class="-mr-2" @click="resetSchool()">重貼一次</Button>
 				</div>
 
 				<div v-else class="-mx-1 flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto overscroll-contain px-1">
 					<Select v-model="school_system">
-						<SelectTrigger class="bg-color-1 w-full shrink-0" aria-label="課表來源系統">
+						<SelectTrigger class="w-full shrink-0 bg-color-1" aria-label="課表來源系統">
 							<SelectValue />
 						</SelectTrigger>
 						<SelectContent :side-offset="12">
@@ -296,58 +298,58 @@ watch(import_source, () => resetSelection())
 
 					<div>
 						<template v-if="school_system === 'info'">
-							<p class="text-color-6 mb-2 flex items-start gap-1 text-xs">
-								<Info class="mt-px size-3.5 shrink-0" />
+							<p class="mb-2 flex items-start gap-1 text-xs text-color-6">
+								<Info class="size-3.5 h-[1lh] shrink-0" />
 								<span>「學生資訊查詢系統」在選課結束後幾天才會更新課表資料</span>
 							</p>
-							<p class="text-color-6 text-xs mb-1">
+							<p class="mb-1 text-xs text-color-6">
 								操作步驟：
 							</p>
-							<ol class="text-color-6 marker:text-color-5 list-outside list-decimal space-y-0.5 pl-5 text-xs leading-relaxed marker:tabular-nums">
+							<HintList ordered class="space-y-0.5 text-xs leading-relaxed text-color-6">
 								<li>使用明志 App 或校園入口網，前往<b class="font-medium">學生資訊查詢系統</b></li>
 								<li>點擊選單中的課程查詢 > 課表查詢</li>
 								<li>選取整個表格並複製（含最上面的標題列）</li>
 								<li>貼到下面的欄位</li>
-							</ol>
+							</HintList>
 						</template>
 						<template v-else-if="school_system === 'enroll'">
-							<p class="text-color-6 mb-2 flex items-start gap-1 text-xs">
-								<Info class="mt-px size-3.5 shrink-0" />
+							<p class="mb-2 flex items-start gap-1 text-xs text-color-6">
+								<Info class="size-3.5 h-[1lh] shrink-0" />
 								<span>建議等選課結束再使用「學生資訊查詢系統」匯入，才能查看教室位置！</span>
 							</p>
-							<p class="text-color-6 text-xs mb-1">
+							<p class="mb-1 text-xs text-color-6">
 								操作步驟：
 							</p>
-							<ol class="text-color-6 marker:text-color-5 list-outside list-decimal space-y-0.5 pl-5 text-xs leading-relaxed marker:tabular-nums">
-								<li>前往<a href="http://day.course.mcut.edu.tw/" rel="noopener noreferrer" target="_blank" class="underline">選課系統</a>並登入</li>
+							<HintList ordered class="space-y-0.5 text-xs leading-relaxed text-color-6">
+								<li>前往<TextLink href="http://day.course.mcut.edu.tw/" nofollow>選課系統</TextLink>並登入</li>
 								<li>點擊<b class="font-medium">選課確認</b></li>
 								<li>選取整個表格並複製（含最上面的標題列）</li>
 								<li>貼到下面的欄位</li>
-							</ol>
+							</HintList>
 						</template>
 					</div>
 
 					<Textarea
 						v-model="paste_text"
-						class="bg-color-1 h-24 shrink-0 resize-none"
+						class="h-24 shrink-0 resize-none bg-color-1"
 						placeholder="在這裡貼上複製的課表"
 						aria-label="學校系統課表內容"
 						@paste="pasteSchool"
 					/>
 
-					<p v-if="parse_error" class="text-destructive text-xs">{{ parse_error }}</p>
+					<p v-if="parse_error" class="text-xs text-destructive">{{ parse_error }}</p>
 				</div>
 
 				<template v-if="list_visible">
 					<Checkbox
 						:model-value="all_state"
 						:disabled="!importable_items.length"
-						class="border-color-3 shrink-0 border-b px-2 pb-2"
+						class="shrink-0 border-b border-color-3 px-2 pb-2"
 						@update:model-value="toggleAll()"
 					>
 						<span class="flex items-center justify-between gap-2">
 							<span class="font-medium">全選</span>
-							<span class="text-color-6 text-xs">已選 {{ selected_ids.size }} / {{ importable_items.length }} 門</span>
+							<span class="text-xs text-color-6">已選 {{ selected_ids.size }} / {{ importable_items.length }} 門</span>
 						</span>
 					</Checkbox>
 
@@ -357,13 +359,13 @@ watch(import_source, () => resetSelection())
 							:key="item.id"
 							:model-value="selected_ids.has(item.id)"
 							:disabled="!item.blocks.length || conflict_map.has(item.id)"
-							class="hover:bg-color-2 items-start rounded-md px-2 py-1.5"
+							class="items-start rounded-md px-2 py-1.5 hover:bg-color-2"
 							@update:model-value="toggle(item)"
 						>
 							<span class="flex min-w-0 flex-col">
 								<span class="truncate font-medium">{{ item.name }}</span>
-								<span class="text-color-6 truncate text-xs">{{ item.note }}</span>
-								<span v-if="item.reason" class="text-color-6 text-xs">{{ item.reason }}</span>
+								<span class="truncate text-xs text-color-6">{{ item.note }}</span>
+								<span v-if="item.reason" class="text-xs text-color-6">{{ item.reason }}</span>
 								<span v-else-if="conflict_map.has(item.id)" class="text-xs text-amber-600">與「{{ conflict_map.get(item.id).name }}」衝堂</span>
 							</span>
 						</Checkbox>
@@ -371,7 +373,7 @@ watch(import_source, () => resetSelection())
 				</template>
 			</div>
 
-			<DialogFooter class="mt-2 gap-4">
+			<DialogFooter>
 				<Button
 					type="button"
 					class="flex-1"

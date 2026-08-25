@@ -45,7 +45,7 @@ onMounted(() => {
 			<SectionCard title="統計" card-class="overflow-hidden">
 				<div class="flex items-baseline justify-between gap-4 border-b px-4 py-3">
 					<span class="text-sm font-medium">總計點數</span>
-					<span class="font-num shrink-0 text-lg font-bold tabular-nums">{{ total_points }}</span>
+					<span class="shrink-0 font-num text-lg font-bold tabular-nums">{{ total_points }}</span>
 				</div>
 				<ul class="flex flex-col divide-y">
 					<li
@@ -55,10 +55,10 @@ onMounted(() => {
 					>
 						<span class="min-w-0">
 							{{ row.name }}
-							<span v-if="row.note" class="text-color-6 text-xs">{{ row.note }}</span>
+							<span v-if="row.note" class="text-xs text-color-6">{{ row.note }}</span>
 						</span>
 						<span
-							class="font-num shrink-0 tabular-nums"
+							class="shrink-0 font-num tabular-nums"
 							:class="row.points ? 'font-medium' : 'text-color-5'"
 						>{{ row.points }}</span>
 					</li>
@@ -72,9 +72,9 @@ onMounted(() => {
 					<li v-for="(row, index) in record_rows" :key="index" class="flex flex-col gap-1.5 px-4 py-3">
 						<div class="flex items-baseline justify-between gap-4">
 							<span class="min-w-0 text-sm font-medium">{{ row.name }}</span>
-							<span class="font-num shrink-0 text-sm font-medium tabular-nums">{{ row.points }} 點</span>
+							<span class="shrink-0 font-num text-sm font-medium tabular-nums">{{ row.points }} 點</span>
 						</div>
-						<dl class="text-color-8 flex flex-wrap gap-x-4 gap-y-1 text-xs">
+						<dl class="flex flex-wrap gap-x-4 gap-y-1 text-xs text-color-8">
 							<div class="flex gap-1">
 								<dt class="text-color-6">日期</dt>
 								<dd>{{ row.date }}</dd>

@@ -12,7 +12,7 @@ const label_class = computed(() => ANNOUNCEMENT_LABEL_CLASSES[current_announceme
 <template>
 	<div
 		v-if="current_announcement"
-		class="relative bg-color-3 px-3 py-1.5 text-sm text-color-10"
+		class="relative bg-color-3 px-4 py-1.5 text-sm text-color-10"
 	>
 		<div
 			:class="[
@@ -39,7 +39,7 @@ const label_class = computed(() => ANNOUNCEMENT_LABEL_CLASSES[current_announceme
 			v-if="current_announcement.can_dismiss"
 			type="button"
 			aria-label="關閉公告"
-			class="absolute top-1/2 right-3 -translate-y-1/2 rounded-sm p-1 text-color-7 hover:text-color-8"
+			class="absolute top-1/2 right-4 -translate-y-1/2 rounded-sm p-1 text-color-7 hover:text-color-8"
 			@click="dismissAnnouncement(current_announcement)"
 		>
 			<X class="size-4" />

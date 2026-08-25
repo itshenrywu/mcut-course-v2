@@ -101,7 +101,7 @@ const header_class = computed(() => props.embedded ? '' : 'md:sticky md:top-[cal
 <template>
 	<CourseEmpty v-if="courses.length === 0" />
 	<div v-else class="flex w-full flex-col text-sm md:grid md:grid-cols-[3fr_4fr_5rem_2fr_6rem_3fr_2.5rem_0.75rem] [&>*:last-child]:border-b-0">
-		<div class="text-color-6 bg-color-2 hidden border-b text-sm font-medium md:col-span-full md:grid md:grid-cols-subgrid" :class="header_class">
+		<div class="hidden border-b bg-color-2 text-sm font-medium text-color-6 md:col-span-full md:grid md:grid-cols-subgrid" :class="header_class">
 			<div class="px-3 py-2">開課班級</div>
 			<div class="px-3 py-2">課程名稱</div>
 			<div class="px-3 py-2">上課時間</div>
@@ -117,15 +117,15 @@ const header_class = computed(() => props.embedded ? '' : 'md:sticky md:top-[cal
 			v-memo="[row, conflictIds.has(row.course.id), embedded, confirmRemove]"
 			:to="row.to"
 			:type="row.is_multi_alt ? 'button' : undefined"
-			class="cursor-pointer hover:bg-color-3 relative flex w-full flex-wrap items-start gap-y-1 border-b py-2 text-left md:col-span-full md:grid md:grid-cols-subgrid md:gap-0 md:p-0 px-3"
+			class="relative flex w-full cursor-pointer flex-wrap items-start gap-y-1 border-b px-4 py-2 text-left hover:bg-color-3 md:col-span-full md:grid md:grid-cols-subgrid md:gap-0 md:p-0"
 			@click="row.is_multi_alt && emit('alt-click', row.course)"
 		>
 			<div class="order-4 flex items-center gap-1 pr-4 whitespace-nowrap md:order-none md:block md:py-2 md:pr-3 md:pl-3">
-				<Users class="text-color-5 size-3.5 shrink-0 md:hidden" />{{ row.dept_class }}
+				<Users class="size-3.5 shrink-0 text-color-5 md:hidden" />{{ row.dept_class }}
 			</div>
 			<div class="order-1 flex-1 pr-2 font-medium md:order-none md:flex-none md:px-3 md:py-2">{{ row.course.name }}</div>
 			<div class="order-6 flex w-full items-start gap-1 md:order-none md:block md:w-auto md:px-3 md:py-2">
-				<Clock class="text-color-5 mt-0.5 size-3.5 shrink-0 md:hidden" />
+				<Clock class="size-3.5 h-[1lh] shrink-0 text-color-5 md:hidden" />
 				<div class="flex flex-wrap md:flex-col">
 					<span v-for="(time, index) in row.times" :key="index" class="whitespace-nowrap">
 						<span v-if="index > 0" class="md:hidden">、</span>{{ time }}
@@ -140,17 +140,17 @@ const header_class = computed(() => props.embedded ? '' : 'md:sticky md:top-[cal
 			</div>
 			<div class="order-3 w-full md:hidden" aria-hidden="true"></div>
 			<div class="order-5 flex items-center gap-1 whitespace-nowrap md:order-none md:block md:px-3 md:py-2">
-				<TeacherIcon class="text-color-5 size-3.5 shrink-0 md:hidden" />
+				<TeacherIcon class="size-3.5 shrink-0 text-color-5 md:hidden" />
 				<span v-for="(teacher, index) in row.teachers" :key="index" class="md:block">
 					<span v-if="index > 0" class="md:hidden"> / </span>{{ teacher }}
 				</span>
 			</div>
 			<div v-if="row.remark" class="order-7 flex w-full items-start gap-1 md:order-none md:block md:w-auto md:px-3 md:py-2">
-				<Info class="text-color-5 mt-0.5 size-3.5 shrink-0 md:hidden" />{{ row.remark }}
+				<Info class="size-3.5 h-[1lh] shrink-0 text-color-5 md:hidden" />{{ row.remark }}
 			</div>
 			<FavoriteStar
 				v-if="!embedded"
-				class="absolute bottom-0 right-0 flex items-center justify-center md:static md:col-start-7 md:right-auto md:bottom-auto px-3 py-2 print:hidden"
+				class="absolute right-0 bottom-0 flex items-center justify-center px-4 py-2 md:static md:right-auto md:bottom-auto md:col-start-7 md:px-3 print:hidden"
 				:course="row.course"
 				:conflict="conflictIds.has(row.course.id)"
 				:confirm-remove="confirmRemove"

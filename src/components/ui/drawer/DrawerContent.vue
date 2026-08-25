@@ -31,7 +31,7 @@ function onOpenCloseAutoFocus(event) {
 			v-bind="forwarded"
 			@open-auto-focus="onOpenCloseAutoFocus"
 			@close-auto-focus="onOpenCloseAutoFocus"
-			:class="cn('bg-color-1 text-color-10 outline-hidden data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom fixed inset-x-0 bottom-0 z-50 mx-auto flex max-w-lg flex-col gap-4 rounded-t-2xl border-t p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] shadow-lg duration-200', props.class)"
+			:class="cn('bg-color-1 text-color-10 outline-hidden data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom fixed inset-x-0 bottom-0 z-50 mx-auto flex max-w-lg flex-col gap-4 rounded-t-2xl border-t p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] shadow-lg duration-200', props.showCloseButton && '[&_[data-slot=dialog-header]]:pr-6', props.class)"
 		>
 			<slot />
 			<DialogClose

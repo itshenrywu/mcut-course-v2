@@ -215,7 +215,7 @@ watch(() => props.courseList, list => {
 					:disabled="disabled"
 					placeholder="輸入關鍵字"
 					aria-label="課程名稱 / 老師 / 序號"
-					class="bg-color-1 placeholder:text-sm pr-8"
+					class="bg-color-1 pr-8 placeholder:text-sm"
 					@focus="keyword_focused = true"
 					@click="keyword_focused = true"
 					@keyup.enter="addSearchHistory(keyword)"
@@ -224,7 +224,7 @@ watch(() => props.courseList, list => {
 				<button
 					v-if="keyword && !disabled"
 					type="button"
-					class="text-color-6 hover:text-color-9 absolute top-1/2 right-3 -translate-y-1/2"
+					class="absolute top-1/2 right-3 -translate-y-1/2 text-color-6 hover:text-color-9"
 					aria-label="清除關鍵字"
 					@click="keyword = ''"
 				>
@@ -232,7 +232,7 @@ watch(() => props.courseList, list => {
 				</button>
 			</div>
 
-			<div v-if="show_history" class="border-color-3 bg-color-1 overflow-hidden rounded-md border" @mousedown.prevent>
+			<div v-if="show_history" class="overflow-hidden rounded-md border border-color-3 bg-color-1" @mousedown.prevent>
 				<SearchHistory compact @select="selectHistory($event)" />
 			</div>
 		</FilterField>
@@ -281,17 +281,17 @@ watch(() => props.courseList, list => {
 			<template #label-extra>
 				<Popover>
 					<PopoverTrigger as-child>
-						<button type="button" class="text-color-6 hover:text-color-9 flex cursor-pointer items-center" aria-label="衝堂的課程說明">
+						<button type="button" class="flex cursor-pointer items-center text-color-6 hover:text-color-9" aria-label="衝堂的課程說明">
 							<Info class="size-3.5" />
 						</button>
 					</PopoverTrigger>
 					<PopoverContent side="top" class="p-3 text-sm">
-						與<span class="font-semibold">收藏的課程</span>時間重疊的課程，如不隱藏會以 <TriangleAlert class="inline-block size-3 align-middle text-red-500" /> 標示，置底僅列表檢視有用
+						與<b class="font-medium">收藏的課程</b>時間重疊的課程，如不隱藏會以 <TriangleAlert class="inline-block size-3.5 align-middle text-red-500" /> 標示，置底僅列表檢視有用
 					</PopoverContent>
 				</Popover>
 			</template>
 			<Tabs v-model="conflict_mode" class="w-full">
-				<TabsList class="bg-color-1 border-color-3 w-full border" aria-label="衝堂的課程">
+				<TabsList class="w-full border border-color-3 bg-color-1" aria-label="衝堂的課程">
 					<TabsTrigger
 						v-for="opt in CONFLICT_MODE_OPTIONS"
 						:key="opt.value"

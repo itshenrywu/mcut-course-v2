@@ -16,14 +16,14 @@ const { search_history, removeSearchHistory, clearSearchHistory } = useSearchHis
 
 <template>
 	<div v-if="search_history.length">
-		<div class="bg-color-2/50 flex items-center justify-between" :class="compact ? 'px-3 py-1.5' : 'px-5 py-2'">
-			<p class="text-color-6 text-xs font-medium">搜尋紀錄</p>
-			<button type="button" class="text-color-6 hover:text-color-10 text-xs" @click="clearSearchHistory()">全部刪除</button>
+		<div class="flex items-center justify-between bg-color-2/50" :class="compact ? 'px-3 py-1.5' : 'px-5 py-2'">
+			<p class="text-xs font-medium text-color-6">搜尋紀錄</p>
+			<button type="button" class="text-xs text-color-6 hover:text-color-10" @click="clearSearchHistory()">全部刪除</button>
 		</div>
 		<div
 			v-for="item in search_history"
 			:key="item"
-			class="hover:bg-color-2 flex items-center"
+			class="flex items-center transition-colors hover:bg-color-2"
 			:class="compact ? 'px-3' : 'px-5'"
 		>
 			<button
@@ -32,12 +32,12 @@ const { search_history, removeSearchHistory, clearSearchHistory } = useSearchHis
 				:class="compact ? 'py-1.5 text-sm' : 'py-3 text-base'"
 				@click="emit('select', item)"
 			>
-				<Clock class="text-color-6 size-3.5 shrink-0" />
+				<Clock class="size-3.5 shrink-0 text-color-6" />
 				<span class="truncate">{{ item }}</span>
 			</button>
 			<button
 				type="button"
-				class="text-color-6 hover:text-color-9 shrink-0 p-1"
+				class="shrink-0 p-1 text-color-6 hover:text-color-9"
 				:aria-label="`刪除搜尋紀錄 ${item}`"
 				@click="removeSearchHistory(item)"
 			>

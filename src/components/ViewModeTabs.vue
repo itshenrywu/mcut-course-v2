@@ -30,7 +30,7 @@ const mode_list = computed(() => props.modes.length ? props.modes : DEFAULT_MODE
 
 <template>
 	<Tabs v-model="view_mode" :class="rootClass">
-		<TabsList class="bg-color-1 border-color-3 border" :class="compact ? 'h-8' : 'w-full'" aria-label="檢視模式">
+		<TabsList class="border border-color-3 bg-color-1" :class="compact ? 'h-8' : 'w-full'" aria-label="檢視模式">
 			<TabsTrigger
 				v-for="mode in mode_list"
 				:key="mode.value"

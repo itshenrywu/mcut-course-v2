@@ -109,7 +109,7 @@ function remove() {
 			<form class="flex flex-col gap-4" @submit.prevent="submit">
 				<FilterField label="課程名稱">
 					<Input v-model="name" :maxlength="NAME_MAX_LENGTH" class="bg-color-1" aria-label="課程名稱" />
-					<p v-if="name_error" class="text-destructive text-xs">{{ name_error }}</p>
+					<p v-if="name_error" class="text-xs text-destructive">{{ name_error }}</p>
 				</FilterField>
 
 				<FilterField label="星期">
@@ -147,13 +147,13 @@ function remove() {
 					</FilterField>
 				</div>
 
-				<p v-if="time_error" class="text-destructive -mt-2 text-xs">{{ time_error }}</p>
+				<p v-if="time_error" class="-mt-2 text-xs text-destructive">{{ time_error }}</p>
 
 				<FilterField label="備註">
 					<Input v-model="remark" :maxlength="REMARK_MAX_LENGTH" class="bg-color-1" placeholder="可填寫教室/老師 (可留空)" aria-label="備註" />
 				</FilterField>
 
-				<DialogFooter class="mt-2 gap-4">
+				<DialogFooter>
 					<Button v-if="is_edit" type="button" variant="destructive-ghost" class="flex-1" @click="remove()">刪除</Button>
 					<Button type="submit" class="flex-1">儲存</Button>
 				</DialogFooter>

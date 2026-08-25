@@ -106,11 +106,11 @@ function removeImage() {
 	<FilterField :label="label">
 		<Popover v-model:open="open">
 			<PopoverTrigger
-				class="border-color-3 bg-color-1 focus-visible:border-color-5 focus-visible:ring-color-5/50 flex h-9 w-full items-center justify-between gap-2 rounded-md border px-3 py-2 text-sm shadow-xs outline-none focus-visible:ring-[3px]"
+				class="flex h-9 w-full items-center justify-between gap-2 rounded-md border border-color-3 bg-color-1 px-3 py-2 text-sm shadow-xs outline-none focus-visible:border-color-5 focus-visible:ring-[3px] focus-visible:ring-color-5/50"
 				:aria-label="label"
 			>
 				<span class="flex min-w-0 items-center gap-2">
-					<span class="border-color-4 size-4 shrink-0 rounded-full border" :style="trigger_style"></span>
+					<span class="size-4 shrink-0 rounded-full border border-color-4" :style="trigger_style"></span>
 					<span class="truncate">{{ trigger_label }}</span>
 				</span>
 				<ChevronDown class="size-4 shrink-0 opacity-50" />
@@ -122,35 +122,35 @@ function removeImage() {
 							v-for="option in options"
 							:key="option.value"
 							type="button"
-							class="border-color-3 inset-ring-color-10 flex items-center gap-2 rounded-md border px-2 py-1.5 text-sm"
+							class="flex items-center gap-2 rounded-md border border-color-3 px-2 py-1.5 text-sm inset-ring-color-10"
 							:class="!use_image && model === option.value ? 'inset-ring-2' : ''"
 							@click="selectPreset(option.value)"
 						>
-							<span class="border-color-4 size-4 shrink-0 rounded-full border" :style="{ background: option.value }"></span>
+							<span class="size-4 shrink-0 rounded-full border border-color-4" :style="{ background: option.value }"></span>
 							<span class="truncate">{{ option.label }}</span>
 						</button>
 						<button
 							type="button"
-							class="border-color-3 inset-ring-color-10 flex items-center gap-2 rounded-md border px-2 py-1.5 text-sm"
+							class="flex items-center gap-2 rounded-md border border-color-3 px-2 py-1.5 text-sm inset-ring-color-10"
 							:class="[is_custom ? 'inset-ring-2' : '', imageEnabled ? '' : 'col-span-2']"
 							@click="selectCustom"
 						>
-							<span class="border-color-4 size-4 shrink-0 rounded-full border" :style="{ background: custom_swatch }"></span>
+							<span class="size-4 shrink-0 rounded-full border border-color-4" :style="{ background: custom_swatch }"></span>
 							<span class="truncate">自訂</span>
 						</button>
 						<button
 							v-if="imageEnabled"
 							type="button"
-							class="border-color-3 inset-ring-color-10 flex items-center gap-2 rounded-md border px-2 py-1.5 text-sm"
+							class="flex items-center gap-2 rounded-md border border-color-3 px-2 py-1.5 text-sm inset-ring-color-10"
 							:class="use_image ? 'inset-ring-2' : ''"
 							@click="selectImage"
 						>
 							<span
 								v-if="imageUrl"
-								class="border-color-4 size-4 shrink-0 rounded-full border bg-cover bg-center"
+								class="size-4 shrink-0 rounded-full border border-color-4 bg-cover bg-center"
 								:style="{ backgroundImage: `url(${imageUrl})` }"
 							></span>
-							<ImagePlus v-else class="text-color-6 size-4 shrink-0" />
+							<ImagePlus v-else class="size-4 shrink-0 text-color-6" />
 							<span class="truncate">{{ imageLabel }}</span>
 						</button>
 					</div>
@@ -162,7 +162,7 @@ function removeImage() {
 						</div>
 					</template>
 					<template v-else-if="show_picker">
-						<div class="border-color-3 border-t"></div>
+						<div class="border-t border-color-3"></div>
 						<ColorPicker v-model="custom_color" />
 					</template>
 				</div>

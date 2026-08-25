@@ -25,7 +25,7 @@ defineProps({
 </script>
 
 <template>
-	<StateBlock :icon="SearchX" :title="title" :description="description" container-class="flex-1 py-24">
+	<StateBlock :icon="SearchX" :title="title" :description="description" :level="1" container-class="flex-1 py-24">
 		<template #extra>
 			<RouterLink :to="linkTo" :class="[buttonVariants(), 'mt-2']">{{ linkText }}</RouterLink>
 		</template>

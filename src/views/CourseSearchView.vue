@@ -259,6 +259,7 @@ watch(selected_enroll_type, enroll_type => {
 	<LoadError v-else-if="load_error" @retry="loadCourseList()" />
 
 	<div class="flex w-full flex-1 flex-col">
+		<h1 class="sr-only">進階搜尋</h1>
 		<div class="mx-auto flex w-full max-w-7xl flex-1 lg:px-4">
 			<FilterSidebar v-model:open="sidebar_open">
 				<CourseFilter
@@ -273,14 +274,14 @@ watch(selected_enroll_type, enroll_type => {
 					:disabled="loading"
 				/>
 
-				<div class="text-color-6 mt-6 whitespace-nowrap text-xs lg:hidden">
+				<div class="mt-6 text-xs whitespace-nowrap text-color-6 lg:hidden">
 					{{ filtered_course_list.length }} 門符合的課程<span v-if="hidden_conflict_count">（{{ hidden_conflict_count }} 門衝堂已隱藏）</span>
 				</div>
 
 				<Button
 					v-if="can_show_class_required"
 					variant="outline"
-					class="w-full bg-color-1 mt-6 lg:mt-0"
+					class="mt-6 w-full bg-color-1 lg:mt-0"
 					:class="class_required_all_favorited && 'cursor-not-allowed opacity-40 hover:bg-color-1 hover:text-current'"
 					@click="favoriteClassRequired"
 				>
@@ -298,10 +299,11 @@ watch(selected_enroll_type, enroll_type => {
 				</template>
 			</FilterSidebar>
 
-			<div class="min-w-0 w-full flex-1 flex flex-col lg:pl-6">
-				<div class="bg-color-2/90 sticky top-[var(--nav-h)] z-30 flex items-center gap-2 px-3 py-0.5 print:hidden">
+			<div class="flex w-full min-w-0 flex-1 flex-col lg:pl-6">
+				<div class="sticky top-[var(--nav-h)] z-30 flex items-center gap-2 bg-color-2/90 px-4 py-0.5 print:hidden">
 					<button
-						class="-ml-3 flex min-w-0 flex-1 items-center justify-start gap-2 px-3 py-2 text-sm font-medium lg:hidden"
+						type="button"
+						class="-ml-4 flex min-w-0 flex-1 items-center justify-start gap-2 px-4 py-2 text-sm font-medium lg:hidden"
 						@click="sidebar_open = true"
 					>
 						<Funnel class="size-5 shrink-0 print:hidden" />
@@ -310,7 +312,7 @@ watch(selected_enroll_type, enroll_type => {
 						</span>
 					</button>
 
-					<div class="text-color-6 hidden min-w-0 flex-1 truncate py-2 text-sm lg:block">
+					<div class="hidden min-w-0 flex-1 truncate py-2 text-sm text-color-6 lg:block">
 						{{ filtered_course_list.length }} 門符合的課程<span v-if="hidden_conflict_count">（{{ hidden_conflict_count }} 門衝堂已隱藏）</span>
 					</div>
 
@@ -318,7 +320,7 @@ watch(selected_enroll_type, enroll_type => {
 				</div>
 
 				<div v-if="loaded" class="mb-4 flex flex-1 flex-col">
-					<CourseEmpty v-if="empty_state" :title="empty_state.title" container-class="h-auto flex-1 px-3 py-20">
+					<CourseEmpty v-if="empty_state" :title="empty_state.title" container-class="h-auto flex-1 px-4 py-20">
 						{{ empty_state.description }}
 						<span v-if="short_id_hint" class="mt-1 block">{{ short_id_hint }}</span>
 						<template #extra>
@@ -346,7 +348,7 @@ watch(selected_enroll_type, enroll_type => {
 						v-else-if="view_mode === 'table' && table_view_disabled"
 						:icon="CalendarOff"
 						title="目前結果不支援課表檢視"
-						container-class="h-auto flex-1 px-3 py-20"
+						container-class="h-auto flex-1 px-4 py-20"
 					>
 						單日重疊的課程太多，請切換條件或改用列表檢視
 						<template #extra>
@@ -360,7 +362,7 @@ watch(selected_enroll_type, enroll_type => {
 					<CourseTable v-else-if="view_mode === 'table'" :courses="filtered_course_list" :narrow-days="narrow_weekdays" :grade-class="table_grade_class" :filter="table_filter" @alt-click="openAlt($event)" />
 					<CourseList v-else :courses="filtered_course_list" :conflict-ids="conflict_ids" @alt-click="openAlt($event)" />
 
-					<SponsorAd v-if="filtered_course_list.length" section-class="mt-4 print:hidden" title-class="px-3" card-class="mx-0 rounded-none md:rounded-none md:border-x-0 lg:mx-3 lg:rounded-lg lg:border-x-3" />
+					<SponsorAd v-if="filtered_course_list.length" section-class="mt-4 print:hidden" title-class="px-4" card-class="mx-0 rounded-none md:rounded-none md:border-x-0 lg:mx-3 lg:rounded-lg lg:border-x-3" />
 				</div>
 			</div>
 		</div>

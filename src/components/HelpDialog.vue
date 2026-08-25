@@ -2,6 +2,7 @@
 import { CircleQuestionMark } from '@lucide/vue'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import HintList from '@/components/HintList.vue'
 
 defineProps({
 	title: {
@@ -27,9 +28,9 @@ defineProps({
 			<DialogHeader>
 				<DialogTitle>{{ title }}</DialogTitle>
 			</DialogHeader>
-			<ul class="text-color-8 marker:text-color-5 max-h-[60dvh] list-disc space-y-1 overflow-y-auto overscroll-contain pl-5 text-sm leading-relaxed">
+			<HintList class="max-h-[60dvh] overflow-y-auto overscroll-contain">
 				<slot />
-			</ul>
+			</HintList>
 		</DialogContent>
 	</Dialog>
 </template>

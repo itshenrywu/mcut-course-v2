@@ -146,7 +146,7 @@ onUnmounted(stopWatch)
 		:title-class="titleClass"
 		:card-class="cn('border-3 border-x-0 border-dashed md:border-x-3 flex min-h-24 w-auto! flex-col items-center justify-center p-4', cardClass)"
 	>
-		<p v-if="ad_state === 'blocked'" class="text-color-6 text-center text-sm leading-relaxed">
+		<p v-if="ad_state === 'blocked'" class="text-center text-sm leading-relaxed text-color-6">
 			太無情了吧，擋廣告 😭<br>加入白名單，救救開發者 🙏
 		</p>
 

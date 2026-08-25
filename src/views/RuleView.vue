@@ -2,7 +2,7 @@
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ChevronDown, ChevronsDownUp, ChevronsUpDown, Clock, Copy, FileDown, Info, Mail, Phone, Users } from '@lucide/vue'
-import { findRule, findDept, ruleRoutePath, splitRuleName, sortRuleCourses, useRuleList, useRuleDetail, useEnrollCourses, DEFAULT_ID } from '@/lib/rule'
+import { findRule, findDept, ruleRoutePath, splitRuleName, sortRuleCourses, useRuleList, useRuleDetail, useEnrollCourses, CROSS_DEPT_BADGE_CLASS, DEFAULT_ID } from '@/lib/rule'
 import { conflictingCourses, favoriteCourseId, formatCourseTimes, formatDeptClass, hasRemark } from '@/lib/course'
 import { formatTermLabel, useSelectedTerm } from '@/lib/term'
 import { useEnrollTime } from '@/lib/enroll-time'
@@ -19,6 +19,7 @@ import FilterSidebar from '@/components/FilterSidebar.vue'
 import FilterSummary from '@/components/FilterSummary.vue'
 import RuleCategoryList from '@/components/RuleCategoryList.vue'
 import SectionCard from '@/components/SectionCard.vue'
+import HintList from '@/components/HintList.vue'
 import SponsorAd from '@/components/SponsorAd.vue'
 import RemarkText from '@/components/RemarkText.vue'
 import CourseRow from '@/components/CourseRow.vue'
@@ -112,6 +113,8 @@ const filter_summary = computed(() => {
 	else if (selected_dept_name.value) info.push(selected_dept_name.value)
 	return info
 })
+
+const page_heading = computed(() => filter_summary.value.join(' ') || '畢業學分門檻')
 
 function toCategories(list, sort_mode) {
 	return (list || []).map(category => ({
@@ -230,6 +233,7 @@ watch(() => route.path, () => {
 	<LoadError v-else-if="detail_load_error" title="課程總表讀取失敗" @retry="reloadRuleDetail" />
 
 	<div class="flex w-full flex-1 flex-col">
+		<h1 class="sr-only">{{ page_heading }}</h1>
 		<div class="mx-auto flex w-full max-w-7xl flex-1 lg:px-4">
 			<FilterSidebar v-model:open="sidebar_open">
 				<RuleFilter
@@ -245,28 +249,30 @@ watch(() => route.path, () => {
 				/>
 			</FilterSidebar>
 
-			<div class="min-w-0 w-full flex-1 flex flex-col lg:pl-6">
+			<div class="flex w-full min-w-0 flex-1 flex-col lg:pl-6">
 				<div
-					class="bg-color-2/90 sticky top-[var(--nav-h)] z-30 flex items-center gap-2 px-4 py-0.5 lg:pt-2 lg:px-0"
+					class="sticky top-[var(--nav-h)] z-30 flex items-center gap-2 bg-color-2/90 px-4 py-0.5 lg:px-0 lg:pt-2"
 					:class="show_detail ? '' : 'lg:hidden'"
 				>
 					<button
-						class="-ml-3 flex min-w-0 flex-1 items-center justify-start gap-2 rounded-md px-3 py-2 text-sm font-medium lg:hidden"
+						type="button"
+						class="-ml-4 flex min-w-0 flex-1 items-center justify-start gap-2 px-4 py-2 text-sm font-medium lg:hidden"
 						@click="sidebar_open = true"
 					>
 						<span class="min-w-0 text-left">
 							<FilterSummary :parts="filter_summary" fallback="篩選" />
 						</span>
-						<ChevronDown class="text-color-6 size-4 shrink-0 print:hidden" />
+						<ChevronDown class="size-4 shrink-0 text-color-6 print:hidden" />
 					</button>
 
-					<div class="hidden lg:flex font-medium text-sm gap-1" v-if="selected_rule">
+					<div class="hidden gap-1 text-sm font-medium lg:flex" v-if="selected_rule">
 						<FilterSummary :parts="filter_summary" separator-class="text-color-6" />
 					</div>
 
 					<button
 						v-if="show_detail"
-						class="text-color-6 hover:text-color-8 ml-auto flex shrink-0 items-center gap-1 rounded-md pl-3 py-2 text-sm print:hidden"
+						type="button"
+						class="ml-auto flex shrink-0 items-center gap-1 py-2 pl-3 text-sm text-color-6 hover:text-color-8 print:hidden"
 						@click="toggleAllSubs"
 					>
 						<component :is="open_sub_opened ? ChevronsDownUp : ChevronsUpDown" class="size-4" />
@@ -275,9 +281,9 @@ watch(() => route.path, () => {
 				</div>
 
 				<div class="flex min-h-0 flex-1 flex-col px-0">
-					<div v-if="show_detail" class="flex flex-col gap-4 mb-4">
-						<SectionCard title="說明" :section-class="SECTION_CLASS" :title-class="TITLE_CLASS" :card-class="CARD_CLASS">
-							<ul class="marker:text-color-5 flex list-disc flex-col gap-1 p-4 pl-9 text-sm">
+					<div v-if="show_detail" class="mb-4 flex flex-col gap-4">
+						<SectionCard title="說明" :section-class="SECTION_CLASS" :title-class="TITLE_CLASS" :card-class="`${CARD_CLASS} p-4`">
+							<HintList>
 								<template v-if="has_dept">
 									<li v-if="show_program_hint">須修畢<b class="font-medium">入學課程總表</b>，並須<b class="font-medium">任選一個學分學程</b>（跨領域或第二專長）才能畢業。</li>
 									<li v-else>須修畢<b class="font-medium">入學課程總表</b>才能畢業。</li>
@@ -286,10 +292,10 @@ watch(() => route.path, () => {
 								<li>欲選課前切換<b class="font-medium">欲選課學期</b>，即可查看該學期是否有開課。</li>
 								<li><b class="font-medium">此頁面僅提供畢業學分門檻，其他畢業門檻（如路跑、游泳、英文、專業證照等）請見學校及系所規定。</b></li>
 								<li v-if="cross_program">
-									<Badge class="relative -top-px border-transparent bg-blue-500 px-1.5 py-0 align-middle text-[10px] leading-4 text-white">外系</Badge>
+									<Badge size="sm" :class="CROSS_DEPT_BADGE_CLASS">外系</Badge>
 									標示表示<b class="font-medium">非入學系所</b>的課程。此標示僅供參考，實際依照開課為準。
 								</li>
-							</ul>
+							</HintList>
 						</SectionCard>
 
 						<RuleCategoryList
@@ -350,7 +356,7 @@ watch(() => route.path, () => {
 								class="min-w-0"
 								:href="item.url"
 								target="_blank"
-								rel="noopener noreferrer"
+								rel="nofollow noopener noreferrer"
 							>
 								<FileDown />
 								<span class="truncate">{{ item.title || '下載檔案' }}</span>
@@ -358,7 +364,7 @@ watch(() => route.path, () => {
 						</SectionCard>
 					</div>
 
-					<p v-else-if="show_empty_hint" class="text-color-6 m-auto text-center text-sm">請選擇入學系所或學分學程</p>
+					<p v-else-if="show_empty_hint" class="m-auto text-center text-sm text-color-6">請選擇入學系所或學分學程</p>
 				</div>
 			</div>
 		</div>
@@ -379,14 +385,14 @@ watch(() => route.path, () => {
 				@click="count_dialog_open = false"
 			>
 				<template #meta>
-					<span class="flex items-center gap-1"><Users class="text-color-5 size-3.5 shrink-0" /> {{ formatDeptClass(course) }}</span>
+					<span class="flex items-center gap-1"><Users class="size-3.5 shrink-0 text-color-5" /> {{ formatDeptClass(course) }}</span>
 					<EnrollBadge :type="course.enroll_type" />
 					<span class="flex items-center gap-1">
-						<Clock class="text-color-5 size-3.5 shrink-0" />
+						<Clock class="size-3.5 shrink-0 text-color-5" />
 						{{ formatCourseTimes(course) }}
 					</span>
 					<span v-if="hasRemark(course)" class="flex w-full items-start gap-1">
-						<Info class="text-color-5 mt-0.5 size-3.5 shrink-0" />
+						<Info class="size-3.5 h-[1lh] shrink-0 text-color-5" />
 						<span class="min-w-0 flex-1 break-words">{{ course.remark }}</span>
 					</span>
 				</template>

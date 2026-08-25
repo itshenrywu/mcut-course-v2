@@ -12,6 +12,7 @@ import LoadError from '@/components/LoadError.vue'
 import TermSelect from '@/components/TermSelect.vue'
 import SearchHistory from '@/components/SearchHistory.vue'
 import CrossTermResult from '@/components/CrossTermResult.vue'
+import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion'
 import { toast } from '@/components/ui/sonner'
@@ -310,42 +311,43 @@ function onLockedButton() {
 	<LoadingOverlay v-if="loading" text="課表讀取中…" />
 	<LoadError v-else-if="load_error" @retry="loadCourseList()" />
 
-	<div class="flex flex-col gap-8 md:gap-24 pb-10 px-3 lg:px-0">
+	<div class="flex flex-col gap-8 px-4 pb-10 md:gap-24 lg:px-0">
+		<h1 class="sr-only">明志科技大學選課小幫手</h1>
 		<section class="relative">
 			<div class="pointer-events-none absolute inset-y-0 left-1/2 -z-10 w-screen -translate-x-1/2"></div>
 			<div class="mx-auto flex max-w-5xl flex-col items-center gap-4 text-center sm:pt-24">
 				<div class="w-full">
-					<div class="-mx-4 flex flex-col gap-2 bg-transparent sm:bg-color-1 p-3 sm:mx-0 sm:flex-row sm:rounded-lg sm:border sm:shadow-sm">
+					<div class="-mx-4 flex flex-col gap-2 bg-transparent p-3 sm:mx-0 sm:flex-row sm:rounded-lg sm:border sm:bg-color-1 sm:shadow-sm">
 						<TermSelect
 							v-model="selected_term_id"
 							:term-list="term_list"
-							trigger-class="h-14 w-full justify-between border-0 text-lg shadow-none focus-visible:ring-0 data-[size=default]:h-14 sm:w-56"
+							trigger-class="h-14 w-full justify-between border-0 text-lg shadow-none focus-visible:ring-inset data-[size=default]:h-14 sm:w-56"
 							content-class="max-w-[100vw] sm:-translate-x-3"
 						/>
 
-						<div class="bg-color-3 hidden sm:block sm:h-8 sm:w-px sm:self-center"></div>
+						<div class="hidden bg-color-3 sm:block sm:h-8 sm:w-px sm:self-center"></div>
 
 						<div class="relative flex-1">
 							<Input
 								v-model="keyword"
 								placeholder="搜尋課程名稱、老師、代碼..."
 								aria-label="搜尋課程"
-								class="h-14 border-0 text-lg md:text-lg shadow-none focus-visible:border-0 focus-visible:ring-0"
+								class="h-14 border-0 text-lg shadow-none focus-visible:border-0 focus-visible:ring-inset md:text-lg"
 								@focus="search_open = true"
 								@blur="search_open = false"
 							/>
 
-							<div v-if="search_open" class="absolute top-full right-0 left-0 z-50 mt-4 max-h-[60dvh] sm:-right-3 overflow-y-auto rounded-lg border bg-color-1 text-left shadow-sm" @mousedown.prevent>
+							<div v-if="search_open" class="absolute top-full right-0 left-0 z-50 mt-4 max-h-[60dvh] overflow-y-auto rounded-lg border bg-color-1 text-left shadow-sm sm:-right-3" @mousedown.prevent>
 								<template v-if="!debounced_keyword.trim()">
 									<SearchHistory v-if="search_history.length" @select="keyword = $event" />
-									<p v-else class="text-color-6 px-5 py-8 text-center text-base">請輸入關鍵字</p>
+									<p v-else class="px-5 py-8 text-center text-base text-color-6">請輸入關鍵字</p>
 								</template>
 								<template v-else-if="has_results">
 									<template v-if="course_results.length">
-										<div class="bg-color-2/50 flex items-center justify-between px-5 py-2">
-											<p class="text-color-6 text-xs font-medium">課程 ({{ course_results.length }})</p>
+										<div class="flex items-center justify-between bg-color-2/50 px-5 py-2">
+											<p class="text-xs font-medium text-color-6">課程 ({{ course_results.length }})</p>
 											<RouterLink
-												class="text-color-6 hover:text-color-10 flex items-center gap-0.5 text-xs"
+												class="flex items-center gap-0.5 text-xs text-color-6 hover:text-color-10"
 												:to="{ name: 'course', query: {
 													kw: debounced_keyword.trim(),
 													dept: 'any',
@@ -361,21 +363,21 @@ function onLockedButton() {
 										<RouterLink
 											v-for="course in visible_courses"
 											:key="course.id"
-											class="hover:bg-color-2 flex w-full flex-col gap-1 border-b px-5 py-3 text-left sm:flex-row sm:items-center sm:gap-4"
+											class="flex w-full flex-col gap-1 border-b px-5 py-3 text-left hover:bg-color-2 sm:flex-row sm:items-center sm:gap-4"
 											:to="courseRoutePath(course.id)"
 											@click="rememberKeyword()"
 										>
 											<span class="w-full truncate text-base font-medium sm:min-w-0 sm:flex-1">{{ course.name }}</span>
-											<span class="text-color-6 w-full text-xs sm:w-auto sm:shrink-0">{{ formatDeptClass(course) }}・{{ course.enroll_type }} {{ course.credit }} 學分・{{ course.teacher }} 老師</span>
+											<span class="w-full text-xs text-color-6 sm:w-auto sm:shrink-0">{{ formatDeptClass(course) }}・{{ course.enroll_type }} {{ course.credit }} 學分・{{ course.teacher }} 老師</span>
 										</RouterLink>
 									</template>
 									<template v-if="teacher_results.length">
-										<p class="text-color-6 bg-color-2/50 px-5 py-2 text-xs font-medium">授課老師 ({{ teacher_results.length }})</p>
+										<p class="bg-color-2/50 px-5 py-2 text-xs font-medium text-color-6">授課老師 ({{ teacher_results.length }})</p>
 										<div class="flex flex-wrap gap-2 px-5 py-3">
 											<RouterLink
 												v-for="teacher in teacher_results"
 												:key="teacher.name"
-												class="hover:bg-color-2 hover:border-color-4 flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm"
+												class="flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm hover:border-color-4 hover:bg-color-2"
 												:to="{ name: 'course', query: {
 													kw: teacher.name,
 													dept: 'any',
@@ -385,13 +387,13 @@ function onLockedButton() {
 												@click="rememberKeyword(teacher.name)"
 											>
 												<span class="font-medium">{{ teacher.name }}</span>
-												<span class="text-color-6 text-xs">{{ teacher.count }}</span>
+												<span class="text-xs text-color-6">{{ teacher.count }}</span>
 											</RouterLink>
 										</div>
 									</template>
 								</template>
 								<div v-else class="px-5 py-8">
-									<p class="text-color-6 text-center text-base">這個學期找不到符合的課程</p>
+									<p class="text-center text-base text-color-6">這個學期找不到符合的課程</p>
 									<div class="mt-4 flex flex-wrap justify-center gap-2">
 										<CrossTermResult
 											:result="cross_term_result"
@@ -406,7 +408,7 @@ function onLockedButton() {
 				</div>
 			</div>
 		</section>
-		<section class="flex flex-col gap-3 w-full max-w-5xl mx-auto">
+		<section class="mx-auto flex w-full max-w-5xl flex-col gap-3">
 			<h2 class="text-lg font-semibold tracking-tight">常用查詢</h2>
 			<div class="grid grid-cols-2 gap-3 md:grid-cols-4">
 				<component
@@ -423,23 +425,23 @@ function onLockedButton() {
 				>
 					<component :is="item.icon" class="pointer-events-none absolute -right-3 -bottom-3 size-16 text-color-3/70"/>
 					<div class="relative flex items-center gap-1.5">
-						<span class="text-sm truncate font-medium">{{ item.title }}</span>
-						<span v-if="item.hot" class="rounded-full bg-red-500 text-white px-1.5 py-0.5 text-[10px] font-semibold tracking-widest">Hot!</span>
+						<span class="truncate text-sm font-medium">{{ item.title }}</span>
+						<Badge v-if="item.hot" variant="destructive" size="sm" class="rounded-full py-0.5 font-semibold tracking-widest">Hot!</Badge>
 					</div>
-					<span class="text-color-6 relative text-xs" v-if="item.description">{{ item.description }}</span>
+					<span class="relative text-xs text-color-6" v-if="item.description">{{ item.description }}</span>
 				</component>
 			</div>
 		</section>
 
-		<section class="flex flex-col gap-3 w-full max-w-5xl mx-auto">
+		<section class="mx-auto flex w-full max-w-5xl flex-col gap-3">
 			<h2 class="text-lg font-semibold tracking-tight">{{ class_schedule_title }}</h2>
 			<template v-if="is_summer">
-				<p v-if="!summer_departments.length" class="text-color-6 text-sm">目前沒有班級課表資料</p>
+				<p v-if="!summer_departments.length" class="text-sm text-color-6">目前沒有班級課表資料</p>
 				<div v-else class="grid grid-cols-2 gap-3 sm:grid-cols-4">
 					<RouterLink
 						v-for="dept in summer_departments"
 						:key="dept"
-						class="hover:bg-color-2 hover:border-color-4 flex flex-col gap-1 rounded-lg border bg-color-1 p-4 text-left"
+						class="flex flex-col gap-1 rounded-lg border bg-color-1 p-4 text-left hover:border-color-4 hover:bg-color-2"
 						:to="{ name: 'course', query: {
 							dept,
 							grade_class: 'any',
@@ -451,7 +453,7 @@ function onLockedButton() {
 				</div>
 			</template>
 			<template v-else>
-				<p v-if="!class_schedules.length" class="text-color-6 text-sm">目前沒有班級課表資料</p>
+				<p v-if="!class_schedules.length" class="text-sm text-color-6">目前沒有班級課表資料</p>
 				<Accordion v-else type="single" collapsible>
 					<AccordionItem
 						v-for="dept in class_schedules"
@@ -461,7 +463,7 @@ function onLockedButton() {
 						<AccordionTrigger class="hover:no-underline">
 							<span class="flex items-center gap-2">
 								{{ dept.department }}
-								<span v-if="dept.recent" class="bg-color-3 text-color-6 rounded-full px-2 py-0.5 text-[10px] font-medium">上次查詢</span>
+								<Badge v-if="dept.recent" variant="secondary" size="sm" class="rounded-full px-2 py-0.5 text-color-6">上次查詢</Badge>
 							</span>
 						</AccordionTrigger>
 						<AccordionContent>
@@ -469,7 +471,7 @@ function onLockedButton() {
 								<RouterLink
 									v-for="cls in dept.classes"
 									:key="cls.id"
-									class="hover:bg-color-2 hover:border-color-4 flex flex-col rounded-lg border bg-color-1 p-3 text-left"
+									class="flex flex-col rounded-lg border bg-color-1 p-3 text-left hover:border-color-4 hover:bg-color-2"
 									:to="{ name: 'course', query: {
 										dept: dept.department,
 										grade_class: cls.grade_class,

@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import ColorPicker from '@/components/ColorPicker.vue'
+import TextLink from '@/components/TextLink.vue'
 import { useWidgetColor, buildWidgetCode, widgetColors, WIDGET_COLOR_ROWS, SCRIPTABLE_URL } from '@/lib/my-course-widget'
 
 // 關掉漸層時, 色塊改用斜線表示 "無"
@@ -64,12 +65,12 @@ async function copyCode() {
 			</DialogHeader>
 
 			<div class="-mx-2 flex max-h-[70dvh] flex-col gap-3 overflow-y-auto overscroll-contain px-2 text-sm">
-				<p class="text-color-6 text-xs">在桌面或鎖定畫面就能看到下一堂課</p>
+				<p class="text-xs text-color-6">在桌面或鎖定畫面就能看到下一堂課</p>
 
-				<ol class="text-color-8 marker:text-color-5 flex list-outside list-decimal flex-col gap-4 pl-5 leading-relaxed marker:tabular-nums">
+				<HintList ordered class="space-y-4">
 					<li>
 						安裝
-						<a :href="SCRIPTABLE_URL" target="_blank" rel="noreferrer" class="underline underline-offset-2">Scriptable</a>
+						<TextLink :href="SCRIPTABLE_URL">Scriptable</TextLink>
 						（App Store 免費）
 					</li>
 
@@ -85,11 +86,11 @@ async function copyCode() {
 								<div v-for="(row, index) in WIDGET_COLOR_ROWS" :key="index" class="flex min-w-0 gap-2">
 									<Popover v-for="field in row" :key="field.key">
 										<PopoverTrigger
-											class="border-color-3 bg-color-1 focus-visible:border-color-5 focus-visible:ring-color-5/50 flex h-9 min-w-0 flex-1 items-center gap-2 rounded-md border px-3 py-2 text-sm shadow-xs outline-none focus-visible:ring-[3px]"
+											class="flex h-9 min-w-0 flex-1 items-center gap-2 rounded-md border border-color-3 bg-color-1 px-3 py-2 text-sm shadow-xs outline-none focus-visible:border-color-5 focus-visible:ring-[3px] focus-visible:ring-color-5/50"
 											:aria-label="`${field.label}顏色`"
 										>
 											<span
-												class="border-color-4 size-4 shrink-0 rounded-full border"
+												class="size-4 shrink-0 rounded-full border border-color-4"
 												:style="{ background: isNone(field) ? NONE_SWATCH : widget_color[field.key] }"
 											></span>
 											<span class="truncate">{{ isNone(field) ? '無漸層' : field.label }}</span>
@@ -114,7 +115,7 @@ async function copyCode() {
 					<li>
 						複製下面的程式碼
 						<div class="mt-2 flex flex-col gap-2">
-							<pre class="border-color-3 bg-color-2 text-color-7 max-h-32 overflow-auto overscroll-contain rounded-md border p-2 font-mono text-[0.7rem] leading-relaxed">{{ code }}</pre>
+							<pre class="max-h-32 overflow-auto overscroll-contain rounded-md border border-color-3 bg-color-2 p-2 font-mono text-[0.7rem] leading-relaxed text-color-7">{{ code }}</pre>
 							<Button variant="outline" size="sm" class="self-start" @click="copyCode()">
 								<Copy />
 								複製程式碼
@@ -122,14 +123,15 @@ async function copyCode() {
 						</div>
 					</li>
 
+					<!-- text-sky-500 是對齊 Scriptable App 內按鈕的藍色, 方便使用者對照畫面找到按鈕 -->
 					<li>開啟 Scriptable，按右上角的 <b class="font-medium text-sky-500">+</b>，貼上程式碼後按 <b class="font-medium text-sky-500">Done</b></li>
 
 					<li>回到桌面或鎖定畫面，長按空白處新增小工具，選擇 <b class="font-medium">Scriptable</b></li>
 
 					<li>長按小工具 &gt; 編輯小工具，把 <b class="font-medium">Script</b> 設成剛剛新增的檔案</li>
-				</ol>
+				</HintList>
 
-				<p class="text-color-6 text-xs">課表或顏色改過之後，要回到這裡重新複製一次程式碼，小工具才會跟著更新</p>
+				<p class="text-xs text-color-6">課表或顏色改過之後，要回到這裡重新複製一次程式碼，小工具才會跟著更新</p>
 			</div>
 		</DialogContent>
 	</Dialog>

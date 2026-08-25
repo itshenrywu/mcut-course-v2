@@ -57,7 +57,7 @@ const selected_groups = computed(() => selected_key.value ? groupByDay(visible_e
 	<PageContainer title="行事曆" container-class="max-w-5xl gap-4">
 		<div class="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
 			<Select v-model="category">
-				<SelectTrigger size="sm" class="bg-color-1 max-w-full min-w-0 justify-self-start text-xs" aria-label="行事曆分類">
+				<SelectTrigger size="sm" class="max-w-full min-w-0 justify-self-start bg-color-1 text-xs" aria-label="行事曆分類">
 					<SelectValue placeholder="選擇分類" />
 				</SelectTrigger>
 				<SelectContent align="start">
@@ -74,8 +74,8 @@ const selected_groups = computed(() => selected_key.value ? groupByDay(visible_e
 				<Button variant="ghost" size="icon" aria-label="上個月" @click="goMonth(-1)">
 					<ChevronLeft />
 				</Button>
-				<span class="font-num min-w-16 text-center font-medium tabular-nums">{{ month_label }}</span>
-				<Button size="sm" :disabled="is_current_month" class="h-6 rounded-full px-2 text-xs" @click="goToday">回本月</Button>
+				<span class="min-w-16 text-center font-num font-medium tabular-nums">{{ month_label }}</span>
+				<Button size="xs" :disabled="is_current_month" class="rounded-full" @click="goToday">回本月</Button>
 				<Button variant="ghost" size="icon" aria-label="下個月" @click="goMonth(1)">
 					<ChevronRight />
 				</Button>
@@ -91,7 +91,7 @@ const selected_groups = computed(() => selected_key.value ? groupByDay(visible_e
 
 			<SectionCard v-if="selected_key" :title="formatDayLabel(selected_key)" card-class="py-1">
 				<CalendarEventList v-if="selected_groups.length" :groups="selected_groups" :show-date="false" />
-				<p v-else class="text-color-6 px-4 py-3 text-sm">這天沒有活動</p>
+				<EmptyHint v-else>這天沒有活動</EmptyHint>
 			</SectionCard>
 		</template>
 

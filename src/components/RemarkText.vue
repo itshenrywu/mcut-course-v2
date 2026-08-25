@@ -23,7 +23,7 @@ const items = computed(() => parseRemark(props.text))
 			:class="{ 'mt-2': item.gap }"
 			:style="{ marginInlineStart: `${item.depth * INDENT_WIDTH}em` }"
 		>
-			<span v-if="item.marker" class="text-color-5 min-w-[1.5em] shrink-0">{{ item.marker }}</span>
+			<span v-if="item.marker" class="min-w-[1.5em] shrink-0 text-color-5">{{ item.marker }}</span>
 			<span class="min-w-0 flex-1 break-words">
 				<span
 					v-for="(segment, segment_index) in item.segments"

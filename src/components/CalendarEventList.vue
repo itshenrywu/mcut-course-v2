@@ -26,7 +26,7 @@ defineProps({
 					<p class="text-sm leading-snug font-medium" :class="EVENT_TEXT_CLASSES[event.tone]">{{ event.summary }}</p>
 					<p
 						v-if="event.start_key !== event.end_key || event.time_text || event.location || event.group_text"
-						class="text-color-6 flex flex-wrap items-center gap-x-2 text-xs"
+						class="flex flex-wrap items-center gap-x-2 text-xs text-color-6"
 					>
 						<span v-if="event.start_key !== event.end_key" class="font-num tabular-nums">{{ formatDateRange(event) }}</span>
 						<span v-if="event.time_text" class="font-num tabular-nums">{{ event.time_text }}</span>
@@ -41,7 +41,7 @@ defineProps({
 					</p>
 					<p
 						v-if="event.description"
-						class="text-color-7 [&_a]:text-color-10 mt-0.5 text-xs leading-relaxed whitespace-pre-line [&_a]:underline [&_a]:underline-offset-2"
+						class="mt-0.5 text-xs leading-relaxed whitespace-pre-line text-color-7 [&_a]:text-color-10 [&_a]:underline [&_a]:underline-offset-2"
 						v-html="event.description"
 					/>
 				</div>

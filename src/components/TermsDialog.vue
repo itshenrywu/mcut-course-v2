@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import SourceDisclaimer from '@/components/SourceDisclaimer.vue'
+import TextLink from '@/components/TextLink.vue'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 
@@ -29,14 +30,14 @@ function onAgree() {
 				<DialogTitle>關於本站 & 免責聲明</DialogTitle>
 			</DialogHeader>
 			<div class="max-h-[60dvh] overflow-y-auto overscroll-contain">
-				<p class="text-color-8 text-sm leading-relaxed mb-6">
+				<p class="mb-6 text-sm leading-relaxed text-color-8">
 					明志科技大學選課小幫手由 107 級工業工程與管理系畢業校友
-					<a class="text-color-10 underline underline-offset-2" href="https://henrywu.tw" target="_blank" rel="noopener noreferrer">Henry Wu</a>
+					<TextLink href="https://henrywu.tw">Henry Wu</TextLink>
 					開發製作，非學校官方系統。若對本網站有任何疑慮，請避免使用。
 				</p>
-				<SourceDisclaimer :show-heading="false" />
+				<SourceDisclaimer />
 			</div>
-			<DialogFooter class="mt-2 justify-center">
+			<DialogFooter class="justify-center">
 				<Button @click="onAgree()">我同意，繼續使用</Button>
 			</DialogFooter>
 		</DialogContent>
