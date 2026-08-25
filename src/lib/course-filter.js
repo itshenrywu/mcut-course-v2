@@ -78,7 +78,13 @@ export function filterCount(filter) {
 	return count
 }
 
-export function relaxOptions(filter) {
+function isDeptScopedEnrollType(enroll_type, course_list) {
+	if (enroll_type === 'any') return false
+	if (enroll_type === 'mixed' || generalNameClass(enroll_type)) return true
+	return course_list.some(course => course.general_type === enroll_type)
+}
+
+export function relaxOptions(filter, course_list = []) {
 	const { dept, grade_class, enroll_type } = filter
 	const kw = normalizeKeyword(filter.kw)
 	const options = []
@@ -88,9 +94,8 @@ export function relaxOptions(filter) {
 	if (grade_class !== 'any') {
 		options.push({ key: 'grade_class', label: '不限班級', filter: { ...filter, grade_class: 'any', enroll_type: enroll_type === 'mixed' ? 'any' : enroll_type } })
 	}
-	if (dept !== 'any') {
-		const relaxed_enroll = enroll_type === 'mixed' || generalNameClass(enroll_type) ? 'any' : enroll_type
-		options.push({ key: 'dept', label: '不限開課單位', filter: { ...filter, dept: 'any', grade_class: 'any', enroll_type: relaxed_enroll } })
+	if (dept !== 'any' && !isDeptScopedEnrollType(enroll_type, course_list)) {
+		options.push({ key: 'dept', label: '不限開課單位', filter: { ...filter, dept: 'any', grade_class: 'any' } })
 	}
 	if (kw && filterCount(filter) > 1) options.push({ key: 'only_kw', label: '只用關鍵字搜尋', filter: { ...ANY_FILTER, kw } })
 	const seen = new Set()

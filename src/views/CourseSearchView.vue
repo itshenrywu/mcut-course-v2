@@ -84,7 +84,7 @@ const empty_actions = computed(() => {
 	if (filtered_course_list.value.length) return []
 	if (hidden_conflict_count.value) return [{ key: 'conflict', label: '顯示衝堂課程' }]
 	const actions = []
-	for (const option of relaxOptions(current_filter.value)) {
+	for (const option of relaxOptions(current_filter.value, course_list.value)) {
 		if (actions.length >= MAX_EMPTY_ACTIONS) break
 		const count = countMatchedCourses(course_list.value, option.filter)
 		if (count) actions.push({ ...option, count })
