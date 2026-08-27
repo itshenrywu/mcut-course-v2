@@ -299,9 +299,8 @@ watch([() => course.value?.id, favorite_ids], ([id]) => {
 					<Clock class="size-4 h-[1lh] shrink-0 text-color-5" />
 					<div class="flex flex-wrap items-center gap-x-3 gap-y-1">
 						<Dialog v-if="course.time?.length">
-							<DialogTrigger class="flex items-center gap-2 hover:text-color-6" aria-label="查看上課時間">
-								<span>{{ formatCourseTimes(course) }}</span>
-								<Info class="size-4 text-color-5" />
+							<DialogTrigger class="text-left underline decoration-dotted underline-offset-2 hover:text-color-6" aria-label="查看上課時間">
+								{{ formatCourseTimes(course) }}
 							</DialogTrigger>
 							<DialogContent class="max-w-xs">
 								<DialogHeader>
