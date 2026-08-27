@@ -398,6 +398,14 @@ watch([() => course.value?.id, favorite_ids], ([id]) => {
 
 		<p v-else-if="!has_extra" class="-mx-4 rounded-none border-y border-dashed py-10 text-center text-sm text-color-6 sm:mx-0 sm:rounded-lg sm:border">
 			授課老師尚未填寫課程詳細資料
+			<template v-if="other_similar.length && has_other_year">
+				<br>
+				<button
+					type="button"
+					class="text-color-10 underline decoration-dotted underline-offset-2 hover:text-color-9"
+					@click="similar_open = true"
+				>查看歷年開課資料</button>
+			</template>
 		</p>
 
 		<SectionCard v-if="office_time.length" title="Office Hours" :card="false">
