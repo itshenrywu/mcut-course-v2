@@ -18,6 +18,7 @@ if (auth_token.value) {
 }
 
 const is_logged_in = computed(() => Boolean(auth_token.value))
+const hide_ad = computed(() => Boolean(profile.value?.hide_ad))
 
 function readProfileCache() {
 	if (!auth_token.value) return null
@@ -135,5 +136,5 @@ async function logout() {
 }
 
 export function useAuth() {
-	return { auth_token, profile, loading, load_error, is_logged_in, profile_image_url, loginWithLine, loadProfile, updateUid, logout }
+	return { auth_token, profile, loading, load_error, is_logged_in, hide_ad, profile_image_url, loginWithLine, loadProfile, updateUid, logout }
 }

@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, useTemplateRef } from 'vue'
 import { cn } from '@/lib/utils'
+import { useAuth } from '@/lib/auth'
 import SectionCard from '@/components/SectionCard.vue'
 
 const AD_CLIENT = 'ca-pub-5900703871265800'
@@ -44,6 +45,8 @@ const props = defineProps({
 		default: ''
 	}
 })
+
+const { hide_ad } = useAuth()
 
 const ad_state = ref('loading')
 
@@ -117,6 +120,7 @@ function checkStatus() {
 }
 
 onMounted(() => {
+	if (hide_ad.value) return
 	try {
 		window.adsbygoogle = window.adsbygoogle || []
 		window.adsbygoogle.push({})
@@ -140,7 +144,7 @@ onUnmounted(stopWatch)
 
 <template>
 	<SectionCard
-		v-if="ad_state !== 'unfilled' || keepSpace"
+		v-if="!hide_ad && (ad_state !== 'unfilled' || keepSpace)"
 		:title="title"
 		:section-class="cn(sectionClass, ad_state === 'unfilled' && 'max-lg:hidden invisible')"
 		:title-class="titleClass"
