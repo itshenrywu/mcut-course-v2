@@ -55,6 +55,10 @@ const SCRIM_ALPHA = 0.35
 // 判斷隔線是否落在課表最外緣的容許誤差 (最外緣一律不畫)
 const EDGE_EPSILON = 0.5
 
+// hover 高亮疊在該處的實際顏色 (空白格是底色, 課程是方塊色) 上, 深底疊白淺底疊黑
+const HOVER_ALPHA_ON_DARK = 0.1
+const HOVER_ALPHA_ON_LIGHT = 0.05
+
 // 下載圖片的寬度 (高度為 16 / 9 倍)
 export const EXPORT_WIDTH = 1080
 
@@ -129,10 +133,19 @@ function tableColors(bg_color, background) {
 	const surface = background ? mixRgb(base, scrim_rgb, SCRIM_ALPHA) : base
 	return {
 		bg,
+		surface,
 		scrim: `rgba(${scrim_rgb.join(', ')}, ${SCRIM_ALPHA})`,
 		line: dark ? 'rgba(255, 255, 255, 0.24)' : 'rgba(0, 0, 0, 0.16)',
 		...baseColors(surface)
 	}
+}
+
+export function hoverColor(style, background, color_index = null) {
+	const bg_image = style.bg_type === 'image' && background?.image ? background : null
+	const { surface } = tableColors(style.bg_color, bg_image)
+	const fill = color_index === null ? null : hexRgb(findTheme(style.theme).colors[color_index])
+	const base = fill ? mixRgb(surface, fill, 1 - style.transparency / 100) : surface
+	return isDarkBase(base) ? `rgba(255, 255, 255, ${HOVER_ALPHA_ON_DARK})` : `rgba(0, 0, 0, ${HOVER_ALPHA_ON_LIGHT})`
 }
 
 function sampleColors(ctx, x, y, w, h, scale) {
@@ -220,6 +233,18 @@ export function layoutTimetable(courses, style) {
 	})
 
 	return { sections, blocks, grid_x, grid_y, grid_width, grid_height, time_col_width, header_height, day_width, row_height, table_scale, block_gap }
+}
+
+export function cellRect(layout, day, section) {
+	const day_index = MY_WEEKDAYS.indexOf(day)
+	const section_index = layout.sections.indexOf(section)
+	if (day_index < 0 || section_index < 0) return null
+	return {
+		x: layout.grid_x + layout.time_col_width + day_index * layout.day_width + layout.block_gap,
+		y: layout.grid_y + layout.header_height + section_index * layout.row_height + layout.block_gap,
+		w: layout.day_width - layout.block_gap * 2,
+		h: layout.row_height - layout.block_gap * 2
+	}
 }
 
 export function hitTimetable(layout, x, y) {

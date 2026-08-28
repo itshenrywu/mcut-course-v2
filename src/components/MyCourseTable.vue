@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed, watchEffect, useTemplateRef } from 'vue'
 import { useElementSize, useDevicePixelRatio, useMediaQuery } from '@vueuse/core'
-import { layoutTimetable, drawTimetable, hitTimetable, BASE_WIDTH, BASE_HEIGHT, EXPORT_WIDTH } from '@/lib/my-course-canvas'
+import { layoutTimetable, drawTimetable, hitTimetable, cellRect, hoverColor, BASE_WIDTH, BASE_HEIGHT, EXPORT_WIDTH } from '@/lib/my-course-canvas'
 
 const props = defineProps({
 	courses: {
@@ -47,7 +47,36 @@ const canvas_style = computed(() => ({
 	height: `${css_height.value}px`
 }))
 
-const hovering = ref(false)
+const hover_hit = ref(null)
+
+const hovering = computed(() => Boolean(hover_hit.value))
+
+const hover_rect = computed(() => {
+	const hit = hover_hit.value
+	if (!hit) return null
+	if (hit.type === 'course') {
+		const block = layout.value.blocks.find(item => item.course === hit.course)
+		if (!block) return null
+		return { x: block.x, y: block.y, w: block.w, h: block.h, radius: props.settings.radius * layout.value.table_scale, color_index: block.color_index }
+	}
+	const rect = cellRect(layout.value, hit.day, hit.section)
+	if (!rect) return null
+	return { ...rect, radius: 0, color_index: null }
+})
+
+const hover_style = computed(() => {
+	const rect = hover_rect.value
+	if (!rect || css_width.value <= 0) return null
+	const scale = css_width.value / BASE_WIDTH
+	return {
+		left: `${rect.x * scale}px`,
+		top: `${rect.y * scale}px`,
+		width: `${rect.w * scale}px`,
+		height: `${rect.h * scale}px`,
+		borderRadius: `${rect.radius * scale}px`,
+		backgroundColor: hoverColor(props.settings, props.background, rect.color_index)
+	}
+})
 
 watchEffect(() => {
 	const canvas = canvas_ref.value
@@ -71,11 +100,16 @@ function onClick(event) {
 	if (!hit) return
 	if (hit.type === 'course') emit('course-click', hit.course)
 	else emit('empty-click', { day: hit.day, section: hit.section })
+	hover_hit.value = null
 }
 
 function onMove(event) {
 	const point = pointAt(event)
-	hovering.value = Boolean(point && hitTimetable(layout.value, point.x, point.y))
+	hover_hit.value = (point && hitTimetable(layout.value, point.x, point.y)) || null
+}
+
+function onLeave() {
+	hover_hit.value = null
 }
 
 function renderImage() {
@@ -97,14 +131,16 @@ defineExpose({ renderImage })
 
 <template>
 	<div ref="wrap" class="relative w-full overflow-y-auto overscroll-contain">
-		<canvas
-			ref="canvas"
-			class="absolute left-1/2 block -translate-x-1/2 select-none lg:rounded-lg"
+		<div
+			class="absolute left-1/2 -translate-x-1/2 overflow-hidden lg:rounded-lg"
 			:class="[hovering ? 'cursor-pointer' : 'cursor-default', overflowing ? 'top-0' : 'top-1/2 -translate-y-1/2']"
 			:style="canvas_style"
 			@click="onClick"
 			@mousemove="onMove"
-			@mouseleave="hovering = false"
-		></canvas>
+			@mouseleave="onLeave"
+		>
+			<canvas ref="canvas" class="block size-full select-none"></canvas>
+			<div v-if="hover_style" class="pointer-events-none absolute" :style="hover_style"></div>
+		</div>
 	</div>
 </template>
