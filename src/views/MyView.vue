@@ -1,7 +1,8 @@
 <script setup>
 import { ref, computed, watch, useTemplateRef, defineAsyncComponent } from 'vue'
 import { SlidersHorizontal, Plus, Import, ImageDown, Smartphone, Trash2, Download } from '@lucide/vue'
-import { useMyCourse, useMyStyle, nextSection, findConflict, MY_STYLE_FIELDS, MY_BG_COLORS, MY_THEMES, MARGIN_MIN, MARGIN_MAX, RADIUS_MIN, RADIUS_MAX, TRANSPARENCY_MIN, TRANSPARENCY_MAX } from '@/lib/my-course'
+import { useMyCourse, useMyStyle, nextSection, findConflict, MY_STYLE_FIELDS, MY_BG_COLORS, MY_THEMES, MARGIN_MIN, MARGIN_MAX, RADIUS_MIN, RADIUS_MAX, TRANSPARENCY_MIN, TRANSPARENCY_MAX, TRANSPARENCY_DISABLED, BLUR_MIN, BLUR_MAX, BG_SCRIMS } from '@/lib/my-course'
+import { autoScrim } from '@/lib/my-course-canvas'
 import { useMyCourseSync, resyncMyCourse } from '@/lib/my-course-sync'
 import { useFavoriteSync } from '@/lib/favorite'
 import { useMyBgImage, IMAGE_MAX_MB } from '@/lib/my-course-image'
@@ -99,6 +100,15 @@ const transparency = computed({
 	}
 })
 
+const blur = computed({
+	get: () => [my_style.value.blur],
+	set: ([value]) => {
+		my_style.value.blur = value
+	}
+})
+
+const blur_disabled = computed(() => my_style.value.transparency < TRANSPARENCY_DISABLED)
+
 function openAdd(defaults = null) {
 	editing_course.value = null
 	dialog_defaults.value = defaults
@@ -174,6 +184,7 @@ async function pickBgImage(file) {
 	try {
 		await saveMyBgImage(file)
 		use_bg_image.value = true
+		if (bg_image.value) my_style.value.bg_scrim = autoScrim(bg_image.value.rgb)
 	} catch (error) {
 		console.error(error)
 		toast.error('背景圖片儲存失敗')
@@ -236,6 +247,18 @@ async function downloadImage() {
 								@remove-image="removeBgImage"
 							/>
 
+							<FilterField v-if="use_bg_image" label="背景淡化">
+								<Tabs v-model="my_style.bg_scrim">
+									<TabsList class="w-full border border-color-3 bg-color-1" aria-label="背景淡化">
+										<TabsTrigger
+											v-for="scrim in BG_SCRIMS"
+											:key="scrim.value"
+											:value="scrim.value"
+										>{{ scrim.label }}</TabsTrigger>
+									</TabsList>
+								</Tabs>
+							</FilterField>
+
 							<FilterField label="外距">
 								<template #label-extra>
 									<span class="ml-auto text-xs text-color-6">{{ my_style.margin }}%</span>
@@ -296,6 +319,20 @@ async function downloadImage() {
 									:max="TRANSPARENCY_MAX"
 									class="h-6 cursor-pointer"
 									aria-label="課程方塊透明度"
+								/>
+							</FilterField>
+
+							<FilterField label="霧化" :disabled="blur_disabled">
+								<template #label-extra>
+									<span class="ml-auto text-xs text-color-6">{{ blur_disabled ? '透明度過低' : my_style.blur }}</span>
+								</template>
+								<Slider
+									v-model="blur"
+									:min="BLUR_MIN"
+									:max="BLUR_MAX"
+									:disabled="blur_disabled"
+									class="h-6 cursor-pointer"
+									aria-label="課程方塊霧化"
 								/>
 							</FilterField>
 						</div>

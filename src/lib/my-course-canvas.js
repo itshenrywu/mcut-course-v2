@@ -49,8 +49,9 @@ const SAMPLE_SIZE = 32
 // 背景圖時每個星期格與節次格各自取樣自己底下的底色, 每格最多取這麼多點平均
 const CELL_SAMPLE_POINTS = 64
 
-// 背景圖片上的遮罩不透明度 (壓低圖片對比, 讓文字在花色照片上仍讀得到)
+// 背景圖片上的遮罩不透明度 (壓低圖片對比, 讓文字在花色照片上仍讀得到), 深淺由背景淡化設定決定
 const SCRIM_ALPHA = 0.35
+const SCRIM_RGB = { light: [255, 255, 255], dark: [0, 0, 0] }
 
 // 判斷隔線是否落在課表最外緣的容許誤差 (最外緣一律不畫)
 const EDGE_EPSILON = 0.5
@@ -92,6 +93,10 @@ function isDarkBase(rgb) {
 	return contrastRatio(base, luminance(hexRgb(TEXT_ON_DARK))) >= contrastRatio(base, luminance(hexRgb(TEXT_ON_LIGHT)))
 }
 
+export function autoScrim(rgb) {
+	return isDarkBase(rgb) ? 'dark' : 'light'
+}
+
 function mutedRgb(text_rgb, base_rgb) {
 	const base = luminance(base_rgb)
 	for (let ratio = MUTED_MIX_MAX; ratio > 0; ratio -= MUTED_MIX_STEP) {
@@ -125,24 +130,24 @@ function baseColors(base) {
 	return { dark, text: rgbCss(text_rgb), muted: rgbCss(mutedRgb(text_rgb, base)) }
 }
 
-function tableColors(bg_color, background) {
-	const bg = isHexColor(bg_color) ? bg_color : '#ffffff'
+function tableColors(style, background) {
+	const bg = isHexColor(style.bg_color) ? style.bg_color : '#ffffff'
 	const base = background?.rgb ?? hexRgb(bg)
-	const dark = isDarkBase(base)
-	const scrim_rgb = dark ? [0, 0, 0] : [255, 255, 255]
-	const surface = background ? mixRgb(base, scrim_rgb, SCRIM_ALPHA) : base
+	const scrim_rgb = background ? SCRIM_RGB[style.bg_scrim] : null
+	const surface = scrim_rgb ? mixRgb(base, scrim_rgb, SCRIM_ALPHA) : base
+	const colors = baseColors(surface)
 	return {
 		bg,
 		surface,
-		scrim: `rgba(${scrim_rgb.join(', ')}, ${SCRIM_ALPHA})`,
-		line: dark ? 'rgba(255, 255, 255, 0.24)' : 'rgba(0, 0, 0, 0.16)',
-		...baseColors(surface)
+		scrim: scrim_rgb ? `rgba(${scrim_rgb.join(', ')}, ${SCRIM_ALPHA})` : '',
+		line: colors.dark ? 'rgba(255, 255, 255, 0.24)' : 'rgba(0, 0, 0, 0.16)',
+		...colors
 	}
 }
 
 export function hoverColor(style, background, color_index = null) {
 	const bg_image = style.bg_type === 'image' && background?.image ? background : null
-	const { surface } = tableColors(style.bg_color, bg_image)
+	const { surface } = tableColors(style, bg_image)
 	const fill = color_index === null ? null : hexRgb(findTheme(style.theme).colors[color_index])
 	const base = fill ? mixRgb(surface, fill, 1 - style.transparency / 100) : surface
 	return isDarkBase(base) ? `rgba(255, 255, 255, ${HOVER_ALPHA_ON_DARK})` : `rgba(0, 0, 0, ${HOVER_ALPHA_ON_LIGHT})`
@@ -187,6 +192,25 @@ function drawCover(ctx, image) {
 	const width = image.width * scale
 	const height = image.height * scale
 	ctx.drawImage(image, (BASE_WIDTH - width) / 2, (BASE_HEIGHT - height) / 2, width, height)
+}
+
+function blurBackdrop(canvas, radius) {
+	const backdrop = document.createElement('canvas')
+	backdrop.width = canvas.width
+	backdrop.height = canvas.height
+	const ctx = backdrop.getContext('2d')
+	if (!ctx || !('filter' in ctx)) return null
+	ctx.filter = `blur(${radius}px)`
+	ctx.drawImage(canvas, 0, 0)
+	return backdrop
+}
+
+function backdropPattern(ctx, backdrop, scale) {
+	const pattern = ctx.createPattern(backdrop, 'no-repeat')
+	if (!pattern?.setTransform) return null
+	// pattern 來源是裝置像素的整張畫布, ctx 已經套上 scale, 要先除回去才對得齊
+	pattern.setTransform(new DOMMatrix([1 / scale, 0, 0, 1 / scale, 0, 0]))
+	return pattern
 }
 
 function blockColors(theme, index) {
@@ -348,7 +372,7 @@ export function drawTimetable(canvas, layout, options) {
 	if (!ctx || css_width <= 0) return
 
 	const bg_image = style.bg_type === 'image' && background?.image ? background : null
-	const table = tableColors(style.bg_color, bg_image)
+	const table = tableColors(style, bg_image)
 	const theme = findTheme(style.theme)
 	const scale = (css_width / BASE_WIDTH) * pixel_ratio
 	canvas.width = Math.round(BASE_WIDTH * scale)
@@ -360,8 +384,10 @@ export function drawTimetable(canvas, layout, options) {
 
 	if (bg_image) {
 		drawCover(ctx, bg_image.image)
-		ctx.fillStyle = table.scrim
-		ctx.fillRect(0, 0, BASE_WIDTH, BASE_HEIGHT)
+		if (table.scrim) {
+			ctx.fillStyle = table.scrim
+			ctx.fillRect(0, 0, BASE_WIDTH, BASE_HEIGHT)
+		}
 	}
 
 	const grid_right = grid_x + grid_width
@@ -427,10 +453,18 @@ export function drawTimetable(canvas, layout, options) {
 	const block_radius = style.radius * table_scale
 	// 透明度只作用在填色, 方塊內文字一律不透明
 	const block_alpha = 1 - style.transparency / 100
+	// 霧化是把方塊底下透出來的東西糊掉, 填色不透明時沒有東西會透出來, 就不用花時間糊
+	const block_blur = style.blur * table_scale * scale
+	const backdrop = block_alpha < 1 && block_blur > 0 ? blurBackdrop(canvas, block_blur) : null
+	const backdrop_pattern = backdrop && backdropPattern(ctx, backdrop, scale)
 
 	for (const block of blocks) {
 		const colors = blockColors(theme, block.color_index)
 		roundRectPath(ctx, block.x, block.y, block.w, block.h, block_radius)
+		if (backdrop_pattern) {
+			ctx.fillStyle = backdrop_pattern
+			ctx.fill()
+		}
 		ctx.globalAlpha = block_alpha
 		ctx.fillStyle = colors.fill
 		ctx.fill()

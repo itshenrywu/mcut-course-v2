@@ -34,6 +34,12 @@ const DEFAULT_RADIUS = 20
 export const TRANSPARENCY_MIN = 0
 export const TRANSPARENCY_MAX = 90
 const DEFAULT_TRANSPARENCY = 20
+export const TRANSPARENCY_DISABLED = 10  // 低於此值時, 霧化設定會被鎖住
+
+// 課程方塊底下的霧化半徑 (虛擬座標, 畫的時候一律乘上 table_scale), 要有透明度才看得出來
+export const BLUR_MIN = 0
+export const BLUR_MAX = 30
+const DEFAULT_BLUR = 0
 
 // 課表底色的常用選項, 其餘顏色由色盤自訂
 // 畫布只吃色碼, 這裡直接寫死 mist-50 / mist-900 的 hex
@@ -144,14 +150,25 @@ const DEFAULT_THEME = 1
 // 背景用純色或使用者自選的圖片, 圖片本身存在 IndexedDB (見 my-course-image.js)
 export const BG_TYPES = ['color', 'image']
 
+// 背景圖片上的遮罩深淺, 換圖時依圖片明暗自動選一個 (見 my-course-canvas.js 的 autoScrim)
+export const BG_SCRIMS = [
+	{ value: 'none', label: '無' },
+	{ value: 'light', label: '淺色' },
+	{ value: 'dark', label: '深色' }
+]
+
+const DEFAULT_BG_SCRIM = 'none'
+
 const DEFAULT_STYLE = {
 	...Object.fromEntries(MY_STYLE_FIELDS.map(field => [field.key, true])),
 	margin: DEFAULT_MARGIN,
 	radius: DEFAULT_RADIUS,
 	transparency: DEFAULT_TRANSPARENCY,
+	blur: DEFAULT_BLUR,
 	bg_type: BG_TYPES[0],
 	bg_color: MY_BG_COLORS[0].value,
 	bg_custom_color: '',
+	bg_scrim: DEFAULT_BG_SCRIM,
 	theme: DEFAULT_THEME
 }
 
@@ -237,9 +254,11 @@ function normalizeStyle(value) {
 	if (Number.isFinite(value.margin)) style.margin = Math.min(MARGIN_MAX, Math.max(MARGIN_MIN, Math.round(value.margin)))
 	if (Number.isFinite(value.radius)) style.radius = Math.min(RADIUS_MAX, Math.max(RADIUS_MIN, Math.round(value.radius)))
 	if (Number.isFinite(value.transparency)) style.transparency = Math.min(TRANSPARENCY_MAX, Math.max(TRANSPARENCY_MIN, Math.round(value.transparency)))
+	if (Number.isFinite(value.blur)) style.blur = Math.min(BLUR_MAX, Math.max(BLUR_MIN, Math.round(value.blur)))
 	if (BG_TYPES.includes(value.bg_type)) style.bg_type = value.bg_type
 	if (isHexColor(value.bg_color)) style.bg_color = value.bg_color.toLowerCase()
 	if (isHexColor(value.bg_custom_color)) style.bg_custom_color = value.bg_custom_color.toLowerCase()
+	if (BG_SCRIMS.some(scrim => scrim.value === value.bg_scrim)) style.bg_scrim = value.bg_scrim
 	if (MY_THEMES.some(theme => theme.value === value.theme)) style.theme = value.theme
 	return style
 }
