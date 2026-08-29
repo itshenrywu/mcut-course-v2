@@ -4,7 +4,7 @@
 
 明志科技大學選課小幫手，幫助您輕鬆查詢全校課表，快速進行課程預排與衝堂檢查，還可以查詢畢業學分門檻及選課時程！
 
-<img width="1440" height="799" alt="mcut-course com" src="https://github.com/user-attachments/assets/7dd7fbf0-af99-4e97-ab56-f1028b2960cf" />
+![screenshot of mcut-coure.com](https://github.com/user-attachments/assets/e13424c8-314b-4608-81a0-eefdbbf65ee2)
 
 ## 主要功能
 
