@@ -50,7 +50,7 @@ onMounted(() => {
 	resize_observer = new ResizeObserver(entries => {
 		for (const entry of entries) {
 			const key = entry.target === top_nav.value ? '--nav-h' : '--footer-h'
-			document.documentElement.style.setProperty(key, `${entry.target.offsetHeight}px`)
+			document.documentElement.style.setProperty(key, `${(entry.target.offsetHeight - 1)}px`)
 		}
 	})
 	resize_observer.observe(top_nav.value)

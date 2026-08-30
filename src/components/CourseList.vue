@@ -61,7 +61,7 @@ const rows = computed(() => props.courses.map(course => {
 		to: is_multi_alt ? undefined : courseOrAltRoutePath(course),
 		dept_class: formatDeptClass(course),
 		times: (course.time || []).map(time => formatCourseTime(time, course)),
-		enroll_label: course.general_type ? `通識 ${course.general_type.slice(0, 2)}` : course.enroll_type,
+		enroll_label: course.general_type ? `${course.enroll_type} ${course.general_type.slice(0, 2)}` : course.enroll_type,
 		teachers: splitTeacher(course.teacher),
 		remark: hasRemark(course) ? course.remark : ''
 	}
