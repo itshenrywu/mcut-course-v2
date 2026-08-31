@@ -74,10 +74,20 @@
 	}
 	/* 自製的可點列與卡片散落在各頁, 只有 Button 元件自己帶 transition, 其餘 hover 都是瞬間跳色.
 	   統一在這裡補, 免得每加一個新的列就要記得寫一次;
-	   切換主題時 useColorMode 會自己注入 transition:none, 不會有整頁漸變的殘影 */
+	   切換主題不會有漸變殘影, 靠下面的 .theme-switching */
 	a,
 	button {
 		@apply transition-colors;
+	}
+	/* useColorMode 自己那招 (同步塞 transition:none 再立刻移除) 只擋得住當下那次 style recalc,
+	   靠 JS 下一 tick 才換色的元件 (例如 Sonner 是用 prop 傳 theme) 與 Safari 都會漏掉而各自漸變.
+	   改由 useTheme 掛上這個 class, 撐過一個真正畫完的畫面再拿掉 */
+	html.theme-switching,
+	html.theme-switching *,
+	html.theme-switching *::before,
+	html.theme-switching *::after {
+		transition: none !important;
+		animation: none !important;
 	}
 	html {
 		scrollbar-width: thin;
