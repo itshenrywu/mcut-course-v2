@@ -68,7 +68,7 @@ export const PAGE_META = {
 	},
 	'/goal-course-route': {
 		title: `大學之道「環境與行動」路線查詢 | ${SITE_NAME}`,
-		description: '輸入學號查詢大學之道「環境與行動」的實作踏查路線編號，以及前導課、實作踏查與課後討論的上課時段'
+		description: '查詢大學之道「環境與行動」各條實作踏查路線的講師、題目、集合地點與上課時段，名單公布後可輸入學號查詢自己的路線'
 	},
 	'/login': {
 		title: `登入中 | ${SITE_NAME}`,

@@ -27,7 +27,10 @@ async function loadPreMap(options = {}) {
 	}
 }
 
-export function usePreItem(key, storage_key) {
+// 同一個 key 可能同時被清單與學號兩種 store 用到, 共用同一份 seen_id 紅點才不會清不掉
+const pre_item_map = new Map()
+
+function createPreItem(key, storage_key) {
 	const seen_id = ref(localStorage.getItem(storage_key) || '')
 	const item = computed(() => pre_map.value[key] || null)
 	const has_item = computed(() => Boolean(item.value))
@@ -45,6 +48,12 @@ export function usePreItem(key, storage_key) {
 	}, { immediate: true })
 
 	return { item, has_item, item_id, has_update, markSeen }
+}
+
+export function usePreItem(key, storage_key) {
+	const cache_key = `${key}|${storage_key}`
+	if (!pre_item_map.has(cache_key)) pre_item_map.set(cache_key, createPreItem(key, storage_key))
+	return pre_item_map.get(cache_key)
 }
 
 export function loadPreInfo(options = {}) {
