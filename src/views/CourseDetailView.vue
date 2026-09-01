@@ -3,7 +3,7 @@ import { ref, computed, watch } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import { Users, Clock, CalendarClock, Info, ChevronRight } from '@lucide/vue'
 import TeacherIcon from '@/components/icons/TeacherIcon.vue'
-import { getCourseDetail, getSimilarCourses } from '@/api/course'
+import { getCourseDetail, getSimilarCourses, getCachedSimilarCourses } from '@/api/course'
 import { formatCourseTime, formatCourseTimes, formatSectionRange, courseIdFromRoute, getCourseBasic, getCourseMap, formatLimit, formatDeptClass, courseGradeClass, teacherName, hasRemark, isNoFixedTime, isBlockCourse, isAltCourse, conflictingCourses, FULL_WEEKDAY_LABELS } from '@/lib/course'
 import { termIdFromCourseId, formatTermLabel, getStoredTermList, useSelectedTerm } from '@/lib/term'
 import { useLatestRequest } from '@/lib/loader'
@@ -158,13 +158,16 @@ async function loadDetail(id, basic_promise, isLatest) {
 }
 
 async function loadSimilar(id, isLatest) {
-	try {
-		const courses = await getSimilarCourses(id)
+	let fetched = false
+	const fetch_promise = getSimilarCourses(id).then(courses => {
+		fetched = true
 		if (isLatest()) similar_courses.value = courses
-	} catch (error) {
+	}, error => {
 		console.error(error)
-		if (isLatest()) similar_courses.value = []
-	}
+	})
+	const cached = await getCachedSimilarCourses(id)
+	if (cached && !fetched && isLatest()) similar_courses.value = cached
+	await fetch_promise
 }
 
 async function loadFavoriteCourses(id) {

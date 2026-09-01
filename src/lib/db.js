@@ -3,10 +3,10 @@ let db_promise = null
 function openDb() {
 	if (db_promise) return db_promise
 	db_promise = new Promise((resolve, reject) => {
-		const request = indexedDB.open('mcv2', 2)
+		const request = indexedDB.open('mcv2', 3)
 		request.onupgradeneeded = () => {
 			const db = request.result
-			for (const store of ['course_list', 'images']) {
+			for (const store of ['course_list', 'images', 'similar']) {
 				if (!db.objectStoreNames.contains(store)) {
 					db.createObjectStore(store)
 				}
@@ -38,6 +38,16 @@ export async function idbSet(store_name, key, value) {
 		tx.objectStore(store_name).put(value, key)
 		tx.oncomplete = () => resolve()
 		tx.onerror = () => reject(tx.error)
+	})
+}
+
+export async function idbGetAll(store_name) {
+	const db = await openDb()
+	return new Promise((resolve, reject) => {
+		const tx = db.transaction(store_name, 'readonly')
+		const request = tx.objectStore(store_name).getAll()
+		request.onsuccess = () => resolve(request.result)
+		request.onerror = () => reject(request.error)
 	})
 }
 

@@ -1,7 +1,9 @@
 import { API_BASE_URL } from '@/config'
 import { fetchJson, cachedFetch } from '@/api/cache'
-import { idbGet, idbSet, idbKeys, idbDelete } from '@/lib/db'
+import { idbGet, idbSet, idbGetAll, idbKeys, idbDelete } from '@/lib/db'
 import { normalizeTermId, termIdFromCourseId, getStoredTermList, saveTermList } from '@/lib/term'
+
+const SIMILAR_CACHE_MAX = 300
 
 const course_list_cache = new Map()
 const course_list_promise_map = new Map()
@@ -119,7 +121,40 @@ export function searchCourses(kw, options = {}) {
 	return cachedFetch(`course/search/${query}`, `${API_BASE_URL}/course/search?${query}`, { label: '跨學期搜尋' })
 }
 
+export async function getCachedSimilarCourses(id) {
+	try {
+		const cached = await idbGet('similar', id)
+		return cached?.course_list || null
+	} catch (error) {
+		console.error(error)
+		return null
+	}
+}
+
 export async function getSimilarCourses(id) {
 	const data = await fetchJson(`${API_BASE_URL}/course/similar/${encodeURIComponent(id)}`, '相似課程')
-	return data.course_list || []
+	const course_list = data.course_list || []
+	saveSimilarCourses(id, course_list)
+	return course_list
+}
+
+async function saveSimilarCourses(id, course_list) {
+	try {
+		await idbSet('similar', id, { course_list, saved_at: Date.now() })
+		await pruneSimilarCache()
+	} catch (error) {
+		console.error(error)
+	}
+}
+
+async function pruneSimilarCache() {
+	const keys = await idbKeys('similar')
+	if (keys.length <= SIMILAR_CACHE_MAX) return
+	// getAll 與 getAllKeys 都照 key 排序, 兩邊同一個 index 才會是同一筆
+	const values = await idbGetAll('similar')
+	const stale = keys
+		.map((key, index) => ({ key, saved_at: values[index]?.saved_at || 0 }))
+		.sort((a, b) => a.saved_at - b.saved_at)
+		.slice(0, keys.length - SIMILAR_CACHE_MAX)
+	for (const { key } of stale) await idbDelete('similar', key)
 }
