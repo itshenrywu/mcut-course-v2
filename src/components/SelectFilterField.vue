@@ -22,6 +22,10 @@ defineProps({
 	disabled: {
 		type: Boolean,
 		default: false
+	},
+	inlineDescription: {
+		type: Boolean,
+		default: false
 	}
 })
 
@@ -44,7 +48,8 @@ function toOption(option) {
 					v-for="option in options.map(toOption)"
 					:key="option.value"
 					:value="option.value"
-					:note="option.note"
+					:description="option.description"
+					:inline-description="inlineDescription"
 				>{{ option.label }}</SelectItem>
 			</SelectContent>
 		</Select>

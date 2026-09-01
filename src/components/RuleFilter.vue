@@ -48,6 +48,10 @@ const self_rule = computed(() => findSelfRule(props.ruleMap, props.deptMap, year
 
 const rule_groups = computed(() => ruleGroups(props.ruleMap, props.deptMap, year.value, dept.value))
 
+function ruleDescription(rule) {
+	return [rule.dept, rule.disabled ? '(本系不可修)' : ''].filter(Boolean).join(' ')
+}
+
 function syncDeptRule(next_year) {
 	const dept_ids = deptGroups(props.deptMap, next_year).flatMap(item => item.depts.map(option => option.id))
 	const next_dept = dept.value !== DEFAULT_ID && !dept_ids.includes(dept.value) ? DEFAULT_ID : dept.value
@@ -89,7 +93,8 @@ watch(() => props.enrollTermList, () => {
 			v-model="year"
 			label="入學學年度"
 			placeholder="選擇學年度"
-			:options="year_options.map(option => ({ value: option, label: `${option} 學年`, note: `U${String(option).slice(-2)}` }))"
+			:options="year_options.map(option => ({ value: option, label: `${option} 學年`, description: `U${String(option).slice(-2)}` }))"
+			inline-description
 			:disabled="disabled"
 		/>
 
@@ -122,8 +127,7 @@ watch(() => props.enrollTermList, () => {
 							:key="rule.id"
 							:value="rule.id"
 							:disabled="rule.disabled"
-							:description="rule.dept"
-							:note="rule.disabled ? '本系不適用' : ''"
+							:description="ruleDescription(rule)"
 						>{{ spaceText(rule.name) }}</SelectItem>
 					</SelectGroup>
 				</SelectContent>

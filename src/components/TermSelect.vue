@@ -24,7 +24,7 @@ const props = defineProps({
 		type: Boolean,
 		default: false
 	},
-	noteMap: {
+	descriptionMap: {
 		type: Object,
 		default: null
 	}
@@ -40,7 +40,7 @@ const term_groups = computed(() => {
 		map.get(year).push({
 			term_id: id,
 			label: formatTermName(term),
-			note: props.noteMap ? props.noteMap[id] : TERM_NOTES[term]
+			description: props.descriptionMap ? props.descriptionMap[id] : TERM_NOTES[term]
 		})
 	}
 	for (const terms of map.values()) {
@@ -64,7 +64,8 @@ const selected_term_label = computed(() => formatTermLabel(term_id.value))
 					v-for="term in group.terms"
 					:key="term.term_id"
 					:value="term.term_id"
-					:note="term.note"
+					:description="term.description"
+					inline-description
 				>
 					{{ term.label }}
 				</SelectItem>

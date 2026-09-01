@@ -42,7 +42,7 @@ const day_options = computed(() => MY_WEEKDAYS.map(value => ({ value: String(val
 const section_options = computed(() => SECTION_ORDER.map(section => ({
 	value: String(section),
 	label: `${section}`,
-	note: SECTION_TIME[section] ? `${SECTION_TIME[section][0]} ~ ${SECTION_TIME[section][1]}` : ''
+	description: SECTION_TIME[section] ? `${SECTION_TIME[section][0]} ~ ${SECTION_TIME[section][1]}` : ''
 })))
 
 const end_options = computed(() => section_options.value.filter(option => Number(option.value) >= Number(start.value)))
@@ -130,7 +130,7 @@ function remove() {
 								<SelectValue />
 							</SelectTrigger>
 							<SelectContent>
-								<SelectItem v-for="option in section_options" :key="option.value" :value="option.value" :note="option.note">{{ option.label }}</SelectItem>
+								<SelectItem v-for="option in section_options" :key="option.value" :value="option.value" :description="option.description" inline-description>{{ option.label }}</SelectItem>
 							</SelectContent>
 						</Select>
 					</FilterField>
@@ -141,7 +141,7 @@ function remove() {
 								<SelectValue />
 							</SelectTrigger>
 							<SelectContent>
-								<SelectItem v-for="option in end_options" :key="option.value" :value="option.value" :note="option.note">{{ option.label }}</SelectItem>
+								<SelectItem v-for="option in end_options" :key="option.value" :value="option.value" :description="option.description" inline-description>{{ option.label }}</SelectItem>
 							</SelectContent>
 						</Select>
 					</FilterField>

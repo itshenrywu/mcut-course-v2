@@ -8,12 +8,12 @@ const props = defineProps({
 	value: { type: null, required: true },
 	disabled: { type: Boolean, required: false },
 	textValue: { type: String, required: false },
-	note: { type: String, required: false },
 	description: { type: String, required: false },
+	inlineDescription: { type: Boolean, required: false },
 	class: { type: null, default: '' }
 })
 
-const delegated_props = reactiveOmit(props, 'class', 'note', 'description')
+const delegated_props = reactiveOmit(props, 'class', 'description', 'inlineDescription')
 const forwarded = useForwardProps(delegated_props)
 </script>
 
@@ -28,12 +28,11 @@ const forwarded = useForwardProps(delegated_props)
 				<Check class="size-4" />
 			</SelectItemIndicator>
 		</span>
-		<span class="flex min-w-0 flex-col">
+		<span :class="cn('flex min-w-0 flex-1 flex-col gap-x-3 md:flex-row md:items-baseline md:justify-between', inlineDescription && 'flex-row items-baseline justify-between')">
 			<SelectItemText>
 				<slot />
 			</SelectItemText>
-			<span v-if="description" class="text-color-6 text-xs">{{ description }}</span>
+			<span v-if="description" class="text-color-6 shrink-0 text-xs">{{ description }}</span>
 		</span>
-		<span v-if="note" class="text-color-6 ml-auto shrink-0 text-xs">{{ note }}</span>
 	</SelectItem>
 </template>

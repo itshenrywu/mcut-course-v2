@@ -220,13 +220,13 @@ export function useFavoriteTermCount() {
 		return map
 	})
 
-	const term_note_map = computed(() => {
+	const term_description_map = computed(() => {
 		const map = {}
 		for (const [term_id, count] of favorite_count_map.value) map[term_id] = `${count} 門`
 		return map
 	})
 
-	return { favorite_count_map, term_note_map }
+	return { favorite_count_map, term_description_map }
 }
 
 export function useFavoriteToggle() {

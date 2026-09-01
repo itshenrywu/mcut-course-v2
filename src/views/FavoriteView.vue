@@ -51,7 +51,7 @@ const archived_rows = computed(() => archived_courses.value.map(course => ({
 	meta: course.name ? formatCourseMeta(course) : ''
 })))
 
-const { favorite_count_map, term_note_map } = useFavoriteTermCount()
+const { favorite_count_map, term_description_map } = useFavoriteTermCount()
 
 const has_other_term_favorite = computed(() => {
 	for (const term_id of favorite_count_map.value.keys()) {
@@ -99,7 +99,7 @@ function clearArchivedCourses() {
 					v-model="selected_term_id"
 					:term-list="term_list"
 					:disabled="loading"
-					:note-map="term_note_map"
+					:description-map="term_description_map"
 					trigger-class="h-8 bg-color-1 data-[size=default]:h-8"
 				/>
 

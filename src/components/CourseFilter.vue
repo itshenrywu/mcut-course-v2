@@ -144,7 +144,7 @@ const class_options = computed(() => {
 	const note_map = class_group_note.value
 	return Array.from(current_dept_info.value.classes.values(), cls => ({
 		...cls,
-		note: note_map[`${cls.grade}${cls.class_group}`]
+		description: note_map[`${cls.grade}${cls.class_group}`]
 	}))
 })
 
@@ -256,7 +256,8 @@ watch(() => props.courseList, list => {
 			v-model="grade_class"
 			label="開課班級"
 			any-label="不限"
-			:options="class_options.map(cls => ({ value: cls.id, label: cls.label, note: cls.note }))"
+			:options="class_options.map(cls => ({ value: cls.id, label: cls.label, description: cls.description }))"
+			inline-description
 			:disabled="grade_class_disabled"
 		/>
 

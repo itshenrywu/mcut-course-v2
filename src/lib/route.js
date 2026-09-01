@@ -2,9 +2,6 @@ import { computed } from 'vue'
 import { createInfoStore, createUidInfoStore } from '@/lib/info-store'
 import { cleanText } from '@/lib/utils'
 
-// 集合地點要插在這個時段的下方
-const MEETING_POINT_AFTER = '踏查'
-
 const ROUTE_STORE_OPTIONS = {
 	label: '踏查路線',
 	pre_key: 'mcv2-route-id'
@@ -45,10 +42,16 @@ function routeTimeLabel(key) {
 	return key.match(/[（(](.+?)[）)]/)?.[1] || key
 }
 
+function routeMainTime(item) {
+	const entry = Object.entries(item?.time || {}).find(([key]) => routeTimeLabel(key).includes('踏查'))
+	return cleanText(entry?.[1])
+}
+
 export function routeOptions(list) {
 	return list.map(route => ({
 		value: String(route.route_id),
-		label: [route.route_id, route.title].map(cleanText).filter(Boolean).join(' - ')
+		label: [route.route_id, route.title].map(cleanText).filter(Boolean).join(' - '),
+		description: routeMainTime(route)
 	}))
 }
 
@@ -63,7 +66,7 @@ export function routeRowList(item) {
 		value: cleanText(value)
 	}))
 	const meeting_row = { label: '集合地點', value: cleanText(item.meeting_point) }
-	const meeting_index = time_rows.findIndex(row => row.label.includes(MEETING_POINT_AFTER))
+	const meeting_index = time_rows.findIndex(row => row.label.includes('踏查'))
 	if (meeting_index === -1) time_rows.push(meeting_row)
 	else time_rows.splice(meeting_index + 1, 0, meeting_row)
 	const name = cleanText(item.name)
