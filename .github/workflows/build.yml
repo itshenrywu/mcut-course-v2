@@ -28,7 +28,14 @@ jobs:
   build:
     if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, 'bump')
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     env:
       SITE_BASE: ${{ vars.SITE_BASE || 'https://v2-s.mcut-course.com' }}
       API_BASE: ${{ vars.API_BASE || 'https://api-v2.mcut-course.com' }}
@@ -36,10 +43,10 @@ jobs:
     - uses: actions/checkout@v7
     - uses: actions/setup-node@v7
       with:
-        node-version: 20
+        node-version: 24
         cache: 'npm'
     - name: Install Dependencies
-      run: npm install
+      run: npm ci --prefer-offline --no-audit --no-fund
     - name: Generate Mtime JSON
       env:
         RULE_MTIME: ${{ inputs.rule_mtime }}
@@ -74,18 +81,6 @@ jobs:
       uses: actions/upload-pages-artifact@v5
       with:
         path: dist
-
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
     - name: Deploy
       id: deployment
       uses: actions/deploy-pages@v5

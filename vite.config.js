@@ -124,9 +124,10 @@ function fetchCourseList(term_id = '') {
 
 async function generateCoursePages(base_html, out_dir) {
 	const { term_list } = await fetchCourseList()
+	const term_data_list = await Promise.all(term_list.map(term_id => fetchCourseList(term_id)))
 	const path_list = []
-	for (const term_id of term_list) {
-		const course_list = (await fetchCourseList(term_id)).course_list || []
+	for (const term_data of term_data_list) {
+		const course_list = term_data.course_list || []
 		for (const course of course_list) {
 			const route_path = courseRoutePath(course.id)
 			const html = injectAppContent(injectMeta(base_html, coursePageMeta(course), route_path), renderCourseContent(course))
@@ -171,8 +172,7 @@ function fetchRuleDescription() {
 }
 
 async function generateRulePages(base_html, out_dir) {
-	const data = await fetchRuleList()
-	const description_map = await fetchRuleDescription()
+	const [data, description_map] = await Promise.all([fetchRuleList(), fetchRuleDescription()])
 	const rule_map = data.rules || {}
 	const dept_map = data.depts || {}
 	const path_list = []
