@@ -4,6 +4,10 @@
 @import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
+/* 瀏覽器的 :focus-visible 在「腳本把焦點移回去」時也會成立, Reka 的 Select/Popover 關閉後會 focus() 回觸發元件,
+   滑鼠使用者因此會在 dropdown 關掉後看到一圈灰框. 改成自己記錄輸入方式 (lib/focus-modality.js), 只有鍵盤操作才給焦點框.
+   包成 :where() 是為了不動到原本的 specificity; 文字輸入框不吃這條, 它們一律用 focus: 而不是 focus-visible: */
+@custom-variant focus-visible (&:where(html[data-keyboard] *):focus-visible);
 @custom-variant md {
 	@media (width >= 48rem) {
 		@slot;
@@ -93,8 +97,10 @@
 		scrollbar-width: thin;
 		scrollbar-color: var(--c-4) transparent;
 	}
+	/* 高度只能用 lvh: dvh 在 iOS 分頁恢復後會停在偏小的舊值且不隨捲動更新,
+	   body 因此比可見區矮, sticky 的 footer 就停在畫面中間 */
 	body {
-		@apply bg-color-2 text-color-9 flex min-h-dvh flex-col;
+		@apply bg-color-2 text-color-9 flex min-h-lvh flex-col;
 		font-family: noto sans tc, noto sans sc, noto sans hk, noto sans jp, noto sans kr,
 		sf pro tc, sf pro text, sf pro icons, pingfang tc, helvetica neue, helvetica, arial,
 		microsoft jhenghei, wf_SegoeUI, segoe ui, Segoe, segoe wp, Tahoma, Verdana, Ubuntu,

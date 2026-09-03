@@ -332,7 +332,7 @@ function onLockedButton() {
 								v-model="keyword"
 								placeholder="搜尋課程名稱、老師、代碼..."
 								aria-label="搜尋課程"
-								class="h-14 border-0 text-lg shadow-none focus-visible:border-0 focus-visible:ring-inset md:text-lg"
+								class="h-14 border-0 text-lg shadow-none focus:ring-0 focus-visible:ring-[3px] focus-visible:ring-inset md:text-lg"
 								@focus="search_open = true"
 								@blur="search_open = false"
 							/>
