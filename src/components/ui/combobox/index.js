@@ -1,0 +1,6 @@
+export { default as Combobox } from './Combobox.vue'
+export { default as ComboboxTrigger } from './ComboboxTrigger.vue'
+export { default as ComboboxContent } from './ComboboxContent.vue'
+export { default as ComboboxItem } from './ComboboxItem.vue'
+export { default as ComboboxGroup } from './ComboboxGroup.vue'
+export { default as ComboboxLabel } from './ComboboxLabel.vue'

@@ -1,8 +1,9 @@
 <script setup>
 import { computed, watch } from 'vue'
-import { findSelfRule, ruleGroups, deptGroups, findDept, DEFAULT_ID } from '@/lib/rule'
+import { findRule, findSelfRule, ruleGroups, deptGroups, findDept, DEFAULT_ID } from '@/lib/rule'
 import { spaceText } from '@/lib/utils'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectGroup, SelectLabel, SelectItem } from '@/components/ui/select'
+import { Combobox, ComboboxTrigger, ComboboxContent, ComboboxGroup, ComboboxLabel, ComboboxItem } from '@/components/ui/combobox'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import TermSelect from '@/components/TermSelect.vue'
 import FilterField from '@/components/FilterField.vue'
@@ -47,6 +48,12 @@ const dept_name = computed(() => findDept(props.deptMap, year.value, dept.value)
 const self_rule = computed(() => findSelfRule(props.ruleMap, props.deptMap, year.value, dept.value))
 
 const rule_groups = computed(() => ruleGroups(props.ruleMap, props.deptMap, year.value, dept.value))
+
+const rule_name = computed(() => {
+	if (!rule_id.value) return ''
+	if (rule_id.value === DEFAULT_ID) return self_rule.value ? '入學課程總表' : ''
+	return spaceText(findRule(props.ruleMap, props.deptMap, year.value, dept.value, rule_id.value)?.name || '')
+})
 
 function ruleDescription(rule) {
 	return [rule.dept, rule.disabled ? '(本系不可修)' : ''].filter(Boolean).join(' ')
@@ -114,24 +121,26 @@ watch(() => props.enrollTermList, () => {
 		</FilterField>
 
 		<FilterField label="課程總表" :disabled="disabled">
-			<Select v-model="rule_id" :disabled="disabled">
-				<SelectTrigger class="w-full bg-color-1" aria-label="學程總表">
-					<SelectValue placeholder="選擇總表" />
-				</SelectTrigger>
-				<SelectContent>
-					<SelectItem v-if="self_rule" :value="DEFAULT_ID">入學課程總表</SelectItem>
-					<SelectGroup v-for="group in rule_groups" :key="group.group_name">
-						<SelectLabel>{{ group.group_name }}</SelectLabel>
-						<SelectItem
+			<Combobox v-model="rule_id" :disabled="disabled">
+				<ComboboxTrigger class="w-full bg-color-1" aria-label="課程總表">
+					<span v-if="rule_name">{{ rule_name }}</span>
+					<span v-else class="text-color-6">選擇總表</span>
+				</ComboboxTrigger>
+				<ComboboxContent search-placeholder="搜尋學分學程" empty-text="找不到符合的總表">
+					<ComboboxItem v-if="self_rule" :value="DEFAULT_ID">入學課程總表</ComboboxItem>
+					<ComboboxGroup v-for="group in rule_groups" :key="group.group_name">
+						<ComboboxLabel>{{ group.group_name }}</ComboboxLabel>
+						<ComboboxItem
 							v-for="rule in group.rules"
 							:key="rule.id"
 							:value="rule.id"
 							:disabled="rule.disabled"
+							:text-value="rule.name"
 							:description="ruleDescription(rule)"
-						>{{ spaceText(rule.name) }}</SelectItem>
-					</SelectGroup>
-				</SelectContent>
-			</Select>
+						>{{ spaceText(rule.name) }}</ComboboxItem>
+					</ComboboxGroup>
+				</ComboboxContent>
+			</Combobox>
 		</FilterField>
 
 		<FilterField label="欲選課學期" :disabled="disabled">

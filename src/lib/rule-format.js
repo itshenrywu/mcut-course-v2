@@ -61,7 +61,7 @@ export function ruleGroups(rule_map, dept_map, year, dept_id) {
 	const list = rule_map[year] || []
 	const dept_name = findDept(dept_map, year, dept_id)?.name || ''
 	const day_bachelor = isDayBachelorGroup(dept_map, year, dept_id)
-	return ['第二專長', '跨領域']
+	return ['跨領域', '第二專長']
 		.map(group_name => {
 			const group = list.find(item => item.group_name === group_name)
 			if (!group || !group.rules.length) return null
