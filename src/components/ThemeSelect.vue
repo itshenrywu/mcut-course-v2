@@ -51,7 +51,7 @@ function itemStyle(theme) {
 					v-for="theme in themes"
 					:key="theme.value"
 					:value="theme.value"
-					class="h-8 rounded-none px-0 focus:opacity-75 [&_svg]:text-(color:--check)!"
+					class="h-8 rounded-none px-0 pointer-fine:focus:shadow-[inset_0_0_0_2px_var(--color-color-1),inset_0_0_0_3px_var(--color-color-10)] [&_svg]:text-(color:--check)!"
 					:style="itemStyle(theme)"
 				></SelectItem>
 			</SelectContent>

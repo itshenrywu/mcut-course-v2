@@ -213,3 +213,25 @@
 		@apply text-color-9 font-medium;
 	}
 }
+
+/* 全螢幕 dropdown 的置中框. 上下界是 JS 依 visualViewport 寫進來的, 鍵盤彈出時才不會有半截躲在鍵盤後面.
+   面板高度交給內容自己長 (max-height 收在框內), 不用 height:fit-content —— 它配 flex 子元素在 WebKit 上會算成 0.
+   Select 的內容一定經過 reka 的 popper wrapper 定位 (position 只有 popper 與 item-aligned, 沒有「不定位」這個選項),
+   所以直接把那層 wrapper 徵收成置中框; Combobox 走 position="inline" 沒有 wrapper, 自己包一層 .dropdown-center.
+   框本身蓋滿畫面, 得讓它不吃指標事件, 點在面板外才會落到遮罩上被判定成 outside 而關閉 */
+.dropdown-center,
+[data-reka-popper-content-wrapper]:has(> [data-fullscreen]) {
+	position: fixed !important;
+	top: var(--dropdown-top, 0) !important;
+	right: 0 !important;
+	bottom: var(--dropdown-bottom, 0) !important;
+	left: 0 !important;
+	z-index: 50;
+	display: flex !important;
+	align-items: center;
+	justify-content: center;
+	padding-inline: 1rem;
+	min-width: 0 !important;
+	transform: none !important;
+	pointer-events: none;
+}
