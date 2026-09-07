@@ -1,4 +1,4 @@
-import { recordLoadError } from '@/lib/report'
+import { attachLoadError } from '@/lib/report'
 
 const CACHE_TTL_MS = 10 * 60 * 1000
 const CACHE_MAX_SIZE = 30
@@ -12,14 +12,12 @@ export async function fetchJson(url, label = '資料', options = {}) {
 	try {
 		response = await fetch(url, init)
 	} catch (error) {
-		recordLoadError(method, url, 0, error.message)
-		throw error
+		throw attachLoadError(error, method, url, 0, error.message)
 	}
 	if (!response.ok) {
-		recordLoadError(method, url, response.status)
 		const error = new Error(`下載${label}失敗: ${response.status}`)
 		error.status = response.status
-		throw error
+		throw attachLoadError(error, method, url, response.status)
 	}
 	return parse === 'text' ? response.text() : response.json()
 }

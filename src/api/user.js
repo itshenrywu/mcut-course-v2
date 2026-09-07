@@ -1,5 +1,5 @@
 import { API_BASE_URL, AUTH_BASE_URL } from '@/config'
-import { recordLoadError } from '@/lib/report'
+import { attachLoadError } from '@/lib/report'
 
 async function authFetch(url, token, options = {}) {
 	const method = options.method || 'GET'
@@ -14,15 +14,13 @@ async function authFetch(url, token, options = {}) {
 			}
 		})
 	} catch (error) {
-		recordLoadError(method, url, 0, error.message)
-		throw error
+		throw attachLoadError(error, method, url, 0, error.message)
 	}
 	if (!response.ok) {
 		const data = await response.json().catch(() => null)
-		recordLoadError(method, url, response.status, data?.error || '')
 		const error = new Error(data?.error || `${method} ${url}: ${response.status}`)
 		error.status = response.status
-		throw error
+		throw attachLoadError(error, method, url, response.status, data?.error || '')
 	}
 	return response
 }

@@ -55,7 +55,10 @@ const selected_term_label = computed(() => formatTermLabel(term_id.value))
 <template>
 	<Select v-model="term_id" :disabled="disabled">
 		<SelectTrigger :class="triggerClass" aria-label="學期選擇">
-			<SelectValue :placeholder="placeholder">{{ selected_term_label }}</SelectValue>
+			<SelectValue>
+				<span v-if="selected_term_label">{{ selected_term_label }}</span>
+				<span v-else class="text-color-6">{{ placeholder }}</span>
+			</SelectValue>
 		</SelectTrigger>
 		<SelectContent :class="contentClass" :side-offset="12">
 			<SelectGroup v-for="group in term_groups" :key="group.year">

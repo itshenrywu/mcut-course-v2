@@ -13,6 +13,7 @@ import { rulePageMeta } from '@/config/page-meta'
 import { setPageMeta } from '@/lib/meta'
 import { sendPageView } from '@/lib/analytics'
 import LoadingOverlay from '@/components/LoadingOverlay.vue'
+import InlineLoading from '@/components/InlineLoading.vue'
 import LoadError from '@/components/LoadError.vue'
 import RuleFilter from '@/components/RuleFilter.vue'
 import FilterSidebar from '@/components/FilterSidebar.vue'
@@ -228,13 +229,14 @@ watch(() => route.path, () => {
 </script>
 
 <template>
-	<LoadingOverlay v-if="loading || detail_loading" text="課程總表讀取中…" />
-	<LoadError v-else-if="load_error" title="課程總表讀取失敗" @retry="loadRuleList({ force: true })" />
-	<LoadError v-else-if="detail_load_error" title="課程總表讀取失敗" @retry="reloadRuleDetail" />
+	<LoadingOverlay v-if="loading" text="課程總表讀取中…" />
 
 	<div class="flex w-full flex-1 flex-col">
 		<h1 class="sr-only">{{ page_heading }}</h1>
-		<div class="mx-auto flex w-full max-w-7xl flex-1 lg:px-4">
+
+		<LoadError v-if="load_error" :error="load_error" title="課程總表讀取失敗" @retry="loadRuleList({ force: true })" />
+
+		<div v-else class="mx-auto flex w-full max-w-7xl flex-1 lg:px-4">
 			<FilterSidebar v-model:open="sidebar_open">
 				<RuleFilter
 					v-model:year="selected_year"
@@ -281,7 +283,17 @@ watch(() => route.path, () => {
 				</div>
 
 				<div class="flex min-h-0 flex-1 flex-col px-0">
-					<div v-if="show_detail" class="mb-4 flex flex-col gap-4">
+					<InlineLoading v-if="detail_loading" text="課程總表讀取中…" container-class="m-auto py-16" />
+
+					<LoadError
+						v-else-if="detail_load_error"
+						:error="detail_load_error"
+						title="課程總表讀取失敗"
+						description="請切換其他入學年 / 系所 / 總表，或稍後再試一次"
+						@retry="reloadRuleDetail"
+					/>
+
+					<div v-else-if="show_detail" class="mb-4 flex flex-col gap-4">
 						<SectionCard title="說明" :section-class="SECTION_CLASS" :title-class="TITLE_CLASS" :card-class="`${CARD_CLASS} p-4`">
 							<HintList>
 								<template v-if="has_dept">

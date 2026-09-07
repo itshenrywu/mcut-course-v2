@@ -309,7 +309,6 @@ function onLockedButton() {
 
 <template>
 	<LoadingOverlay v-if="loading" text="課表讀取中…" />
-	<LoadError v-else-if="load_error" @retry="loadCourseList()" />
 
 	<div class="flex flex-col gap-8 px-4 pb-10 md:gap-24 lg:px-0">
 		<h1 class="sr-only">明志科技大學選課小幫手</h1>
@@ -332,6 +331,7 @@ function onLockedButton() {
 								v-model="keyword"
 								placeholder="搜尋課程名稱、老師、代碼..."
 								aria-label="搜尋課程"
+								:disabled="Boolean(load_error)"
 								class="h-14 border-0 text-lg shadow-none focus:ring-0 focus-visible:ring-[3px] focus-visible:ring-inset md:text-lg"
 								@focus="search_open = true"
 								@blur="search_open = false"
@@ -408,7 +408,10 @@ function onLockedButton() {
 				</div>
 			</div>
 		</section>
-		<section class="mx-auto flex w-full max-w-5xl flex-col gap-3">
+
+		<LoadError v-if="load_error" :error="load_error" description="請切換其他學期，或稍後再試一次" @retry="loadCourseList()" />
+
+		<section v-if="!load_error" class="mx-auto flex w-full max-w-5xl flex-col gap-3">
 			<h2 class="text-lg font-semibold tracking-tight">常用查詢</h2>
 			<div class="grid grid-cols-2 gap-3 md:grid-cols-4">
 				<component
@@ -433,7 +436,7 @@ function onLockedButton() {
 			</div>
 		</section>
 
-		<section class="mx-auto flex w-full max-w-5xl flex-col gap-3">
+		<section v-if="!load_error" class="mx-auto flex w-full max-w-5xl flex-col gap-3">
 			<h2 class="text-lg font-semibold tracking-tight">{{ class_schedule_title }}</h2>
 			<template v-if="is_summer">
 				<p v-if="!summer_departments.length" class="text-sm text-color-6">目前沒有班級課表資料</p>

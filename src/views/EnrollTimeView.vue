@@ -32,7 +32,6 @@ watch(enroll_list, markEnrollTimeSeen, { immediate: true })
 
 <template>
 	<LoadingOverlay v-if="loading" text="選課時間讀取中…" />
-	<LoadError v-else-if="load_error" title="選課時間讀取失敗" @retry="loadEnrollTime({ force: true })" />
 
 	<PageContainer title="選課時間及說明" container-class="max-w-5xl">
 		<template #title-extra>
@@ -81,6 +80,8 @@ watch(enroll_list, markEnrollTimeSeen, { immediate: true })
 				</article>
 			</div>
 		</SectionCard>
+
+		<LoadError v-else-if="load_error" inline :error="load_error" title="選課時間讀取失敗" @retry="loadEnrollTime({ force: true })" />
 
 		<EmptyHint v-else-if="show_empty_hint">目前沒有選課時間資料，請稍後或改天再試</EmptyHint>
 

@@ -256,7 +256,6 @@ watch(selected_enroll_type, enroll_type => {
 
 <template>
 	<LoadingOverlay v-if="loading" text="課表讀取中…" />
-	<LoadError v-else-if="load_error" @retry="loadCourseList()" />
 
 	<div class="flex w-full flex-1 flex-col">
 		<h1 class="sr-only">進階搜尋</h1>
@@ -274,7 +273,7 @@ watch(selected_enroll_type, enroll_type => {
 					:disabled="loading"
 				/>
 
-				<div class="mt-6 text-xs whitespace-nowrap text-color-6 lg:hidden">
+				<div v-if="!load_error" class="mt-6 text-xs whitespace-nowrap text-color-6 lg:hidden">
 					{{ filtered_course_list.length }} 門符合的課程<span v-if="hidden_conflict_count">（{{ hidden_conflict_count }} 門衝堂已隱藏）</span>
 				</div>
 
@@ -312,14 +311,16 @@ watch(selected_enroll_type, enroll_type => {
 						</span>
 					</button>
 
-					<div class="hidden min-w-0 flex-1 truncate py-2 text-sm text-color-6 lg:block">
+					<div v-if="!load_error" class="hidden min-w-0 flex-1 truncate py-2 text-sm text-color-6 lg:block">
 						{{ filtered_course_list.length }} 門符合的課程<span v-if="hidden_conflict_count">（{{ hidden_conflict_count }} 門衝堂已隱藏）</span>
 					</div>
 
 					<ViewModeTabs v-model="view_mode" compact root-class="ml-auto shrink-0 print:hidden" />
 				</div>
 
-				<div v-if="loaded" class="mb-4 flex flex-1 flex-col">
+				<LoadError v-if="load_error" :error="load_error" description="請切換其他學期，或稍後再試一次" @retry="loadCourseList()" />
+
+				<div v-else-if="loaded" class="mb-4 flex flex-1 flex-col">
 					<CourseEmpty v-if="empty_state" :title="empty_state.title" container-class="h-auto flex-1 px-4 py-20">
 						{{ empty_state.description }}
 						<span v-if="short_id_hint" class="mt-1 block">{{ short_id_hint }}</span>

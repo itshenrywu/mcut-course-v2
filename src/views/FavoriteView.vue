@@ -89,7 +89,6 @@ function clearArchivedCourses() {
 
 <template>
 	<LoadingOverlay v-if="loading" text="課表讀取中…" />
-	<LoadError v-else-if="load_error" @retry="loadCourseList()" />
 
 	<div class="mt-4 flex w-full flex-1 flex-col">
 		<h1 class="sr-only">收藏的課程</h1>
@@ -106,7 +105,9 @@ function clearArchivedCourses() {
 				<ViewModeTabs v-model="view_mode" compact root-class="ml-auto shrink-0" />
 			</div>
 
-			<template v-if="loaded">
+			<LoadError v-if="load_error" :error="load_error" description="請切換其他學期，或稍後再試一次" @retry="loadCourseList()" />
+
+			<template v-else-if="loaded">
 				<div v-if="archived_ids.length" class="mx-4 mt-1.5 rounded-md border border-amber-500/20 bg-amber-500/5 p-2.5">
 					<div class="flex items-center gap-2">
 						<TriangleAlert class="size-4 shrink-0 text-amber-600" />

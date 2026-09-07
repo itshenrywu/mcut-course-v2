@@ -17,10 +17,11 @@ const guide_parts = computed(() => splitGuideHtml(guide_html.value, AD_AFTER_SEC
 
 <template>
 	<LoadingOverlay v-if="loading" text="選課指南讀取中…" />
-	<LoadError v-else-if="load_error" title="選課指南讀取失敗" @retry="loadGuide({ force: true })" />
 
 	<PageContainer title="選課指南">
-		<RichHtml :html="guide_parts[0]" />
+		<LoadError v-if="load_error" :error="load_error" title="選課指南讀取失敗" @retry="loadGuide({ force: true })" />
+
+		<RichHtml v-else :html="guide_parts[0]" />
 
 		<SponsorAd v-if="guide_html" />
 

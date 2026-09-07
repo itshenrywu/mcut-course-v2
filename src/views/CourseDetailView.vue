@@ -7,6 +7,7 @@ import { getCourseDetail, getSimilarCourses, getCachedSimilarCourses } from '@/a
 import { formatCourseTime, formatCourseTimes, formatSectionRange, courseIdFromRoute, getCourseBasic, getCourseMap, formatLimit, formatDeptClass, courseGradeClass, teacherName, hasRemark, isNoFixedTime, isBlockCourse, isAltCourse, conflictingCourses, FULL_WEEKDAY_LABELS } from '@/lib/course'
 import { termIdFromCourseId, formatTermLabel, getStoredTermList, useSelectedTerm } from '@/lib/term'
 import { useLatestRequest } from '@/lib/loader'
+import { loadErrorInfo } from '@/lib/report'
 import { setPageMeta } from '@/lib/meta'
 import { sendPageView } from '@/lib/analytics'
 import { coursePageMeta } from '@/config/page-meta'
@@ -33,7 +34,7 @@ const { selected_term_id } = useSelectedTerm()
 
 const loading = ref(false)
 const detail_loading = ref(false)
-const load_error = ref(false)
+const load_error = ref(null)
 const course = ref(null)
 const detail = ref([])
 const office_time = ref([])
@@ -45,6 +46,8 @@ const favorite_courses = ref([])
 const startFavoriteRequest = useLatestRequest()
 const startLoadRequest = useLatestRequest()
 const favorite_course_map = new Map()
+
+let last_load_failure = null
 
 const newest_year = computed(() => getStoredTermList().map(t => t.slice(0, 3)).sort().at(-1) || '')
 
@@ -134,6 +137,7 @@ async function loadBasic(id, isLatest) {
 		return basic
 	} catch (error) {
 		console.error(error)
+		last_load_failure = error
 		return null
 	}
 }
@@ -151,6 +155,7 @@ async function loadDetail(id, basic_promise, isLatest) {
 		return true
 	} catch (error) {
 		console.error(error)
+		last_load_failure = error
 		return false
 	} finally {
 		if (isLatest()) detail_loading.value = false
@@ -195,7 +200,8 @@ async function load(id = courseIdFromRoute(route.params.short_term_id, route.par
 	if (!id) return
 	const isLatest = startLoadRequest()
 	course.value = null
-	load_error.value = false
+	last_load_failure = null
+	load_error.value = null
 	detail.value = []
 	office_time.value = []
 	schedule.value = []
@@ -212,7 +218,7 @@ async function load(id = courseIdFromRoute(route.params.short_term_id, route.par
 	if (!isLatest()) return
 	if (!basic && !detail_ok) {
 		course.value = null
-		load_error.value = true
+		load_error.value = loadErrorInfo(last_load_failure)
 	}
 }
 
@@ -246,7 +252,7 @@ watch([() => course.value?.id, favorite_ids], ([id]) => {
 
 <template>
 	<LoadingOverlay v-if="loading || (!course && detail_loading)" text="課程讀取中…" />
-	<LoadError v-else-if="load_error" @retry="load()" />
+	<LoadError v-else-if="load_error" :error="load_error" :level="1" @retry="load()" />
 
 	<NotFoundState v-else-if="!course" title="找不到這門課程" description="此門課程可能已下架" link-to="/course" link-text="重新查詢" />
 

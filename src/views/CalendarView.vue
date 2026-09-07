@@ -52,7 +52,6 @@ const selected_groups = computed(() => selected_key.value ? groupByDay(visible_e
 
 <template>
 	<LoadingOverlay v-if="loading && !loaded" text="行事曆讀取中…" />
-	<LoadError v-else-if="load_error" title="行事曆讀取失敗" @retry="loadMonth({ force: true })" />
 
 	<PageContainer title="行事曆" container-class="max-w-5xl gap-4">
 		<div class="grid grid-cols-[1fr_auto_1fr] items-center gap-2">
@@ -86,6 +85,8 @@ const selected_groups = computed(() => selected_key.value ? groupByDay(visible_e
 
 		<InlineLoading v-if="loading" container-class="py-16" text="行事曆讀取中…" />
 
+		<LoadError v-else-if="load_error" :error="load_error" title="行事曆讀取失敗" description="請切換其他月份，或稍後再試一次" @retry="loadMonth({ force: true })" />
+
 		<template v-else-if="view_mode === 'month'">
 			<CalendarMonthGrid :weeks="weeks" :selected-key="selected_key" @select="selected_key = $event" />
 
@@ -100,6 +101,6 @@ const selected_groups = computed(() => selected_key.value ? groupByDay(visible_e
 			<EmptyHint v-else>{{ month_label }} 沒有活動</EmptyHint>
 		</SectionCard>
 
-		<SponsorAd v-if="!loading" />
+		<SponsorAd v-if="!loading && !load_error" />
 	</PageContainer>
 </template>

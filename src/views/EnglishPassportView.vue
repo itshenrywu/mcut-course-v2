@@ -30,8 +30,6 @@ onMounted(() => {
 </script>
 
 <template>
-	<LoadError v-if="load_error" title="英語學習護照讀取失敗" @retry="retry()" />
-
 	<PageContainer title="英語學習護照點數查詢" container-class="gap-6">
 		<UidSearchForm
 			v-model="uid_input"
@@ -41,7 +39,9 @@ onMounted(() => {
 			@search="search()"
 		/>
 
-		<template v-if="passport_item">
+		<LoadError v-if="load_error" :error="load_error" title="英語學習護照讀取失敗" description="請確認學號是否正確，或稍後再試一次" @retry="retry()" />
+
+		<template v-else-if="passport_item">
 			<SectionCard title="統計" card-class="overflow-hidden">
 				<div class="flex items-baseline justify-between gap-4 border-b px-4 py-3">
 					<span class="text-sm font-medium">總計點數</span>

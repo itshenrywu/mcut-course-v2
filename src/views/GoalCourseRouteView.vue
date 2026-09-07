@@ -6,6 +6,7 @@ import { useUidSearch } from '@/lib/uid'
 import { useLocalRef } from '@/lib/storage'
 import LoadError from '@/components/LoadError.vue'
 import LoadingOverlay from '@/components/LoadingOverlay.vue'
+import InlineLoading from '@/components/InlineLoading.vue'
 import PageContainer from '@/components/PageContainer.vue'
 import StateBlock from '@/components/StateBlock.vue'
 import SectionCard from '@/components/SectionCard.vue'
@@ -29,6 +30,7 @@ const {
 	searched_uid,
 	loading,
 	load_error,
+	list_loading,
 	list_error,
 	loadRoute,
 	loadRouteInfo,
@@ -66,6 +68,20 @@ const show_locked = computed(() => current_tab.value === 'my' && route_mode.valu
 
 const show_not_found = computed(() => current_tab.value === 'my' && route_mode.value === 'uid' && Boolean(searched_uid.value) && !route_item.value)
 
+const show_list_loading = computed(() => current_tab.value === 'all' && list_loading.value)
+
+const tab_error = computed(() => {
+	if (current_tab.value !== 'my') return list_error.value
+	return show_locked.value ? null : load_error.value
+})
+
+const tab_error_description = computed(() => current_tab.value === 'my' ? '請確認學號是否正確，或稍後再試一次' : '')
+
+function retryTab() {
+	if (current_tab.value === 'my') retry()
+	else loadRouteList({ force: true })
+}
+
 onMounted(() => {
 	markRouteSeen()
 	loadRouteInfo()
@@ -81,75 +97,80 @@ watch(option_list, () => {
 </script>
 
 <template>
-	<LoadError v-if="info_error" title="路線資料讀取失敗" @retry="loadRouteInfo({ force: true })" />
-	<LoadError v-else-if="load_error" title="路線資料讀取失敗" @retry="retry()" />
-	<LoadError v-else-if="list_error" title="路線資料讀取失敗" @retry="loadRouteList({ force: true })" />
-	<LoadingOverlay v-else-if="!info_loaded" text="路線資料讀取中…" />
+	<LoadingOverlay v-if="!info_loaded" text="路線資料讀取中…" />
 
-	<PageContainer v-if="info_loaded" title="大學之道「環境與行動」路線查詢" container-class="gap-6">
-		<SectionCard v-if="route_description_list.length" title="說明" card-class="p-4">
-			<HintList class="list-none pl-0">
-				<li v-for="line in route_description_list" :key="line">{{ line }}</li>
-			</HintList>
-		</SectionCard>
+	<PageContainer v-else title="大學之道「環境與行動」路線查詢" container-class="gap-6">
+		<LoadError v-if="info_error" :error="info_error" title="路線資料讀取失敗" @retry="loadRouteInfo({ force: true })" />
 
-		<Tabs v-model="current_tab">
-			<TabsList class="w-full border border-color-3 bg-color-1" aria-label="查詢方式">
-				<TabsTrigger value="my">我的路線</TabsTrigger>
-				<TabsTrigger value="all">所有路線</TabsTrigger>
-			</TabsList>
-		</Tabs>
+		<template v-else>
+			<SectionCard v-if="route_description_list.length" title="說明" card-class="p-4">
+				<HintList class="list-none pl-0">
+					<li v-for="line in route_description_list" :key="line">{{ line }}</li>
+				</HintList>
+			</SectionCard>
 
-		<UidSearchForm
-			v-if="current_tab === 'my' && !show_locked"
-			v-model="uid_input"
-			input-id="route-uid"
-			:loading="loading"
-			:format-error="format_error"
-			@search="search()"
-		/>
+			<Tabs v-model="current_tab">
+				<TabsList class="w-full border border-color-3 bg-color-1" aria-label="查詢方式">
+					<TabsTrigger value="my">我的路線</TabsTrigger>
+					<TabsTrigger value="all">所有路線</TabsTrigger>
+				</TabsList>
+			</Tabs>
 
-		<SelectFilterField
-			v-if="current_tab === 'all' && option_list.length"
-			v-model="selected_route_id"
-			label="選擇路線"
-			:options="option_list"
-		/>
+			<UidSearchForm
+				v-if="current_tab === 'my' && !show_locked"
+				v-model="uid_input"
+				input-id="route-uid"
+				:loading="loading"
+				:format-error="format_error"
+				@search="search()"
+			/>
 
-		<StateBlock
-			v-if="show_locked"
-			:icon="Clock"
-			title="尚未開放查詢"
-			:description="route_locked_description"
-			container-class="flex-1"
-		/>
-		<StateBlock
-			v-else-if="show_not_found"
-			:icon="SearchX"
-			:title="`查無 ${searched_uid} 的路線資料`"
-			description="請確認學號是否正確"
-			container-class="flex-1"
-		/>
+			<SelectFilterField
+				v-if="current_tab === 'all' && option_list.length"
+				v-model="selected_route_id"
+				label="選擇路線"
+				:options="option_list"
+			/>
 
-		<section v-if="row_list.length" class="flex flex-col gap-3">
-			<DefinitionList>
-				<DefinitionRow
-					v-for="row in row_list"
-					:key="row.label"
-					:label="row.label"
-					:dd-class="row.dd_class || 'whitespace-pre-line'"
-				>
-					<span v-if="row.value">{{ row.value }}</span>
-					<span v-else class="text-color-4">—</span>
-				</DefinitionRow>
-			</DefinitionList>
+			<InlineLoading v-if="show_list_loading" text="路線資料讀取中…" container-class="flex-1 py-16" />
 
-			<Button v-if="signup_url" as="a" :href="signup_url" target="_blank" rel="noopener noreferrer" class="w-full">
-				前往報名
-				<ExternalLink />
-			</Button>
-		</section>
+			<LoadError v-else-if="tab_error" :error="tab_error" title="路線資料讀取失敗" :description="tab_error_description" @retry="retryTab()" />
 
-		<SponsorAd v-if="row_list.length" />
+			<StateBlock
+				v-else-if="show_locked"
+				:icon="Clock"
+				title="尚未開放查詢"
+				:description="route_locked_description"
+				container-class="flex-1"
+			/>
+			<StateBlock
+				v-else-if="show_not_found"
+				:icon="SearchX"
+				:title="`查無 ${searched_uid} 的路線資料`"
+				description="請確認學號是否正確"
+				container-class="flex-1"
+			/>
+
+			<section v-if="row_list.length" class="flex flex-col gap-3">
+				<DefinitionList>
+					<DefinitionRow
+						v-for="row in row_list"
+						:key="row.label"
+						:label="row.label"
+						:dd-class="row.dd_class || 'whitespace-pre-line'"
+					>
+						<span v-if="row.value">{{ row.value }}</span>
+						<span v-else class="text-color-4">—</span>
+					</DefinitionRow>
+				</DefinitionList>
+
+				<Button v-if="signup_url" as="a" :href="signup_url" target="_blank" rel="noopener noreferrer" class="w-full">
+					前往報名
+					<ExternalLink />
+				</Button>
+			</section>
+
+			<SponsorAd v-if="row_list.length" />
+		</template>
 	</PageContainer>
 </template>

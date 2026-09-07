@@ -3,9 +3,10 @@ import { useDocumentVisibility } from '@vueuse/core'
 import { getCourseList, getCourses } from '@/api/course'
 import { checkCourseRev } from '@/lib/course-rev'
 import { useLatestRequest } from '@/lib/loader'
+import { loadErrorInfo } from '@/lib/report'
 import { isAltCourse, favoriteCourseId } from '@/lib/course-format'
 import { useFavorite } from '@/lib/favorite'
-import { useSelectedTerm, termIdFromCourseId, shortTermIdFromCourseId } from '@/lib/term'
+import { useSelectedTerm, termIdFromCourseId, shortTermIdFromCourseId, getStoredTermList, normalizeTermId } from '@/lib/term'
 
 export * from '@/lib/course-format'
 export { getCourseMap } from '@/api/course'
@@ -148,34 +149,43 @@ export function useArchivedFavorites(course_list, options = {}) {
 	return { archived_ids, archived_courses, archived_loading }
 }
 
+function storedTermList() {
+	return [...new Set(getStoredTermList().map(normalizeTermId))]
+}
+
 export function useCourseList(options = {}) {
 	const { is_heavy = false } = options
 	const { selected_term_id } = useSelectedTerm()
-	const term_list = shallowRef([])
+	const term_list = shallowRef(storedTermList())
 	const course_list = shallowRef([])
 	const loading = ref(false)
 	const loaded = ref(false)
-	const load_error = ref(false)
+	const load_error = ref(null)
 
 	let request_seq = 0
+	let applied_term_id = ''
 
 	async function loadCourseList(term_id = selected_term_id.value, options = {}) {
-		const { force = false } = options
+		const { force = false, background = false } = options
 		const seq = ++request_seq
-		load_error.value = false
+		if (!background) load_error.value = null
 		if (toValue(is_heavy)) loading.value = true
 		try {
 			const data = await getCourseList(term_id, { force, onFetch: () => { if (seq === request_seq) loading.value = true } })
 			if (seq !== request_seq) return
 			term_list.value = data.term_list
 			course_list.value = data.course_list
+			applied_term_id = data.term_id
 			selected_term_id.value = data.term_id
+			load_error.value = null
 			reconcileAltFavorites(data.course_list)
 		} catch (error) {
 			if (seq !== request_seq) return
 			console.error(error)
+			// 背景重新驗證失敗就安靜留著現有課表, 使用者沒有操作卻被換成錯誤畫面才是更糟的結果
+			if (background) return
 			course_list.value = []
-			load_error.value = true
+			load_error.value = loadErrorInfo(error)
 		} finally {
 			if (seq === request_seq) {
 				loaded.value = true
@@ -187,15 +197,17 @@ export function useCourseList(options = {}) {
 		}
 	}
 
+	// 課表清單掛掉時學期下拉會是空的, rev 是另一支小 API, 拿得到就至少讓使用者能換學期自救
 	async function revalidate() {
-		const stale_term_ids = await checkCourseRev()
+		const stale_term_ids = await checkCourseRev({ force: !term_list.value.length })
+		if (!term_list.value.length) term_list.value = storedTermList()
 		if (!stale_term_ids.includes(selected_term_id.value)) return
 		loading.value = true
-		await loadCourseList(selected_term_id.value, { force: true })
+		await loadCourseList(selected_term_id.value, { force: true, background: true })
 	}
 
-	watch(selected_term_id, (term_id, old_term_id) => {
-		if (old_term_id) loadCourseList(term_id)
+	watch(selected_term_id, term_id => {
+		if (term_id !== applied_term_id) loadCourseList(term_id)
 	})
 
 	watch(useDocumentVisibility(), visibility => {

@@ -1,4 +1,5 @@
 import { ref, computed, toValue } from 'vue'
+import { loadErrorInfo } from '@/lib/report'
 
 export function createLoader(fetcher, empty = null) {
 	const emptyValue = () => typeof empty === 'function' ? empty() : empty
@@ -6,12 +7,12 @@ export function createLoader(fetcher, empty = null) {
 	const data = ref(emptyValue())
 	const loading = ref(false)
 	const loaded = ref(false)
-	const load_error = ref(false)
+	const load_error = ref(null)
 	const startRequest = useLatestRequest()
 
 	async function load(...args) {
 		const isLatest = startRequest()
-		load_error.value = false
+		load_error.value = null
 		loading.value = true
 		try {
 			const result = await fetcher(...args)
@@ -21,7 +22,7 @@ export function createLoader(fetcher, empty = null) {
 			if (!isLatest()) return
 			console.error(error)
 			data.value = emptyValue()
-			load_error.value = true
+			load_error.value = loadErrorInfo(error)
 		} finally {
 			if (isLatest()) {
 				loaded.value = true
@@ -33,7 +34,7 @@ export function createLoader(fetcher, empty = null) {
 	function reset() {
 		startRequest()
 		data.value = emptyValue()
-		load_error.value = false
+		load_error.value = null
 		loading.value = false
 	}
 

@@ -60,7 +60,6 @@ useValidOption(selected_level, level_options, { enabled: () => exam_list.value.l
 
 <template>
 	<LoadingOverlay v-if="loading" text="英文段考時間與考場讀取中…" />
-	<LoadError v-else-if="load_error" title="英文段考時間與考場讀取失敗" @retry="loadExamList({ force: true })" />
 
 	<PageContainer title="英文段考時間與考場" container-class="gap-6">
 		<div class="flex flex-col gap-4">
@@ -106,6 +105,8 @@ useValidOption(selected_level, level_options, { enabled: () => exam_list.value.l
 				</tr>
 			</InfoTable>
 		</SectionCard>
+
+		<LoadError v-else-if="load_error" :error="load_error" title="英文段考時間與考場讀取失敗" @retry="loadExamList({ force: true })" />
 
 		<EmptyHint v-else-if="show_empty_hint">目前沒有考場資料，請稍後或改天再試</EmptyHint>
 

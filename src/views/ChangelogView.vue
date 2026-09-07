@@ -12,9 +12,10 @@ const { year_groups, loading, load_error, loadChangelog } = useChangelog()
 
 <template>
 	<LoadingOverlay v-if="loading" text="更新紀錄讀取中…" />
-	<LoadError v-else-if="load_error" title="更新紀錄讀取失敗" @retry="loadChangelog({ force: true })" />
 
 	<PageContainer title="更新紀錄" container-class="px-0" title-class="px-4 md:px-0">
+		<LoadError v-if="load_error" :error="load_error" title="更新紀錄讀取失敗" @retry="loadChangelog({ force: true })" />
+
 		<template v-for="(group, index) in year_groups" :key="group.year">
 			<SectionCard :title="String(group.year)" title-class="px-4 md:px-0" card-class="mx-0 flex flex-col divide-y overflow-hidden">
 				<article v-for="item in group.items" :key="item.key" class="flex flex-col gap-1.5 px-4 py-3 sm:flex-row sm:gap-4">
