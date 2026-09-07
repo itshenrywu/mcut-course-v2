@@ -69,7 +69,7 @@ function handleInputFocus(event) {
 				v-bind="forwarded"
 				:position="is_fullscreen ? 'inline' : position"
 				:body-lock="is_fullscreen"
-				:class="cn(BASE_CLASS, is_fullscreen ? DROPDOWN_PANEL_CLASS : POPPER_CLASS, props.class)"
+				:class="cn(BASE_CLASS, is_fullscreen ? [DROPDOWN_PANEL_CLASS, 'h-full'] : POPPER_CLASS, props.class)"
 			>
 				<div class="flex shrink-0 items-center gap-2 border-b px-3">
 					<Search class="size-4 shrink-0 text-color-5" />
@@ -83,7 +83,7 @@ function handleInputFocus(event) {
 					/>
 				</div>
 				<ComboboxViewport class="relative min-h-0 overscroll-contain p-1">
-					<ComboboxEmpty class="text-color-6 px-2 py-4 text-center text-sm">{{ emptyText }}</ComboboxEmpty>
+					<ComboboxEmpty :class="cn('text-color-6 px-2 py-4 text-center text-sm', is_fullscreen && 'flex h-full items-center justify-center')">{{ emptyText }}</ComboboxEmpty>
 					<div
 						@pointerdown.capture="touch_guard.onPointerDown"
 						@pointerup.capture="touch_guard.onPointerUp"
