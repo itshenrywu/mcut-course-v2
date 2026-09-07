@@ -46,7 +46,7 @@ function itemStyle(theme) {
 			>
 				<SelectValue><span class="h-5"></span></SelectValue>
 			</SelectTrigger>
-			<SelectContent class="[&_[data-reka-select-viewport]]:p-0">
+			<SelectContent floating class="[&_[data-reka-select-viewport]]:p-0">
 				<SelectItem
 					v-for="theme in themes"
 					:key="theme.value"

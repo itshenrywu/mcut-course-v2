@@ -117,7 +117,7 @@ function remove() {
 						<SelectTrigger class="w-full bg-color-1" aria-label="星期">
 							<SelectValue />
 						</SelectTrigger>
-						<SelectContent>
+						<SelectContent floating>
 							<SelectItem v-for="option in day_options" :key="option.value" :value="option.value">{{ option.label }}</SelectItem>
 						</SelectContent>
 					</Select>
@@ -129,7 +129,7 @@ function remove() {
 							<SelectTrigger class="w-full bg-color-1" aria-label="開始節次">
 								<SelectValue />
 							</SelectTrigger>
-							<SelectContent>
+							<SelectContent floating>
 								<SelectItem v-for="option in section_options" :key="option.value" :value="option.value" :description="option.description" inline-description>{{ option.label }}</SelectItem>
 							</SelectContent>
 						</Select>
@@ -140,7 +140,7 @@ function remove() {
 							<SelectTrigger class="w-full bg-color-1" aria-label="結束節次">
 								<SelectValue />
 							</SelectTrigger>
-							<SelectContent>
+							<SelectContent floating>
 								<SelectItem v-for="option in end_options" :key="option.value" :value="option.value" :description="option.description" inline-description>{{ option.label }}</SelectItem>
 							</SelectContent>
 						</Select>

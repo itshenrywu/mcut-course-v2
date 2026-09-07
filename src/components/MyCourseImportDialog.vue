@@ -290,7 +290,7 @@ watch(import_source, () => resetSelection())
 						<SelectTrigger class="w-full shrink-0 bg-color-1" aria-label="課表來源系統">
 							<SelectValue />
 						</SelectTrigger>
-						<SelectContent :side-offset="12">
+						<SelectContent floating :side-offset="12">
 							<SelectItem value="info">學生資訊查詢系統</SelectItem>
 							<SelectItem value="enroll">選課系統</SelectItem>
 						</SelectContent>

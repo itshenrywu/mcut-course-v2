@@ -38,7 +38,7 @@ window.addEventListener('resize', syncViewport)
 
 // 觸控裝置一律改成獨立面板: popper 只拿得到 trigger 到視窗邊緣那一段高度,
 // 而手機的篩選抽屜與 dialog 都是從下半部升起, 選單常常只剩三四項放得下.
-// 選項少到不值得蓋滿畫面的地方傳 floating, 就回到原本貼著 trigger 的浮層
+// 選項是寫死的常數 (星期, 節次, 主題配色) 而不是 API 來的清單時傳 floating, 就回到原本貼著 trigger 的浮層
 export function useFullscreenDropdown(props) {
 	const { is_touch } = useDevice()
 	return computed(() => is_touch.value && !props.floating)
