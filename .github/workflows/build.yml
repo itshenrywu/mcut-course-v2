@@ -47,6 +47,8 @@ jobs:
         cache: 'npm'
     - name: Install Dependencies
       run: npm ci --prefer-offline --no-audit --no-fund
+    - name: Lint
+      run: npm run lint
     - name: Generate Mtime JSON
       env:
         RULE_MTIME: ${{ inputs.rule_mtime }}
