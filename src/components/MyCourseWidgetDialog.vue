@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import ColorPicker from '@/components/ColorPicker.vue'
+import HintList from '@/components/HintList.vue'
 import TextLink from '@/components/TextLink.vue'
 import { useWidgetColor, buildWidgetCode, widgetColors, WIDGET_COLOR_ROWS, SCRIPTABLE_URL } from '@/lib/my-course-widget'
 
