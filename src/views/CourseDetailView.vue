@@ -277,12 +277,12 @@ watch([() => course.value?.id, favorite_ids], ([id]) => {
 				/>
 			</div>
 
-			<div class="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
+			<div class="flex flex-wrap gap-x-6 gap-y-3 text-sm md:grid md:grid-cols-2">
 				<div class="flex items-center gap-2">
 					<Users class="size-4 shrink-0 text-color-5" />
 					<RouterLink
 						v-if="dept_class_query"
-						class="flex items-center gap-2 hover:text-color-6"
+						class="flex items-center gap-1 hover:text-color-6 md:gap-2"
 						:to="{ name: 'course', query: dept_class_query }"
 						aria-label="搜尋這個班級的課程"
 					>
@@ -295,7 +295,7 @@ watch([() => course.value?.id, favorite_ids], ([id]) => {
 					<TeacherIcon class="size-4 shrink-0 text-color-5" />
 					<RouterLink
 						v-if="teacher_query"
-						class="flex items-center gap-2 hover:text-color-6"
+						class="flex items-center gap-1 hover:text-color-6 md:gap-2"
 						:to="{ name: 'course', query: teacher_query }"
 						aria-label="搜尋這位老師的課程"
 					>
@@ -304,7 +304,7 @@ watch([() => course.value?.id, favorite_ids], ([id]) => {
 					</RouterLink>
 					<span v-else>{{ course.teacher }} 老師</span>
 				</div>
-				<div class="col-span-full flex items-start gap-2">
+				<div class="flex items-start gap-2 md:col-span-full">
 					<Clock class="size-4 h-[1lh] shrink-0 text-color-5" />
 					<div class="flex flex-wrap items-center gap-x-3 gap-y-1">
 						<Dialog v-if="course.time?.length">
@@ -337,7 +337,7 @@ watch([() => course.value?.id, favorite_ids], ([id]) => {
 						<span v-else class="text-color-6">未定</span>
 					</div>
 				</div>
-				<div v-if="hasRemark(course)" class="col-span-full flex items-start gap-2">
+				<div v-if="hasRemark(course)" class="flex w-full items-start gap-2 md:col-span-full">
 					<Info class="size-4 h-[1lh] shrink-0 text-color-5" />
 					<span class="whitespace-pre-line">{{ course.remark }}</span>
 				</div>
