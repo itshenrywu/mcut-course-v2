@@ -32,7 +32,9 @@ const forwarded = useForwardProps(delegated_props)
 			<SelectItemText>
 				<slot />
 			</SelectItemText>
-			<span v-if="description" class="text-color-6 shrink-0 text-xs">{{ description }}</span>
+			<span v-if="description || $slots.description" class="text-color-6 flex shrink-0 items-center gap-2 text-xs">
+				<slot name="description">{{ description }}</slot>
+			</span>
 		</span>
 	</SelectItem>
 </template>

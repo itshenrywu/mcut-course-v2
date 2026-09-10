@@ -47,11 +47,19 @@ function routeMainTime(item) {
 	return cleanText(entry?.[1])
 }
 
+function routeSignup(item) {
+	const current = item?.signup_current
+	const max = item?.signup_max
+	if (!Number.isFinite(current) || !Number.isFinite(max) || max <= 0) return null
+	return { count: `${current} / ${max}`, full: current >= max }
+}
+
 export function routeOptions(list) {
 	return list.map(route => ({
 		value: String(route.route_id),
 		label: [route.route_id, route.title].map(cleanText).filter(Boolean).join(' - '),
-		description: routeMainTime(route)
+		description: routeMainTime(route),
+		signup: routeSignup(route)
 	}))
 }
 

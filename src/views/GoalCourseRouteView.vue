@@ -1,6 +1,6 @@
 <script setup>
 import { computed, ref, onMounted, watch } from 'vue'
-import { Clock, ExternalLink, SearchX } from '@lucide/vue'
+import { Clock, ExternalLink, SearchX, Users } from '@lucide/vue'
 import { useRouteInfo, routeRowList, routeOptions, routeSignupUrl } from '@/lib/route'
 import { useUidSearch } from '@/lib/uid'
 import { useLocalRef } from '@/lib/storage'
@@ -130,7 +130,22 @@ watch(option_list, () => {
 				v-model="selected_route_id"
 				label="選擇路線"
 				:options="option_list"
-			/>
+			>
+				<template #description="{ option }">
+					<span v-if="option.description" class="flex items-center gap-1">
+						<Clock class="size-3 shrink-0 text-color-5" />
+						<span>{{ option.description }}</span>
+					</span>
+					<span
+						v-if="option.signup"
+						class="flex items-center gap-1"
+						:class="[option.signup.full && 'text-rose-600 dark:text-rose-400']"
+					>
+						<Users class="size-3 shrink-0" :class="[!option.signup.full && 'text-color-5']" />
+						<span class="font-num tabular-nums">{{ option.signup.count }}</span>
+					</span>
+				</template>
+			</SelectFilterField>
 
 			<InlineLoading v-if="show_list_loading" text="路線資料讀取中…" container-class="flex-1 py-16" />
 

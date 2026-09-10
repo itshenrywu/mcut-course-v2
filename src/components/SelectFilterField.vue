@@ -50,7 +50,12 @@ function toOption(option) {
 					:value="option.value"
 					:description="option.description"
 					:inline-description="inlineDescription"
-				>{{ option.label }}</SelectItem>
+				>
+					{{ option.label }}
+					<template v-if="$slots.description" #description>
+						<slot name="description" :option="option" />
+					</template>
+				</SelectItem>
 			</SelectContent>
 		</Select>
 	</FilterField>
