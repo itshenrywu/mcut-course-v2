@@ -63,6 +63,12 @@ const HOVER_ALPHA_ON_LIGHT = 0.05
 // 下載圖片的寬度 (高度為 16 / 9 倍)
 export const EXPORT_WIDTH = 1080
 
+// WebKit 至今沒有實作 canvas 的 filter, 霧化在 iOS 上一律走手動的那條路
+// 手動霧化先把整張畫布縮到這個寬度再糊, 反正糊過的東西放大回去看不出來
+const BLUR_WORK_WIDTH = 540
+// 3 次 box blur 已經夠接近高斯, 盒半徑取 sigma 即可
+const BLUR_PASSES = 3
+
 function hexRgb(hex) {
 	return [1, 3, 5].map(index => parseInt(hex.slice(index, index + 2), 16))
 }
@@ -194,12 +200,95 @@ function drawCover(ctx, image) {
 	ctx.drawImage(image, (BASE_WIDTH - width) / 2, (BASE_HEIGHT - height) / 2, width, height)
 }
 
+let filter_supported = null
+
+function supportsFilter() {
+	if (filter_supported !== null) return filter_supported
+	filter_supported = false
+	const test = document.createElement('canvas')
+	test.width = 3
+	test.height = 1
+	const ctx = test.getContext('2d', { willReadFrequently: true })
+	if (ctx && 'filter' in ctx) {
+		ctx.filter = 'blur(1px)'
+		ctx.fillStyle = '#fff'
+		ctx.fillRect(1, 0, 1, 1)
+		try {
+			// 真的有糊開的話隔壁像素會有約 20 的 alpha, 門檻取 8 避開讀取畫布的雜訊
+			filter_supported = ctx.getImageData(0, 0, 1, 1).data[3] > 8
+		} catch (error) {
+			filter_supported = false
+		}
+	}
+	return filter_supported
+}
+
+// 單向的滑動視窗 box blur, 寫入時順便轉置, 連做兩次就是水平加垂直各一次
+function blurPass(src, dst, width, height, radius) {
+	const span = radius * 2 + 1
+	for (let y = 0; y < height; y++) {
+		const row = y * width * 4
+		let sum_r = 0
+		let sum_g = 0
+		let sum_b = 0
+		let sum_a = 0
+		for (let i = -radius; i <= radius; i++) {
+			const p = row + Math.min(Math.max(i, 0), width - 1) * 4
+			sum_r += src[p]
+			sum_g += src[p + 1]
+			sum_b += src[p + 2]
+			sum_a += src[p + 3]
+		}
+		for (let x = 0; x < width; x++) {
+			const q = (x * height + y) * 4
+			dst[q] = sum_r / span
+			dst[q + 1] = sum_g / span
+			dst[q + 2] = sum_b / span
+			dst[q + 3] = sum_a / span
+			const add = row + Math.min(x + radius + 1, width - 1) * 4
+			const drop = row + Math.max(x - radius, 0) * 4
+			sum_r += src[add] - src[drop]
+			sum_g += src[add + 1] - src[drop + 1]
+			sum_b += src[add + 2] - src[drop + 2]
+			sum_a += src[add + 3] - src[drop + 3]
+		}
+	}
+}
+
+function manualBackdrop(canvas, radius) {
+	const work_scale = Math.min(1, BLUR_WORK_WIDTH / canvas.width)
+	const width = Math.max(Math.round(canvas.width * work_scale), 1)
+	const height = Math.max(Math.round(canvas.height * work_scale), 1)
+	const backdrop = document.createElement('canvas')
+	backdrop.width = width
+	backdrop.height = height
+	const ctx = backdrop.getContext('2d', { willReadFrequently: true })
+	if (!ctx) return null
+	ctx.imageSmoothingQuality = 'high'
+	ctx.drawImage(canvas, 0, 0, width, height)
+	let image = null
+	try {
+		image = ctx.getImageData(0, 0, width, height)
+	} catch (error) {
+		return null
+	}
+	const box_radius = Math.max(Math.round(radius * work_scale), 1)
+	const scratch = new Uint8ClampedArray(image.data.length)
+	for (let i = 0; i < BLUR_PASSES; i++) {
+		blurPass(image.data, scratch, width, height, box_radius)
+		blurPass(scratch, image.data, height, width, box_radius)
+	}
+	ctx.putImageData(image, 0, 0)
+	return backdrop
+}
+
 function blurBackdrop(canvas, radius) {
+	if (!supportsFilter()) return manualBackdrop(canvas, radius)
 	const backdrop = document.createElement('canvas')
 	backdrop.width = canvas.width
 	backdrop.height = canvas.height
 	const ctx = backdrop.getContext('2d')
-	if (!ctx || !('filter' in ctx)) return null
+	if (!ctx) return null
 	ctx.filter = `blur(${radius}px)`
 	ctx.drawImage(canvas, 0, 0)
 	return backdrop
@@ -208,8 +297,10 @@ function blurBackdrop(canvas, radius) {
 function backdropPattern(ctx, backdrop, scale) {
 	const pattern = ctx.createPattern(backdrop, 'no-repeat')
 	if (!pattern?.setTransform) return null
-	// pattern 來源是裝置像素的整張畫布, ctx 已經套上 scale, 要先除回去才對得齊
-	pattern.setTransform(new DOMMatrix([1 / scale, 0, 0, 1 / scale, 0, 0]))
+	// pattern 來源是裝置像素的整張畫布 (手動霧化時還縮過), ctx 已經套上 scale, 要先除回去才對得齊
+	const ratio_x = ctx.canvas.width / backdrop.width / scale
+	const ratio_y = ctx.canvas.height / backdrop.height / scale
+	pattern.setTransform(new DOMMatrix([ratio_x, 0, 0, ratio_y, 0, 0]))
 	return pattern
 }
 
