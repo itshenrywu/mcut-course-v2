@@ -56,6 +56,8 @@ const selected_route_id = useLocalRef('mcv2-route-select')
 
 const option_list = computed(() => routeOptions(route_list.value))
 
+const show_option_icon = computed(() => option_list.value.some(option => option.signup))
+
 const selected_route = computed(() => route_list.value.find(route => String(route.route_id) === selected_route_id.value) || null)
 
 const current_item = computed(() => current_tab.value === 'my' ? route_item.value : selected_route.value)
@@ -133,7 +135,7 @@ watch(option_list, () => {
 			>
 				<template #description="{ option }">
 					<span v-if="option.description" class="flex items-center gap-1">
-						<Clock v-if="option.signup" class="size-3 shrink-0 text-color-5" />
+						<Clock v-if="show_option_icon" class="size-3 shrink-0 text-color-5" />
 						<span>{{ option.description }}</span>
 					</span>
 					<span

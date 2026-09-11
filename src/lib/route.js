@@ -14,9 +14,10 @@ const { data: route_info, loaded: info_loaded, load_error: info_error, load: loa
 		mode: data?.mode === 'uid' ? 'uid' : 'route',
 		description: cleanText(data?.description),
 		locked_description: cleanText(data?.locked_description),
-		register_end_time: parseTime(data?.register_end_time)
+		register_end_time: parseTime(data?.register_end_time),
+		register_makeup_end_time: parseTime(data?.register_makeup_end_time)
 	}),
-	empty: () => ({ mode: 'route', description: '', locked_description: '', register_end_time: 0 })
+	empty: () => ({ mode: 'route', description: '', locked_description: '', register_end_time: 0, register_makeup_end_time: 0 })
 })
 
 const { data: route_list, loading: list_loading, load_error: list_error, load: loadRouteList } = createInfoStore('goal-course-route/list', {
@@ -40,7 +41,12 @@ const route_description_list = computed(() => route_info.value.description.split
 const route_locked_description = computed(() => route_info.value.locked_description)
 
 // 報名截止後人數會停在截止當下, 再顯示會讓人以為還有名額
-const register_ended = computed(() => route_info.value.register_end_time > 0 && Date.now() > route_info.value.register_end_time)
+// 補課路線的 route_id 由後端照學校公告加上「補課路線」前綴, 報名截止時間要看 register_makeup_end_time
+function registerEnded(item) {
+	const makeup = String(item?.route_id || '').startsWith('補課路線')
+	const end = makeup ? route_info.value.register_makeup_end_time : route_info.value.register_end_time
+	return end > 0 && Date.now() > end
+}
 
 function routeTimeLabel(key) {
 	return key.match(/[（(](.+?)[）)]/)?.[1] || key
@@ -52,7 +58,7 @@ function routeMainTime(item) {
 }
 
 function routeSignup(item) {
-	if (register_ended.value) return null
+	if (registerEnded(item)) return null
 	const current = item?.signup_current
 	const max = item?.signup_max
 	if (!Number.isFinite(current) || !Number.isFinite(max) || max <= 0) return null
@@ -69,6 +75,7 @@ export function routeOptions(list) {
 }
 
 export function routeSignupUrl(item, mode) {
+	if (registerEnded(item)) return ''
 	return mode === 'route' ? cleanText(item?.signup_url) : ''
 }
 
