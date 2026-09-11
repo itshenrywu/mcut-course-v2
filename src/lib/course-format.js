@@ -119,6 +119,11 @@ export function teacherName(course) {
 	return teacher === '視分班而定' ? '' : teacher
 }
 
+export function singleTeacherName(course) {
+	const teacher = teacherName(course)
+	return teacher.includes('/') ? '' : teacher
+}
+
 function formatSection(section) {
 	return section.length > 1 ? `${section[0]}~${section[section.length - 1]}` : `${section[0]}`
 }

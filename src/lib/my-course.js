@@ -1,6 +1,6 @@
 import { ref, watch } from 'vue'
 import { readJsonItem, writeJsonItem } from '@/lib/storage'
-import { SECTION_ORDER } from '@/lib/course-format'
+import { SECTION_ORDER, singleTeacherName } from '@/lib/course-format'
 
 export const MY_WEEKDAYS = [1, 2, 3, 4, 5]
 
@@ -218,7 +218,7 @@ function sectionRanges(sections) {
 	return ranges
 }
 
-export function courseToMyCourses(course, remark = course.teacher) {
+export function courseToMyCourses(course, remark = singleTeacherName(course)) {
 	const list = []
 	for (const time of course.time || []) {
 		if (!MY_WEEKDAYS.includes(time.day)) continue

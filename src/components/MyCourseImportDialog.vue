@@ -4,7 +4,7 @@ import { Star, School, Info } from '@lucide/vue'
 import { getCourseList } from '@/api/course'
 import { useLatestRequest } from '@/lib/loader'
 import { useFavoriteTermCount } from '@/lib/favorite'
-import { useFavoriteCourses, formatCourseTimes, FULL_WEEKDAY_LABELS } from '@/lib/course'
+import { useFavoriteCourses, formatCourseTimes, singleTeacherName, FULL_WEEKDAY_LABELS } from '@/lib/course'
 import { getStoredTermList, useSelectedTerm } from '@/lib/term'
 import { courseToMyCourses, findConflict } from '@/lib/my-course'
 import { parseSchoolCourses } from '@/lib/school-import'
@@ -68,7 +68,7 @@ const favorite_items = computed(() => favorite_courses.value.map(course => {
 	return {
 		id: course.id,
 		name: course.name,
-		note: [formatCourseTimes(course) || '無固定時間', course.teacher].filter(Boolean).join('・'),
+		note: [formatCourseTimes(course) || '無固定時間', singleTeacherName(course)].filter(Boolean).join('・'),
 		blocks,
 		reason: blocks.length ? '' : NO_TIME_REASON
 	}
