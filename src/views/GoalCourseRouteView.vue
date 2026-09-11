@@ -133,7 +133,7 @@ watch(option_list, () => {
 			>
 				<template #description="{ option }">
 					<span v-if="option.description" class="flex items-center gap-1">
-						<Clock class="size-3 shrink-0 text-color-5" />
+						<Clock v-if="option.signup" class="size-3 shrink-0 text-color-5" />
 						<span>{{ option.description }}</span>
 					</span>
 					<span

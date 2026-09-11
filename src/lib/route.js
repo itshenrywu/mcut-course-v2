@@ -1,6 +1,6 @@
 import { computed } from 'vue'
 import { createInfoStore, createUidInfoStore } from '@/lib/info-store'
-import { cleanText } from '@/lib/utils'
+import { cleanText, parseTime } from '@/lib/utils'
 
 const ROUTE_STORE_OPTIONS = {
 	label: '踏查路線',
@@ -13,9 +13,10 @@ const { data: route_info, loaded: info_loaded, load_error: info_error, load: loa
 	parse: data => ({
 		mode: data?.mode === 'uid' ? 'uid' : 'route',
 		description: cleanText(data?.description),
-		locked_description: cleanText(data?.locked_description)
+		locked_description: cleanText(data?.locked_description),
+		register_end_time: parseTime(data?.register_end_time)
 	}),
-	empty: () => ({ mode: 'route', description: '', locked_description: '' })
+	empty: () => ({ mode: 'route', description: '', locked_description: '', register_end_time: 0 })
 })
 
 const { data: route_list, loading: list_loading, load_error: list_error, load: loadRouteList } = createInfoStore('goal-course-route/list', {
@@ -38,6 +39,9 @@ const route_description_list = computed(() => route_info.value.description.split
 
 const route_locked_description = computed(() => route_info.value.locked_description)
 
+// 報名截止後人數會停在截止當下, 再顯示會讓人以為還有名額
+const register_ended = computed(() => route_info.value.register_end_time > 0 && Date.now() > route_info.value.register_end_time)
+
 function routeTimeLabel(key) {
 	return key.match(/[（(](.+?)[）)]/)?.[1] || key
 }
@@ -48,6 +52,7 @@ function routeMainTime(item) {
 }
 
 function routeSignup(item) {
+	if (register_ended.value) return null
 	const current = item?.signup_current
 	const max = item?.signup_max
 	if (!Number.isFinite(current) || !Number.isFinite(max) || max <= 0) return null
