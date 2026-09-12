@@ -15,10 +15,12 @@ import { startFavoriteSync, useFavoriteSync } from '@/lib/favorite'
 import { startMyCourseSync } from '@/lib/my-course-sync'
 import { startInAppBrowserHint, useInAppBrowserHint } from '@/lib/in-app-browser'
 import { useAuth } from '@/lib/auth'
+import { stage_locked } from '@/lib/stage-key'
 
 const TermsDialog = defineAsyncComponent(() => import('@/components/TermsDialog.vue'))
 const FavoriteSyncDialog = defineAsyncComponent(() => import('@/components/FavoriteSyncDialog.vue'))
 const InAppBrowserDrawer = defineAsyncComponent(() => import('@/components/InAppBrowserDrawer.vue'))
+const StageKeyDialog = defineAsyncComponent(() => import('@/components/StageKeyDialog.vue'))
 
 const top_nav = ref(null)
 const page_footer = ref(null)
@@ -92,7 +94,8 @@ if (is_logged_in.value) loadProfile()
 		</footer>
 
 		<LoadingOverlay v-if="route_loading" text="頁面讀取中…" />
-		<TermsDialog v-if="show_terms" @agree="onTermsAgree()" />
+		<StageKeyDialog v-if="stage_locked" />
+		<TermsDialog v-if="show_terms && !stage_locked" @agree="onTermsAgree()" />
 		<FavoriteSyncDialog v-if="show_favorite_sync" />
 		<InAppBrowserDrawer v-if="show_in_app_hint" />
 		<Toaster v-if="toaster_enabled" />

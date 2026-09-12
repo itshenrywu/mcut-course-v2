@@ -1,4 +1,5 @@
 import { attachLoadError } from '@/lib/report'
+import { stageKeyHeaders, reportStageLock } from '@/lib/stage-key'
 
 const CACHE_TTL_MS = 10 * 60 * 1000
 const CACHE_MAX_SIZE = 30
@@ -10,11 +11,12 @@ export async function fetchJson(url, label = '資料', options = {}) {
 	const method = init.method || 'GET'
 	let response
 	try {
-		response = await fetch(url, init)
+		response = await fetch(url, { ...init, headers: { ...stageKeyHeaders(), ...init.headers } })
 	} catch (error) {
 		throw attachLoadError(error, method, url, 0, error.message)
 	}
 	if (!response.ok) {
+		await reportStageLock(response)
 		const error = new Error(`下載${label}失敗: ${response.status}`)
 		error.status = response.status
 		throw attachLoadError(error, method, url, response.status)

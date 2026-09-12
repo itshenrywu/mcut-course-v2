@@ -17,7 +17,8 @@ const AD_RETRY_DELAY = 1500
 // 腳本還在載時最多再確認幾次, 免得把慢的網路當成擋廣告
 const AD_PENDING_RETRY = 3
 
-const IS_DEV = import.meta.env.DEV
+// 只有正式站載入 AdSense, 其他站台保留外框但不推廣告
+const AD_ENABLED = __IS_PROD__
 
 const props = defineProps({
 	narrow: {
@@ -81,7 +82,6 @@ function adStatus() {
 }
 
 function setStateByStatus(status) {
-	if (IS_DEV) return
 	ad_state.value = status === 'filled' ? 'filled' : 'unfilled'
 	stopWatch()
 }
@@ -120,7 +120,7 @@ function checkStatus() {
 }
 
 onMounted(() => {
-	if (hide_ad.value) return
+	if (hide_ad.value || !AD_ENABLED) return
 	try {
 		window.adsbygoogle = window.adsbygoogle || []
 		window.adsbygoogle.push({})

@@ -1,5 +1,6 @@
 import { API_BASE_URL, AUTH_BASE_URL } from '@/config'
 import { attachLoadError } from '@/lib/report'
+import { stageKeyHeaders, reportStageLock } from '@/lib/stage-key'
 
 async function authFetch(url, token, options = {}) {
 	const method = options.method || 'GET'
@@ -10,6 +11,7 @@ async function authFetch(url, token, options = {}) {
 			headers: {
 				'Content-Type': 'application/json',
 				Authorization: `Bearer ${token}`,
+				...stageKeyHeaders(),
 				...options.headers
 			}
 		})
@@ -17,6 +19,7 @@ async function authFetch(url, token, options = {}) {
 		throw attachLoadError(error, method, url, 0, error.message)
 	}
 	if (!response.ok) {
+		await reportStageLock(response)
 		const data = await response.json().catch(() => null)
 		const error = new Error(data?.error || `${method} ${url}: ${response.status}`)
 		error.status = response.status

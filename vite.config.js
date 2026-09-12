@@ -23,6 +23,11 @@ const BUILD_OG_BASE_URL = `${API_BASE}/og`
 const DEV_PROXY = { '/api': API_BASE, '/auth': API_BASE, '/og': API_BASE }
 // 站台網址, 沒指定就不產生 sitemap 也不注入 canonical, 避免寫出錯誤的絕對網址
 const SITE_URL = process.env.SITE_BASE || ''
+// 只有正式站開放收錄, stage 與本機 build 一律注入 noindex 並讓 robots.txt 全站 Disallow
+const PROD_SITE_URL = 'https://mcut-course.com'
+const IS_PROD = SITE_URL === PROD_SITE_URL
+// 非正式站要拿掉 GA 與 AdSense, index.html 用這對註解標出範圍
+const ANALYTICS_BLOCK_RE = /[\t ]*<!-- analytics[\s\S]*?<!-- \/analytics -->\n?/
 // 檢查 meta 用的路由檔, 以及不需要在 PAGE_META 設定 meta 的路徑
 const ROUTER_FILE = fileURLToPath(new URL('./src/router/index.js', import.meta.url))
 const META_SKIP_PATHS = ['/']
@@ -59,10 +64,11 @@ function injectMeta(html, meta, path = '/') {
 	const tags = [
 		`<title>${title}</title>`,
 		`<meta name="description" content="${description}" />`,
+		!IS_PROD && '<meta name="robots" content="noindex, nofollow" />',
 		`<meta property="og:title" content="${title}" />`,
 		`<meta property="og:description" content="${description}" />`,
 		`<meta property="og:image" content="${og_image}" />`
-	].join('\n\t\t')
+	].filter(Boolean).join('\n\t\t')
 	return html.replace(/<title>[\s\S]*?<\/title>/, tags)
 }
 
@@ -222,6 +228,14 @@ function generateSitemap(out_dir, path_list) {
 	console.log(`[page-meta] sitemap.xml 共 ${path_list.length} 個網址`)
 }
 
+function generateRobots(out_dir) {
+	const lines = IS_PROD
+		? ['User-agent: *', 'Allow: /', '', `Sitemap: ${SITE_URL}/sitemap.xml`]
+		: ['User-agent: *', 'Disallow: /']
+	writeFileSync(resolve(out_dir, 'robots.txt'), `${lines.join('\n')}\n`)
+	console.log(`[page-meta] robots.txt ${IS_PROD ? `開放收錄, sitemap 指向 ${SITE_URL}` : '全站 Disallow'}`)
+}
+
 function routeBlocks() {
 	return readFileSync(ROUTER_FILE, 'utf-8')
 		.split(/\bpath:\s*/)
@@ -273,6 +287,15 @@ function checkPageMeta() {
 	if (!missing_list.length && !unused_list.length) console.log(`[page-meta] ${static_paths.length} 個頁面的 meta 檢查通過`)
 }
 
+function analyticsPlugin() {
+	return {
+		name: 'analytics',
+		transformIndexHtml(html) {
+			return IS_PROD ? html : html.replace(ANALYTICS_BLOCK_RE, '')
+		}
+	}
+}
+
 function pageMetaPlugin() {
 	let out_dir = 'dist'
 	return {
@@ -296,16 +319,18 @@ function pageMetaPlugin() {
 			const rule_page_list = await generateRulePages(base_html, out_dir)
 			const meta_paths = Object.keys(PAGE_META).filter(path => !SITEMAP_EXCLUDE_PATHS.includes(path))
 			generateSitemap(out_dir, ['/', ...meta_paths, ...latestYearPaths(course_page_list), ...latestYearPaths(rule_page_list)])
+			generateRobots(out_dir)
 			checkPageMeta()
 		}
 	}
 }
 
 export default defineConfig({
-	plugins: [vue(), tailwindcss(), pageMetaPlugin()],
+	plugins: [vue(), tailwindcss(), analyticsPlugin(), pageMetaPlugin()],
 	envPrefix: ['VITE_', 'API_BASE'],
 	define: {
 		__BUILD_TIME__: JSON.stringify(BUILD_TIME),
+		__IS_PROD__: JSON.stringify(IS_PROD),
 		__GIT_SHA__: JSON.stringify(GIT_SHA),
 		__VUE_OPTIONS_API__: false,
 		__VUE_PROD_DEVTOOLS__: false,
