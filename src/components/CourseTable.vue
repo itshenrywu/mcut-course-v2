@@ -5,13 +5,13 @@ import { useElementSize, useMediaQuery } from '@vueuse/core'
 import { Layers, Clock } from '@lucide/vue'
 import { remToPx } from '@/lib/utils'
 import { HoverCard, HoverCardTrigger, HoverCardContent } from '@/components/ui/hover-card'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import CourseList from '@/components/CourseList.vue'
 import CourseListDialog from '@/components/CourseListDialog.vue'
 import CourseEmpty from '@/components/CourseEmpty.vue'
 import CourseBlock from '@/components/CourseBlock.vue'
 import CourseHoverDetail from '@/components/CourseHoverDetail.vue'
-import { SECTION_ORDER, SECTION_TIME, WEEKDAY_LABELS, MAX_TABLE_COLS, visibleSections, isAltCourse, isMultiAltCourse, courseOrAltRoutePath, otherClassGroupLabel, peInternationalLabel } from '@/lib/course'
+import SectionTimeDialog from '@/components/SectionTimeDialog.vue'
+import { WEEKDAY_LABELS, MAX_TABLE_COLS, visibleSections, isAltCourse, isMultiAltCourse, courseOrAltRoutePath, otherClassGroupLabel, peInternationalLabel } from '@/lib/course'
 
 // 節次列高與左側時間欄寬 (rem)
 const SECTION_ROW_HEIGHT = 3.5
@@ -295,23 +295,7 @@ function blockStyle(item) {
 			/>
 		</CourseListDialog>
 
-		<Dialog v-model:open="section_dialog_open">
-			<DialogContent class="max-w-xs">
-				<DialogHeader>
-					<DialogTitle>各節次對應上課時間</DialogTitle>
-				</DialogHeader>
-				<div class="flex max-h-[60dvh] flex-col overflow-y-auto overscroll-contain text-sm">
-					<div
-						v-for="section in SECTION_ORDER"
-						:key="section"
-						class="flex items-center justify-between gap-4 border-b border-color-3 py-1.5 last:border-b-0"
-					>
-						<span class="w-8 shrink-0 font-num font-medium text-color-9 tabular-nums">{{ section }}</span>
-						<span class="font-num text-color-6 tabular-nums">{{ SECTION_TIME[section][0] }} ~ {{ SECTION_TIME[section][1] }}</span>
-					</div>
-				</div>
-			</DialogContent>
-		</Dialog>
+		<SectionTimeDialog v-model:open="section_dialog_open" />
 
 		<div v-if="unscheduled.length" class="mt-6">
 			<div class="mx-4 mb-2 text-sm font-medium text-color-6 lg:mx-3">無固定星期課程</div>
