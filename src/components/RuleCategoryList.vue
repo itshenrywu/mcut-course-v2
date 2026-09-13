@@ -63,7 +63,7 @@ const category_rows = computed(() => props.categories.map(category =>
 	>
 		<div class="flex items-center gap-2 px-4 py-2 lg:px-0">
 			<h2 class="text-xs text-color-6">{{ category.display_name }}</h2>
-			<Badge v-if="category.label" variant="outline" class="bg-color-3">{{ spaceText(category.label) }}</Badge>
+			<Badge v-if="category.label" variant="tint">{{ spaceText(category.label) }}</Badge>
 		</div>
 		<div class="overflow-hidden rounded-none border bg-color-1 lg:rounded-lg">
 			<div v-if="category.req || category.remark" class="px-4 py-2 text-sm">
@@ -80,7 +80,7 @@ const category_rows = computed(() => props.categories.map(category =>
 					<AccordionTrigger class="rounded-none bg-color-3 px-4 py-2 text-base hover:no-underline">
 						<span class="flex flex-wrap items-center gap-2 font-medium">
 							{{ sub.display_name }}
-							<Badge v-if="sub.label" variant="outline" class="bg-color-1">{{ spaceText(sub.label) }}</Badge>
+							<Badge v-if="sub.label" variant="tint">{{ spaceText(sub.label) }}</Badge>
 						</span>
 					</AccordionTrigger>
 					<AccordionContent class="pb-0">
@@ -100,7 +100,7 @@ const category_rows = computed(() => props.categories.map(category =>
 								>
 									<td class="min-w-0 font-medium break-words md:px-4 md:py-2">
 										{{ row.course.name }}
-										<Badge v-if="row.dept_label" size="sm" :class="['ml-1', CROSS_DEPT_BADGE_CLASS]">{{ row.dept_label }}</Badge>
+										<Badge v-if="row.dept_label" size="xs" :class="['ml-1', CROSS_DEPT_BADGE_CLASS]">{{ row.dept_label }}</Badge>
 									</td>
 									<td class="text-right whitespace-nowrap md:table-cell md:px-2 md:py-2 md:text-left">{{ row.course.term }}</td>
 									<td class="text-right whitespace-nowrap md:table-cell md:px-2 md:py-2 md:text-left">{{ row.course.credit }} 學分</td>

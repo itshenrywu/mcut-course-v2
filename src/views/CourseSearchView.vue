@@ -298,8 +298,8 @@ watch(selected_enroll_type, enroll_type => {
 				</template>
 			</FilterSidebar>
 
-			<div class="flex w-full min-w-0 flex-1 flex-col lg:pl-6">
-				<div class="sticky top-[var(--nav-h)] z-30 flex items-center gap-2 bg-color-2/90 px-4 py-0.5 print:hidden">
+			<div class="flex w-full min-w-0 flex-1 flex-col lg:pl-2 lg:[--bar-h:2.25rem]">
+				<div class="sticky top-[var(--nav-h)] z-30 flex items-center gap-2 bg-color-2/95 px-4 py-0.5 print:hidden">
 					<button
 						type="button"
 						class="-ml-4 flex min-w-0 flex-1 items-center justify-start gap-2 px-4 py-2 text-sm font-medium lg:hidden"
@@ -311,7 +311,7 @@ watch(selected_enroll_type, enroll_type => {
 						</span>
 					</button>
 
-					<div v-if="!load_error" class="hidden min-w-0 flex-1 truncate py-2 text-sm text-color-6 lg:block">
+					<div v-if="!load_error" class="hidden min-w-0 flex-1 truncate py-1 text-sm text-color-6 lg:block">
 						{{ filtered_course_list.length }} 門符合的課程<span v-if="hidden_conflict_count">（{{ hidden_conflict_count }} 門衝堂已隱藏）</span>
 					</div>
 
@@ -360,10 +360,10 @@ watch(selected_enroll_type, enroll_type => {
 							</div>
 						</template>
 					</CourseEmpty>
-					<CourseTable v-else-if="view_mode === 'table'" :courses="filtered_course_list" :narrow-days="narrow_weekdays" :grade-class="table_grade_class" :filter="table_filter" @alt-click="openAlt($event)" />
-					<CourseList v-else :courses="filtered_course_list" :conflict-ids="conflict_ids" @alt-click="openAlt($event)" />
+					<CourseTable v-else-if="view_mode === 'table'" :courses="filtered_course_list" :narrow-days="narrow_weekdays" :grade-class="table_grade_class" :filter="table_filter" bleed @alt-click="openAlt($event)" />
+					<CourseList v-else :courses="filtered_course_list" :conflict-ids="conflict_ids" bleed @alt-click="openAlt($event)" />
 
-					<SponsorAd v-if="filtered_course_list.length" section-class="mt-4 print:hidden" title-class="px-4" card-class="mx-0 rounded-none md:rounded-none md:border-x-0 lg:mx-3 lg:rounded-lg lg:border-x-3" />
+					<SponsorAd v-if="filtered_course_list.length" section-class="mt-4 print:hidden" title-class="px-4" card-class="mx-0 rounded-none md:rounded-none md:border-x-0 lg:mx-4 lg:rounded-lg lg:border-x-3" />
 				</div>
 			</div>
 		</div>

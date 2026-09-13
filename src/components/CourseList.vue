@@ -50,6 +50,10 @@ const props = defineProps({
 	confirmRemove: {
 		type: Boolean,
 		default: false
+	},
+	bleed: {
+		type: Boolean,
+		default: false
 	}
 })
 
@@ -95,32 +99,37 @@ watch(() => props.courses, () => {
 
 onUnmounted(cancelIdleFill)
 
-const header_class = computed(() => props.embedded ? '' : 'md:sticky md:top-[calc(var(--nav-h)+2.25rem)] md:z-10')
+// --bar-h: 上方 sticky bar 的高度, 由頁面宣告; 沒宣告就用兩頁共同的 40px
+const header_class = computed(() => props.embedded ? '' : 'md:sticky md:top-[calc(var(--nav-h)+var(--bar-h,2.5rem))] md:z-10')
+
+// bleed: 有 sidebar 的版面讓列往左貼齊分隔線, 首欄再補回同樣的內距, 文字位置不變
+const bleed_class = computed(() => props.bleed ? 'lg:-ml-2 lg:w-auto' : '')
+const first_col_class = computed(() => props.bleed ? 'lg:pl-6' : '')
 </script>
 
 <template>
 	<CourseEmpty v-if="courses.length === 0" />
-	<div v-else class="flex w-full flex-col text-sm md:grid md:grid-cols-[3fr_4fr_5rem_2fr_6rem_3fr_2.5rem_0.75rem] [&>*:last-child]:border-b-0">
-		<div class="hidden border-b bg-color-2 text-sm font-medium text-color-6 md:col-span-full md:grid md:grid-cols-subgrid" :class="header_class">
-			<div class="px-3 py-2">開課班級</div>
-			<div class="px-3 py-2">課程名稱</div>
-			<div class="px-3 py-2">上課時間</div>
-			<div class="px-3 py-2">修別/學分</div>
-			<div class="px-3 py-2">授課老師</div>
-			<div class="px-3 py-2">備註</div>
-			<div class="px-3 py-2"></div>
+	<div v-else class="flex w-full flex-col text-sm md:grid md:grid-cols-[3fr_4fr_5rem_2fr_6rem_3fr_2.5rem_0.75rem] [&>*:last-child]:border-b-0" :class="bleed_class">
+		<div class="hidden border-b bg-color-2/95 text-sm font-medium text-color-6 md:col-span-full md:grid md:grid-cols-subgrid" :class="header_class">
+			<div class="pt-0.5 pr-3 pb-2 pl-4" :class="first_col_class">開課班級</div>
+			<div class="px-3 pt-0.5 pb-2">課程名稱</div>
+			<div class="px-3 pt-0.5 pb-2">上課時間</div>
+			<div class="px-3 pt-0.5 pb-2">修別/學分</div>
+			<div class="px-3 pt-0.5 pb-2">授課老師</div>
+			<div class="px-3 pt-0.5 pb-2">備註</div>
+			<div class="px-3 pt-0.5 pb-2"></div>
 		</div>
 		<component
 			:is="row.is_multi_alt ? 'button' : RouterLink"
 			v-for="row in visible_rows"
 			:key="row.course.id"
-			v-memo="[row, conflictIds.has(row.course.id), embedded, confirmRemove]"
+			v-memo="[row, conflictIds.has(row.course.id), embedded, confirmRemove, bleed]"
 			:to="row.to"
 			:type="row.is_multi_alt ? 'button' : undefined"
 			class="relative flex w-full cursor-pointer flex-wrap items-start gap-y-1 border-b px-4 py-2 text-left hover:bg-color-3 md:col-span-full md:grid md:grid-cols-subgrid md:gap-0 md:p-0"
 			@click="row.is_multi_alt && emit('alt-click', row.course)"
 		>
-			<div class="order-4 flex items-center gap-1 pr-4 whitespace-nowrap md:order-none md:block md:py-2 md:pr-3 md:pl-3">
+			<div class="order-4 flex items-center gap-1 pr-4 whitespace-nowrap md:order-none md:block md:py-2 md:pr-3 md:pl-4" :class="first_col_class">
 				<Users class="size-3.5 shrink-0 text-color-5 md:hidden" />{{ row.dept_class }}
 			</div>
 			<div class="order-1 flex-1 pr-2 font-medium md:order-none md:flex-none md:px-3 md:py-2">{{ row.course.name }}</div>

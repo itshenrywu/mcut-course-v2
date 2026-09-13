@@ -93,7 +93,7 @@ function clearArchivedCourses() {
 	<div class="mt-4 flex w-full flex-1 flex-col">
 		<h1 class="sr-only">收藏的課程</h1>
 		<div class="mx-auto flex w-full max-w-5xl flex-1 flex-col lg:px-4">
-			<div class="sticky top-[var(--nav-h)] z-30 flex items-center gap-2 bg-color-2/90 px-4 py-1.5">
+			<div class="sticky top-[var(--nav-h)] z-30 flex items-center gap-2 bg-color-2/95 px-4 py-1">
 				<TermSelect
 					v-model="selected_term_id"
 					:term-list="term_list"
@@ -184,7 +184,7 @@ function clearArchivedCourses() {
 						<CourseTable v-if="view_mode === 'table'" :courses="favorite_courses" @alt-click="openAlt($event)" />
 						<CourseList v-else :courses="favorite_courses" :conflict-ids="conflict_ids" confirm-remove @alt-click="openAlt($event)" />
 
-						<SponsorAd section-class="mt-4 print:hidden" title-class="px-4" card-class="mx-0 rounded-none md:rounded-none md:border-x-0 lg:mx-3 lg:rounded-lg lg:border-x-3" />
+						<SponsorAd section-class="mt-4 print:hidden" title-class="px-4" card-class="mx-0 rounded-none md:rounded-none md:border-x-0 lg:mx-4 lg:rounded-lg lg:border-x-3" />
 					</div>
 				</template>
 

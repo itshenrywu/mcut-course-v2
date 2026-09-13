@@ -365,7 +365,7 @@ async function downloadImage() {
 			</FilterSidebar>
 
 			<div class="flex min-h-0 w-full min-w-0 flex-1 flex-col lg:flex-row lg:gap-6 lg:pl-6">
-				<div class="sticky top-[var(--nav-h)] z-30 flex items-center gap-2 bg-color-2/90 px-4 py-0.5 lg:hidden print:hidden">
+				<div class="sticky top-[var(--nav-h)] z-30 flex items-center gap-2 bg-color-2/95 px-4 py-0.5 lg:hidden print:hidden">
 					<button
 						type="button"
 						class="-ml-4 flex min-w-0 items-center justify-start gap-2 px-4 py-2 text-sm font-medium"

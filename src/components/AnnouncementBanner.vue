@@ -1,6 +1,7 @@
 <script setup>
 import { computed } from 'vue'
 import { X } from '@lucide/vue'
+import { Badge } from '@/components/ui/badge'
 import { useAnnouncement, ANNOUNCEMENT_LABEL_CLASSES } from '@/lib/announcement'
 import { spaceText } from '@/lib/utils'
 
@@ -21,15 +22,15 @@ const label_class = computed(() => ANNOUNCEMENT_LABEL_CLASSES[current_announceme
 			]"
 		>
 			<p class="m-0">
-				<span
+				<Badge
 					v-if="current_announcement.label"
 					:class="[
-						'mr-1 inline-block rounded-sm px-1.5 py-0.5 align-baseline leading-none text-xs -translate-y-px',
+						'mr-1 -translate-y-px border-transparent align-baseline',
 						label_class,
 					]"
 				>
 					{{ current_announcement.label }}
-				</span>
+				</Badge>
 
 				{{ spaceText(current_announcement.content) }}
 			</p>

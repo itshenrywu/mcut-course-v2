@@ -429,7 +429,7 @@ function onLockedButton() {
 					<component :is="item.icon" class="pointer-events-none absolute -right-3 -bottom-3 size-16 text-color-3/70"/>
 					<div class="relative flex items-center gap-1.5">
 						<span class="truncate text-sm font-medium">{{ item.title }}</span>
-						<Badge v-if="item.hot" variant="destructive" size="sm" class="rounded-full py-0.5 font-semibold tracking-widest">Hot!</Badge>
+						<Badge v-if="item.hot" variant="destructive" size="xs" class="rounded-full font-semibold tracking-widest">Hot!</Badge>
 					</div>
 					<span class="relative text-xs text-color-6" v-if="item.description">{{ item.description }}</span>
 				</component>
@@ -466,7 +466,7 @@ function onLockedButton() {
 						<AccordionTrigger class="hover:no-underline">
 							<span class="flex items-center gap-2">
 								{{ dept.department }}
-								<Badge v-if="dept.recent" variant="secondary" size="sm" class="rounded-full px-2 py-0.5 text-color-6">上次查詢</Badge>
+								<Badge v-if="dept.recent" variant="secondary" size="sm">上次查詢</Badge>
 							</span>
 						</AccordionTrigger>
 						<AccordionContent>

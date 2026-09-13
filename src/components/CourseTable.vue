@@ -8,6 +8,7 @@ import { HoverCard, HoverCardTrigger, HoverCardContent } from '@/components/ui/h
 import CourseList from '@/components/CourseList.vue'
 import CourseListDialog from '@/components/CourseListDialog.vue'
 import CourseEmpty from '@/components/CourseEmpty.vue'
+import SectionCard from '@/components/SectionCard.vue'
 import CourseBlock from '@/components/CourseBlock.vue'
 import CourseHoverDetail from '@/components/CourseHoverDetail.vue'
 import SectionTimeDialog from '@/components/SectionTimeDialog.vue'
@@ -45,6 +46,10 @@ const props = defineProps({
 	filter: {
 		type: Object,
 		default: () => ({})
+	},
+	bleed: {
+		type: Boolean,
+		default: false
 	}
 })
 
@@ -200,7 +205,7 @@ function blockStyle(item) {
 	<div v-else>
 		<div
 			ref="grid"
-			class="mt-4 grid overflow-hidden border-t border-l bg-color-1 lg:mx-3 lg:rounded-lg"
+			class="mt-4 grid overflow-hidden border-t border-l bg-color-1 lg:mx-4 lg:rounded-lg"
 			:style="{ gridTemplateColumns: `${TIME_COL_WIDTH}rem repeat(${weekdays.length}, minmax(0, 1fr))` }"
 		>
 			<button
@@ -297,9 +302,14 @@ function blockStyle(item) {
 
 		<SectionTimeDialog v-model:open="section_dialog_open" />
 
-		<div v-if="unscheduled.length" class="mt-6">
-			<div class="mx-4 mb-2 text-sm font-medium text-color-6 lg:mx-3">無固定星期課程</div>
-			<CourseList :courses="unscheduled" embedded @alt-click="emit('alt-click', $event)" />
-		</div>
+		<SectionCard
+			v-if="unscheduled.length"
+			title="無固定星期課程"
+			:card="false"
+			section-class="mt-6"
+			title-class="px-4"
+		>
+			<CourseList :courses="unscheduled" embedded :bleed="bleed" @alt-click="emit('alt-click', $event)" />
+		</SectionCard>
 	</div>
 </template>

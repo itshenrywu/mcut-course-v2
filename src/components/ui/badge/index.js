@@ -8,13 +8,15 @@ export const badgeVariants = cva(
 		variants: {
 			variant: {
 				default: 'border-transparent bg-color-10 text-color-1 [a&]:hover:bg-color-10/90',
-				secondary: 'border-transparent bg-color-3 text-color-9 [a&]:hover:bg-color-3/90',
+				secondary: 'border-transparent bg-color-3 text-color-8 [a&]:hover:bg-color-3/90',
 				destructive: 'border-transparent bg-destructive text-white [a&]:hover:bg-destructive/90',
-				outline: 'border-color-4 text-color-10 [a&]:hover:bg-color-2 [a&]:hover:text-color-10'
+				outline: 'border-color-5 text-color-10 [a&]:hover:bg-color-2 [a&]:hover:text-color-10',
+				tint: 'border-transparent bg-color-10/10 text-color-10 [a&]:hover:bg-color-10/15'
 			},
 			size: {
 				default: 'px-2 py-0.5 text-xs',
-				sm: 'px-1.5 py-0 text-[10px] leading-4'
+				sm: 'px-2 py-0.5 text-[10px] leading-4',
+				xs: 'px-1.5 py-0 text-[10px] leading-4'
 			}
 		},
 		defaultVariants: {

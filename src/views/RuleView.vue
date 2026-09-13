@@ -253,7 +253,7 @@ watch(() => route.path, () => {
 
 			<div class="flex w-full min-w-0 flex-1 flex-col lg:pl-6">
 				<div
-					class="sticky top-[var(--nav-h)] z-30 flex items-center gap-2 bg-color-2/90 px-4 py-0.5 lg:px-0 lg:pt-2"
+					class="sticky top-[var(--nav-h)] z-30 flex items-center gap-2 bg-color-2/95 px-4 py-0.5 lg:px-0 lg:pt-2"
 					:class="show_detail ? '' : 'lg:hidden'"
 				>
 					<button
@@ -304,7 +304,7 @@ watch(() => route.path, () => {
 								<li>欲選課前切換<b class="font-medium">欲選課學期</b>，即可查看該學期是否有開課。</li>
 								<li><b class="font-medium">此頁面僅提供畢業學分門檻，其他畢業門檻（如路跑、游泳、英文、專業證照等）請見學校及系所規定。</b></li>
 								<li v-if="cross_program">
-									<Badge size="sm" :class="CROSS_DEPT_BADGE_CLASS">外系</Badge>
+									<Badge size="xs" :class="CROSS_DEPT_BADGE_CLASS">外系</Badge>
 									標示表示<b class="font-medium">非入學系所</b>的課程。此標示僅供參考，實際依照開課為準。
 								</li>
 							</HintList>

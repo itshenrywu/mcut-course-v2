@@ -46,15 +46,15 @@ watch(enroll_list, markEnrollTimeSeen, { immediate: true })
 			<div class="hidden overflow-hidden border bg-color-1 md:block md:rounded-lg">
 				<InfoTable :headers="ENROLL_TIME_TABLE_HEADERS" header-class="whitespace-nowrap">
 					<tr v-for="item in enroll_list" :key="item.name">
-						<td class="px-3 py-2.5 font-medium whitespace-nowrap">{{ item.name }}</td>
+						<td class="px-4 py-2.5 font-medium whitespace-nowrap">{{ item.name }}</td>
 						<template v-if="item.announced">
-							<td class="px-3 py-2.5 whitespace-nowrap text-color-8">{{ formatTermLabel(item.term_id) }}</td>
-							<td class="px-3 py-2.5" :class="cellClass(item.first_enroll)">{{ cellText(item.first_enroll) }}</td>
-							<td class="px-3 py-2.5" :class="cellClass(item.add_drop)">{{ cellText(item.add_drop) }}</td>
+							<td class="px-4 py-2.5 whitespace-nowrap text-color-8">{{ formatTermLabel(item.term_id) }}</td>
+							<td class="px-4 py-2.5" :class="cellClass(item.first_enroll)">{{ cellText(item.first_enroll) }}</td>
+							<td class="px-4 py-2.5" :class="cellClass(item.add_drop)">{{ cellText(item.add_drop) }}</td>
 						</template>
-						<td v-else class="px-3 py-2.5 text-color-5" colspan="3">選課時間尚未公布</td>
-						<td class="px-3 py-2.5 whitespace-nowrap" :class="cellClass(item.credit_min)">{{ cellText(item.credit_min) }}</td>
-						<td class="px-3 py-2.5 whitespace-nowrap" :class="cellClass(item.credit_max)">{{ cellText(item.credit_max) }}</td>
+						<td v-else class="px-4 py-2.5 text-color-5" colspan="3">選課時間尚未公布</td>
+						<td class="px-4 py-2.5 whitespace-nowrap" :class="cellClass(item.credit_min)">{{ cellText(item.credit_min) }}</td>
+						<td class="px-4 py-2.5 whitespace-nowrap" :class="cellClass(item.credit_max)">{{ cellText(item.credit_max) }}</td>
 					</tr>
 				</InfoTable>
 			</div>

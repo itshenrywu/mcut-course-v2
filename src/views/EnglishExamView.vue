@@ -99,9 +99,9 @@ useValidOption(selected_level, level_options, { enabled: () => exam_list.value.l
 		<SectionCard v-if="filtered_list.length" :title="exam_time_list.length ? `考試時間　${exam_time_list.join('、')}` : ''" card-class="overflow-hidden">
 			<InfoTable :headers="EXAM_TABLE_HEADERS" fixed>
 				<tr v-for="item in filtered_list" :key="item.class_name">
-					<td class="px-3 py-2.5 font-medium">{{ spaceText(item.class_name) }}</td>
-					<td class="px-3 py-2.5 text-color-8">{{ cellText(item.teacher) }}</td>
-					<td class="px-3 py-2.5" :class="cellClass(item.place)">{{ cellText(item.place) }}</td>
+					<td class="px-4 py-2.5 font-medium">{{ spaceText(item.class_name) }}</td>
+					<td class="px-4 py-2.5 text-color-8">{{ cellText(item.teacher) }}</td>
+					<td class="px-4 py-2.5" :class="cellClass(item.place)">{{ cellText(item.place) }}</td>
 				</tr>
 			</InfoTable>
 		</SectionCard>

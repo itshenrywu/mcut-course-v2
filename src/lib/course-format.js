@@ -70,12 +70,14 @@ export const GRADE_LABELS = ['一', '二', '三', '四']
 export const ENROLL_TYPE_CLASSES = {
 	必修: 'bg-orange-400/10 text-orange-600 dark:text-orange-400 inset-ring inset-ring-orange-400/10 dark:inset-ring-orange-400/25',
 	選修: 'bg-emerald-400/10 text-emerald-600 dark:text-emerald-400 inset-ring inset-ring-emerald-400/10 dark:inset-ring-emerald-400/25',
+	重修: 'bg-violet-400/10 text-violet-600 dark:text-violet-400 inset-ring inset-ring-violet-400/10 dark:inset-ring-violet-400/25',
 	DEFAULT: 'bg-color-5/10 text-color-7 inset-ring inset-ring-color-5/10'
 }
 
 export const ENROLL_TYPE_TABLE_CLASSES = {
 	必修: 'border-orange-400/40 bg-orange-400/25 text-color-9/85 hover:bg-orange-400/35',
 	選修: 'border-emerald-400/40 bg-emerald-400/25 text-color-9/85 hover:bg-emerald-400/35',
+	重修: 'border-violet-400/40 bg-violet-400/25 text-color-9/85 hover:bg-violet-400/35',
 	DEFAULT: 'border-color-3 bg-color-3 text-color-9 hover:bg-color-4'
 }
 

@@ -3,9 +3,9 @@ import { getInfo } from '@/api/info'
 import { createLoader } from '@/lib/loader'
 
 export const CHANGE_TYPE_CLASSES = {
-	'feat': 'bg-sky-400/10 text-sky-600 inset-ring inset-ring-sky-400/10',
-	'fix': 'bg-rose-400/10 text-rose-600 inset-ring inset-ring-rose-400/10',
-	'refactor': 'bg-amber-400/10 text-amber-600 inset-ring inset-ring-amber-400/10'
+	'feat': 'bg-sky-400/10 text-sky-600 dark:text-sky-400 inset-ring inset-ring-sky-400/10 dark:inset-ring-sky-400/25',
+	'fix': 'bg-rose-400/10 text-rose-600 dark:text-rose-400 inset-ring inset-ring-rose-400/10 dark:inset-ring-rose-400/25',
+	'refactor': 'bg-amber-400/10 text-amber-600 dark:text-amber-400 inset-ring inset-ring-amber-400/10 dark:inset-ring-amber-400/25'
 }
 
 export const CHANGE_TYPES = {
