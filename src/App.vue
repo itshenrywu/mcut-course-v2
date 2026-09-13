@@ -36,7 +36,7 @@ const { conflict_open } = useFavoriteSync()
 const { hint_open } = useInAppBrowserHint()
 const { is_logged_in, loadProfile } = useAuth()
 
-const show_terms = ref(localStorage.getItem('mcv2-terms-agreed') !== '1')
+const show_terms = ref(localStorage.getItem('mcv2-terms-agreed') !== '1' && !new URLSearchParams(window.location.search).has('terms_agreed'))
 const show_favorite_sync = ref(false)
 const show_in_app_hint = ref(false)
 
