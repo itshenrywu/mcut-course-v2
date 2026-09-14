@@ -105,3 +105,19 @@ export function ruleRoutePath(year, dept_id, rule_id) {
 	if (rule_id) parts.push(rule_id)
 	return `/rule/${parts.join('/')}`
 }
+
+export function ruleDisplayName(rule) {
+	if (!rule) return ''
+	return rule.name + (['跨領域', '第二專長'].includes(rule.type) ? rule.type : '入學課程總表')
+}
+
+export function ruleFavoriteId(year, dept_id, rule_id) {
+	if (!year || !rule_id) return ''
+	return [year, dept_id || DEFAULT_ID, rule_id].join('-')
+}
+
+export function parseRuleFavoriteId(id) {
+	const [year, dept_id, rule_id] = String(id || '').split('-')
+	if (!year || !dept_id || !rule_id) return null
+	return { year, dept_id, rule_id }
+}

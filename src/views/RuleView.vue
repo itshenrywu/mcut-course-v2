@@ -1,12 +1,13 @@
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { ChevronDown, ChevronsDownUp, ChevronsUpDown, Clock, Copy, FileDown, Info, Mail, Phone, Users } from '@lucide/vue'
-import { findRule, findDept, ruleRoutePath, splitRuleName, sortRuleCourses, useRuleList, useRuleDetail, useEnrollCourses, CROSS_DEPT_BADGE_CLASS, DEFAULT_ID } from '@/lib/rule'
+import { ChevronDown, ChevronsDownUp, ChevronsUpDown, Clock, Copy, FileDown, Info, Mail, Phone, Star, Users } from '@lucide/vue'
+import { findRule, findDept, ruleRoutePath, ruleDisplayName, splitRuleName, sortRuleCourses, useRuleList, useRuleDetail, useEnrollCourses, CROSS_DEPT_BADGE_CLASS, DEFAULT_ID } from '@/lib/rule'
 import { conflictingCourses, favoriteCourseId, formatCourseTimes, formatDeptClass, hasRemark } from '@/lib/course'
 import { formatTermLabel, useSelectedTerm } from '@/lib/term'
 import { useEnrollTime } from '@/lib/enroll-time'
 import { useFavorite } from '@/lib/favorite'
+import { useRuleFavorite, resyncRuleFavorite, countRuleFavorites, RULE_FAVORITE_MAX } from '@/lib/rule-favorite'
 import { useLocalRef } from '@/lib/storage'
 import { schoolTel } from '@/lib/utils'
 import { rulePageMeta } from '@/config/page-meta'
@@ -80,6 +81,10 @@ const { course_map } = useEnrollCourses(enroll_course_term_id)
 
 const { isFavorite } = useFavorite()
 
+const { isRuleFavorite, toggleRuleFavorite } = useRuleFavorite()
+
+resyncRuleFavorite()
+
 const { selected_term_id } = useSelectedTerm()
 
 const enroll_favorite_courses = computed(() => {
@@ -110,12 +115,27 @@ const show_program_hint = computed(() => !NO_PROGRAM_DEPT_KEYWORDS.some(keyword 
 const filter_summary = computed(() => {
 	const info = []
 	if (selected_year.value) info.push(`${selected_year.value} 學年入學`)
-	if (selected_rule.value) info.push(selected_rule.value.name + (['跨領域', '第二專長'].includes(selected_rule.value.type) ? selected_rule.value.type : '入學課程總表'))
+	if (selected_rule.value) info.push(ruleDisplayName(selected_rule.value))
 	else if (selected_dept_name.value) info.push(selected_dept_name.value)
 	return info
 })
 
 const page_heading = computed(() => filter_summary.value.join(' ') || '畢業學分門檻')
+
+const rule_favorited = computed(() => isRuleFavorite(selected_year.value, selected_dept.value, selected_rule_id.value))
+
+const rule_favorite_count = computed(() => countRuleFavorites(rule_map.value, dept_map.value))
+
+function toggleRule() {
+	if (!rule_favorited.value && rule_favorite_count.value >= RULE_FAVORITE_MAX) {
+		return toast.error(`最多只能收藏 ${RULE_FAVORITE_MAX} 張總表`, { description: '請先取消其他收藏的總表' })
+	}
+	const result = toggleRuleFavorite(selected_year.value, selected_dept.value, selected_rule_id.value)
+	if (!result) return
+	toast.success(result === 'added' ? '總表已收藏' : '總表已取消收藏', {
+		description: filter_summary.value.join(' ')
+	})
+}
 
 function toCategories(list, sort_mode) {
 	return (list || []).map(category => ({
@@ -248,6 +268,7 @@ watch(() => route.path, () => {
 					:dept-map="dept_map"
 					:enroll-term-list="enroll_term_list"
 					:disabled="loading"
+					@favorite-select="sidebar_open = false"
 				/>
 			</FilterSidebar>
 
@@ -257,8 +278,18 @@ watch(() => route.path, () => {
 					:class="show_detail ? '' : 'lg:hidden'"
 				>
 					<button
+						v-if="show_detail"
 						type="button"
-						class="-ml-4 flex min-w-0 flex-1 items-center justify-start gap-2 px-4 py-2 text-sm font-medium lg:hidden"
+						class="-ml-2 shrink-0 p-2 print:hidden"
+						:aria-label="`${rule_favorited ? '取消收藏' : '收藏'} ${page_heading}`"
+						@click="toggleRule()"
+					>
+						<Star class="size-4" :class="rule_favorited ? 'fill-amber-400 text-amber-400' : 'text-color-5 hover:text-color-7'" />
+					</button>
+
+					<button
+						type="button"
+						class="flex min-w-0 flex-1 items-center justify-start gap-2 py-2 text-sm font-medium lg:hidden"
 						@click="sidebar_open = true"
 					>
 						<span class="min-w-0 text-left">

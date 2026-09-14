@@ -1,6 +1,6 @@
 <script setup>
-import { computed, watch } from 'vue'
-import { findRule, findSelfRule, ruleGroups, deptGroups, findDept, DEFAULT_ID } from '@/lib/rule'
+import { computed, nextTick, watch } from 'vue'
+import { findRule, findSelfRule, ruleGroups, deptGroups, findDept, ruleFavoriteId, DEFAULT_ID } from '@/lib/rule'
 import { spaceText } from '@/lib/utils'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectGroup, SelectLabel, SelectItem } from '@/components/ui/select'
 import { Combobox, ComboboxTrigger, ComboboxContent, ComboboxGroup, ComboboxLabel, ComboboxItem } from '@/components/ui/combobox'
@@ -8,6 +8,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import TermSelect from '@/components/TermSelect.vue'
 import FilterField from '@/components/FilterField.vue'
 import SelectFilterField from '@/components/SelectFilterField.vue'
+import RuleFavoriteDialog from '@/components/RuleFavoriteDialog.vue'
 
 const SORT_MODE_OPTIONS = [
 	{ value: 'term', label: '上 → 下學期，再依年級' },
@@ -33,13 +34,20 @@ const props = defineProps({
 	}
 })
 
+const emit = defineEmits(['favorite-select'])
+
 const year = defineModel('year', { type: String, default: '' })
 const dept = defineModel('dept', { type: String, default: DEFAULT_ID })
 const rule_id = defineModel('ruleId', { type: String, default: '' })
 const enroll_term_id = defineModel('enrollTermId', { type: String, default: '' })
 const sort_mode = defineModel('sortMode', { type: String, default: 'grade' })
 
+// 套用收藏時要一次換掉年/系所/總表, 沒有這個旗標的話底下 year 與 dept 的 watch 會把 rule_id 重設掉
+let applying_favorite = false
+
 const year_options = computed(() => Object.keys(props.ruleMap).sort((a, b) => Number(b) - Number(a)))
+
+const active_favorite_id = computed(() => ruleFavoriteId(year.value, dept.value, rule_id.value))
 
 const dept_groups = computed(() => deptGroups(props.deptMap, year.value))
 
@@ -72,6 +80,16 @@ function syncDeptRule(next_year) {
 	rule_id.value = self ? DEFAULT_ID : ''
 }
 
+async function applyFavorite(row) {
+	applying_favorite = true
+	year.value = row.year
+	dept.value = row.dept_id
+	rule_id.value = row.rule_id
+	await nextTick()
+	applying_favorite = false
+	emit('favorite-select')
+}
+
 watch(() => props.ruleMap, () => {
 	if (!year_options.value.length) return
 	const next_year = year_options.value.includes(year.value) ? year.value : year_options.value[0]
@@ -80,10 +98,12 @@ watch(() => props.ruleMap, () => {
 }, { immediate: true })
 
 watch(year, () => {
+	if (applying_favorite) return
 	syncDeptRule(year.value)
 })
 
 watch(dept, () => {
+	if (applying_favorite) return
 	rule_id.value = self_rule.value ? DEFAULT_ID : ''
 })
 
@@ -96,6 +116,14 @@ watch(() => props.enrollTermList, () => {
 
 <template>
 	<div class="flex flex-col gap-4">
+		<RuleFavoriteDialog
+			:rule-map="ruleMap"
+			:dept-map="deptMap"
+			:active-id="active_favorite_id"
+			:disabled="disabled"
+			@select="applyFavorite"
+		/>
+
 		<SelectFilterField
 			v-model="year"
 			label="入學學年度"

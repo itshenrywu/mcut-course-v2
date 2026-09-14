@@ -68,6 +68,19 @@ export async function patchFavorite(token, favorite) {
 	return response.json()
 }
 
+export async function getRuleFavorite(token) {
+	const response = await authFetch(`${API_BASE_URL}/user/rule-favorite`, token)
+	return response.json()
+}
+
+export async function patchRuleFavorite(token, rule_favorite) {
+	const response = await authFetch(`${API_BASE_URL}/user/rule-favorite`, token, {
+		method: 'PATCH',
+		body: JSON.stringify({ rule_favorite })
+	})
+	return response.json()
+}
+
 export async function getMyCourse(token) {
 	const response = await authFetch(`${API_BASE_URL}/user/my`, token)
 	return response.json()

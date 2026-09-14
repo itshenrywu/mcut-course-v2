@@ -13,6 +13,7 @@ import { startRoutePrefetch } from '@/lib/route-prefetch'
 import { loadPreInfo } from '@/lib/pre'
 import { startFavoriteSync, useFavoriteSync } from '@/lib/favorite'
 import { startMyCourseSync } from '@/lib/my-course-sync'
+import { startRuleFavoriteSync } from '@/lib/rule-favorite'
 import { startInAppBrowserHint, useInAppBrowserHint } from '@/lib/in-app-browser'
 import { useAuth } from '@/lib/auth'
 import { stage_locked } from '@/lib/stage-key'
@@ -32,6 +33,7 @@ let stop_in_app_hint = null
 
 const stop_favorite_sync = startFavoriteSync()
 const stop_my_course_sync = startMyCourseSync()
+const stop_rule_favorite_sync = startRuleFavoriteSync()
 const { conflict_open } = useFavoriteSync()
 const { hint_open } = useInAppBrowserHint()
 const { is_logged_in, loadProfile } = useAuth()
@@ -65,6 +67,7 @@ onUnmounted(() => {
 	stop_prefetch?.()
 	stop_favorite_sync?.()
 	stop_my_course_sync?.()
+	stop_rule_favorite_sync?.()
 	stop_in_app_hint?.()
 })
 
