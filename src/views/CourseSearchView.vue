@@ -257,7 +257,7 @@ watch(selected_enroll_type, enroll_type => {
 <template>
 	<LoadingOverlay v-if="loading" text="課表讀取中…" />
 
-	<div class="flex w-full flex-1 flex-col">
+	<div class="flex w-full flex-1 flex-col lg:mt-4">
 		<h1 class="sr-only">進階搜尋</h1>
 		<div class="mx-auto flex w-full max-w-7xl flex-1 lg:px-4">
 			<FilterSidebar v-model:open="sidebar_open">
@@ -298,8 +298,8 @@ watch(selected_enroll_type, enroll_type => {
 				</template>
 			</FilterSidebar>
 
-			<div class="flex w-full min-w-0 flex-1 flex-col lg:pl-2 lg:[--bar-h:2.25rem]">
-				<div class="sticky top-[var(--nav-h)] z-30 flex items-center gap-2 bg-color-2/95 px-4 py-0.5 print:hidden">
+			<div class="flex w-full min-w-0 flex-1 flex-col lg:-mt-4 lg:pl-2 lg:[--bar-h:2.75rem]">
+				<div class="sticky top-[var(--nav-h)] z-30 flex items-center gap-2 bg-color-2/95 px-4 py-0.5 lg:pt-2.5 print:hidden">
 					<button
 						type="button"
 						class="-ml-4 flex min-w-0 flex-1 items-center justify-start gap-2 px-4 py-2 text-sm font-medium lg:hidden"

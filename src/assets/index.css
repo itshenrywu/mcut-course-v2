@@ -97,10 +97,16 @@
 		scrollbar-width: thin;
 		scrollbar-color: var(--c-4) transparent;
 	}
-	/* 高度只能用 lvh: dvh 在 iOS 分頁恢復後會停在偏小的舊值且不隨捲動更新,
-	   body 因此比可見區矮, sticky 的 footer 就停在畫面中間 */
+	/* 高度用 dvh: lvh 是手機工具列收起後的高度, 工具列展開時 body 比可見區高,
+	   連空狀態這種一頁內容的頁面都多出一段可捲的空白;
+	   svh 反過來在工具列收起時比可見區矮, sticky 的 footer 會離開畫面底部.
+	   dvh 曾在 iOS 分頁恢復後停在偏小的舊值且不隨捲動更新, 若又看到 footer 停在畫面中間就換回 svh */
+	/* overflow-y-scroll 是為了固定保留捲軸槽, 短頁面沒捲軸時 sticky bar 與置中內容才不會左右跳.
+	   scrollbar-gutter: stable 在 macOS Chrome 沒有作用, 只能用 overflow-y: scroll;
+	   而且要寫在 body 不能寫在 html —— overflow 會從 body 傳播到 viewport 而 body 自己仍是 visible,
+	   reka 開 Dialog 時設的 body.style.overflow = hidden 才蓋得過去, 捲動鎖定不會失效 */
 	body {
-		@apply bg-color-2 text-color-9 flex min-h-lvh flex-col;
+		@apply bg-color-2 text-color-9 flex min-h-dvh flex-col overflow-y-scroll;
 		font-family: noto sans tc, noto sans sc, noto sans hk, noto sans jp, noto sans kr,
 		sf pro tc, sf pro text, sf pro icons, pingfang tc, helvetica neue, helvetica, arial,
 		microsoft jhenghei, wf_SegoeUI, segoe ui, Segoe, segoe wp, Tahoma, Verdana, Ubuntu,
