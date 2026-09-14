@@ -14,12 +14,18 @@ defineProps({
 })
 
 const emit = defineEmits(['select'])
+
+function dayClass(day) {
+	if (day.is_today) return 'bg-color-10 text-color-1 font-medium'
+	if (day.is_weekend) return day.in_month ? 'text-destructive' : 'text-destructive/50'
+	return day.in_month ? 'text-color-9' : 'text-color-5'
+}
 </script>
 
 <template>
 	<div class="-mx-4 flex flex-col border border-x-0 bg-color-1 md:mx-0 md:rounded-lg md:border-x">
 		<div class="grid grid-cols-7 border-b">
-			<div v-for="(label, index) in FULL_WEEKDAY_LABELS" :key="label" class="py-1.5 text-center text-xs" :class="index === 0 || index === 6 ? 'text-color-5' : 'text-color-6'">
+			<div v-for="(label, index) in FULL_WEEKDAY_LABELS" :key="label" class="py-1.5 text-center text-xs" :class="index === 0 || index === 6 ? 'text-destructive' : 'text-color-6'">
 				{{ label }}
 			</div>
 		</div>
@@ -45,7 +51,7 @@ const emit = defineEmits(['select'])
 						:key="day.key"
 						class="mx-auto grid size-6 place-items-center rounded-full font-num text-xs tabular-nums"
 						:class="[
-							day.is_today ? 'bg-color-10 text-color-1 font-medium' : day.in_month ? 'text-color-9' : 'text-color-5',
+							dayClass(day),
 							!day.is_today && day.key === selectedKey && 'ring-color-6 ring-1'
 						]"
 					>{{ day.label }}</span>

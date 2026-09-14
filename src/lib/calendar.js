@@ -80,6 +80,11 @@ export function weekdayOf(key) {
 	return keyToDate(key).getUTCDay()
 }
 
+export function isWeekend(key) {
+	const weekday = weekdayOf(key)
+	return weekday === 0 || weekday === 6
+}
+
 export function todayKey() {
 	const now = new Date()
 	return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`
@@ -213,6 +218,7 @@ export function groupByDay(events, from_key, to_key) {
 		key,
 		label: formatDayLabel(key),
 		is_today: key === today,
+		is_weekend: isWeekend(key),
 		events: day_map.get(key).sort(compareInDay)
 	}))
 }
@@ -261,7 +267,8 @@ export function buildWeeks(year, month, events) {
 				key,
 				label: String(Number(key.slice(8, 10))),
 				in_month: key.slice(0, 7) === month_key,
-				is_today: key === today
+				is_today: key === today,
+				is_weekend: day === 0 || day === 6
 			})
 		}
 		weeks.push({ key: week_start, days, lanes: packLanes(week_start, week_end, events) })

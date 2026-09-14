@@ -17,7 +17,7 @@ defineProps({
 <template>
 	<div class="flex flex-col divide-y">
 		<section v-for="group in groups" :key="group.key" class="flex flex-col gap-2 px-4 py-3">
-			<h3 v-if="showDate" class="text-xs" :class="group.is_today ? 'text-color-10 font-medium' : 'text-color-6'">
+			<h3 v-if="showDate" class="text-xs" :class="group.is_today ? 'text-color-10 font-medium' : group.is_weekend ? 'text-destructive' : 'text-color-6'">
 				{{ group.label }}<template v-if="group.is_today">・今天</template>
 			</h3>
 			<article v-for="event in group.events" :key="event.id" class="flex gap-2.5">
