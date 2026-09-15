@@ -13,7 +13,8 @@ const CALENDAR_GROUPS = {
 		{ key: 'g2', name: '大二' },
 		{ key: 'g3', name: '大三' },
 		{ key: 'g4', name: '大四' },
-		{ key: 'm', name: '碩/博' }
+		{ key: 'm', name: '碩士班' },
+		{ key: 'd', name: '博士班' }
 	]
 }
 // 各分類的說明, key 為分類 key, 只顯示在篩選選項裡, 沒列到的就不顯示
