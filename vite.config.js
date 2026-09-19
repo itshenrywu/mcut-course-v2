@@ -216,7 +216,7 @@ async function generateRulePages(base_html, out_dir) {
 }
 
 function latestYearPaths(page_list) {
-	const year_list = [...new Set(page_list.map(page => page.year))].sort().slice(-3)
+	const year_list = [...new Set(page_list.map(page => page.year))].sort((a, b) => a - b).slice(-3)
 	return page_list.filter(page => year_list.includes(page.year)).map(page => page.path)
 }
 
