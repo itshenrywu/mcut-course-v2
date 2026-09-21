@@ -106,7 +106,9 @@ const count_dialog_conflict_ids = computed(() => {
 	return ids
 })
 
-const selected_dept_name = computed(() => findDept(dept_map.value, selected_year.value, selected_dept.value)?.name || '')
+const selected_dept_item = computed(() => findDept(dept_map.value, selected_year.value, selected_dept.value))
+
+const selected_dept_name = computed(() => selected_dept_item.value?.name || '')
 
 const has_dept = computed(() => Boolean(selected_dept_name.value))
 
@@ -347,6 +349,7 @@ watch(() => route.path, () => {
 							:course-map="course_map"
 							:cross-program="cross_program"
 							:dept-id="selected_dept"
+							:course-dept="selected_dept_item?.course_dept"
 							@count-click="openCount"
 						/>
 
@@ -358,6 +361,7 @@ watch(() => route.path, () => {
 							:course-map="course_map"
 							:cross-program="cross_program"
 							:dept-id="selected_dept"
+							:course-dept="selected_dept_item?.course_dept"
 							@count-click="openCount"
 						/>
 

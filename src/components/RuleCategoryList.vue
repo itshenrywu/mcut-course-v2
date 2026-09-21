@@ -21,6 +21,10 @@ const props = defineProps({
 	deptId: {
 		type: String,
 		default: DEFAULT_ID
+	},
+	courseDept: {
+		type: String,
+		default: ''
 	}
 })
 
@@ -35,7 +39,9 @@ function courseRemark(course) {
 
 function openCourses(course) {
 	const codes = [course.id, ...(course.codes || [])]
-	return codes.flatMap(code => props.courseMap.get(code) || [])
+	const list = codes.flatMap(code => props.courseMap.get(code) || [])
+	const own = props.courseDept
+	return own ? list.sort((a, b) => (b.dept === own) - (a.dept === own)) : list
 }
 
 function courseDeptLabel(course) {
