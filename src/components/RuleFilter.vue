@@ -64,7 +64,7 @@ const rule_name = computed(() => {
 })
 
 function ruleDescription(rule) {
-	return [rule.dept, rule.disabled ? '(本系不可修)' : ''].filter(Boolean).join(' ')
+	return [rule.dept || rule.hide_for, rule.disabled ? '(本系不可修)' : ''].filter(Boolean).join(' ')
 }
 
 function syncDeptRule(next_year) {
