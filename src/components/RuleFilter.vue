@@ -71,6 +71,10 @@ function syncDeptRule(next_year) {
 	const dept_ids = deptGroups(props.deptMap, next_year).flatMap(item => item.depts.map(option => option.id))
 	const next_dept = dept.value !== DEFAULT_ID && !dept_ids.includes(dept.value) ? DEFAULT_ID : dept.value
 	if (next_dept !== dept.value) dept.value = next_dept
+	syncRule(next_year, next_dept)
+}
+
+function syncRule(next_year, next_dept) {
 	const self = findSelfRule(props.ruleMap, props.deptMap, next_year, next_dept)
 	const rule_ids = [
 		...(self ? [DEFAULT_ID] : []),
@@ -104,7 +108,7 @@ watch(year, () => {
 
 watch(dept, () => {
 	if (applying_favorite) return
-	rule_id.value = self_rule.value ? DEFAULT_ID : ''
+	syncRule(year.value, dept.value)
 })
 
 watch(() => props.enrollTermList, () => {
