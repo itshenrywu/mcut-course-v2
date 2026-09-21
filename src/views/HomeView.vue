@@ -3,6 +3,7 @@ import { ref, computed } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { List, Dumbbell, BookOpen, Users, Globe, Leaf, Palette, ChevronRight } from '@lucide/vue'
 import { isAltCourse, useCourseList, courseRoutePath, isClassScheduleDept, canShowMixedGrade, collectGradeInfo, formatDeptClass, courseMatchesKeyword, courseKeywordIndex, GRADE_LABELS } from '@/lib/course'
+import { deptShortNameInClass } from '@/lib/dept'
 import { isSummerTerm, applyUrlTermId } from '@/lib/term'
 import { useDebouncedRef } from '@/lib/utils'
 import { useSearchHistory } from '@/lib/search-history'
@@ -16,43 +17,6 @@ import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion'
 import { toast } from '@/components/ui/sonner'
-
-// 科系簡稱(班級名稱)對應
-const DEPT_SHORT_NAME_IN_CLASS = {
-	'四技化工系': '化',
-	'四技工管系': '管',
-	'四技工設系': '設',
-	'四技材工系': '材',
-	'四技機械系': '機',
-	'四技環安衛系': '環',
-	'四技經管系': '經',
-	'四技視傳系': '傳',
-	'四技電子系': '子',
-	'四技電機系': '電',
-	'四技行設專班': '行設',
-	'人工智慧學程': '工智',
-	'半導體學程': '半導體',
-	'行銷設計學程': '行設',
-	'電池專班': '電池',
-	'化工系生工碩士班': '碩生',
-	'化工系碩士班': '碩化',
-	'工管系碩士班': '碩管',
-	'工管系碩專班': '碩專管',
-	'工設系碩士班': '碩設',
-	'材料系碩士班': '碩材',
-	'機械系碩士班': '碩機',
-	'環安衛系碩士班': '碩環',
-	'經管系碩士班': '碩經',
-	'視傳系碩士班': '碩傳',
-	'電子系碩士班': '碩子',
-	'電機系碩士班': '碩電',
-	'國際企業管理碩士': '國企碩',
-	'能源電池博士班': '博綠能',
-	'電漿薄膜博士學程': '博電膜',
-	'半導體碩士學程': '碩半導體',
-	'行銷設計碩士學程': '碩行設',
-	'生醫暨醫材博士學程': '博生醫'
-}
 
 const QUICK_BUTTONS = [{
 		key: 'advanced',
@@ -250,7 +214,7 @@ const class_schedules = computed(() => {
 	const list = Array.from(dept_map, ([department, class_map]) => {
 		const classes = Array.from(class_map.values())
 		const hide_class_group = new Set(classes.map(cls => cls.class_group)).size <= 1
-		const short_name = DEPT_SHORT_NAME_IN_CLASS[department] || department
+		const short_name = deptShortNameInClass(department)
 		return {
 			id: department,
 			department,
