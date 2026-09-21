@@ -13,7 +13,6 @@ export function useAltCourseDialog() {
 <script setup>
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { Info } from '@lucide/vue'
 import { altCourseIds, courseRoutePath, formatCourseTimes, favoriteCourseId, conflictingCourses } from '@/lib/course'
 import { useFavorite } from '@/lib/favorite'
 import CourseListDialog from '@/components/CourseListDialog.vue'
@@ -79,16 +78,10 @@ defineExpose({ openAlt })
 			v-for="course in alt_course_info"
 			:key="course.id"
 			:course="course"
+			:fields="['teacher', 'remark']"
 			favorite
 			:conflict="conflict_ids.has(course.id)"
 			@click="dialog_open = false"
-		>
-			<template #meta>
-				<span class="flex w-full items-start gap-1">
-					<Info class="size-3.5 h-[1lh] shrink-0 text-color-5" />
-					<span class="min-w-0 flex-1 break-words">{{ course.remark }}</span>
-				</span>
-			</template>
-		</CourseRow>
+		/>
 	</CourseListDialog>
 </template>

@@ -1,9 +1,9 @@
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { ChevronDown, ChevronsDownUp, ChevronsUpDown, Clock, Copy, FileDown, Info, Mail, Phone, Star, Users } from '@lucide/vue'
+import { ChevronDown, ChevronsDownUp, ChevronsUpDown, Copy, FileDown, Mail, Phone, Star } from '@lucide/vue'
 import { findRule, findDept, ruleRoutePath, ruleDisplayName, splitRuleName, sortRuleCourses, useRuleList, useRuleDetail, useEnrollCourses, CROSS_DEPT_BADGE_CLASS, DEFAULT_ID } from '@/lib/rule'
-import { conflictingCourses, favoriteCourseId, formatCourseTimes, formatDeptClass, hasRemark } from '@/lib/course'
+import { conflictingCourses, favoriteCourseId } from '@/lib/course'
 import { formatTermLabel, useSelectedTerm } from '@/lib/term'
 import { useEnrollTime } from '@/lib/enroll-time'
 import { useFavorite } from '@/lib/favorite'
@@ -25,7 +25,6 @@ import HintList from '@/components/HintList.vue'
 import SponsorAd from '@/components/SponsorAd.vue'
 import RemarkText from '@/components/RemarkText.vue'
 import CourseRow from '@/components/CourseRow.vue'
-import EnrollBadge from '@/components/EnrollBadge.vue'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import CourseListDialog from '@/components/CourseListDialog.vue'
@@ -419,31 +418,18 @@ watch(() => route.path, () => {
 		<CourseListDialog v-if="count_dialog_course" v-model:open="count_dialog_open" :title="count_dialog_course.name" :count="count_dialog_course.course_info.length">
 			<template #description>
 				<span>{{ formatTermLabel(selected_enroll_term_id) }}</span>
-				<span>{{ count_dialog_course.credit }} 學分</span>
 			</template>
 			<CourseRow
 				v-for="course in count_dialog_course.course_info"
 				:key="course.id"
 				:course="course"
+				:fields="['badges', 'dept', 'teacher', 'time', 'remark']"
 				target_blank
 				favorite
 				:conflict="count_dialog_conflict_ids.has(course.id)"
 				@add="syncEnrollTerm()"
 				@click="count_dialog_open = false"
-			>
-				<template #meta>
-					<span class="flex items-center gap-1"><Users class="size-3.5 shrink-0 text-color-5" /> {{ formatDeptClass(course) }}</span>
-					<EnrollBadge :type="course.enroll_type" />
-					<span class="flex items-center gap-1">
-						<Clock class="size-3.5 shrink-0 text-color-5" />
-						{{ formatCourseTimes(course) }}
-					</span>
-					<span v-if="hasRemark(course)" class="flex w-full items-start gap-1">
-						<Info class="size-3.5 h-[1lh] shrink-0 text-color-5" />
-						<span class="min-w-0 flex-1 break-words">{{ course.remark }}</span>
-					</span>
-				</template>
-			</CourseRow>
+			/>
 		</CourseListDialog>
 	</div>
 </template>

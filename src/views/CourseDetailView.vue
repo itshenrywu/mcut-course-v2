@@ -15,7 +15,6 @@ import { useFavorite } from '@/lib/favorite'
 import { Badge } from '@/components/ui/badge'
 import CourseRow from '@/components/CourseRow.vue'
 import CourseBadges from '@/components/CourseBadges.vue'
-import EnrollBadge from '@/components/EnrollBadge.vue'
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import LoadingOverlay from '@/components/LoadingOverlay.vue'
 import LoadError from '@/components/LoadError.vue'
@@ -365,14 +364,9 @@ watch([() => course.value?.id, favorite_ids], ([id]) => {
 						v-for="_course in group.courses"
 						:key="_course.id"
 						:course="_course"
+						:fields="['badges', 'dept', 'teacher']"
 						@click="similar_open = false"
-					>
-						<template #meta>
-							<span>{{ formatDeptClass(_course) }}</span>
-							<EnrollBadge :type="_course.enroll_type" />
-							<span>{{ _course.credit }} 學分</span>
-						</template>
-					</CourseRow>
+					/>
 				</div>
 			</CourseListDialog>
 		</section>
