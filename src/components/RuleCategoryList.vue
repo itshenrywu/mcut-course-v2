@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from '@/components/ui/accordion'
 import { Badge } from '@/components/ui/badge'
 import { CROSS_DEPT_BADGE_CLASS, DEFAULT_ID } from '@/lib/rule'
+import { formatTermShort } from '@/lib/term'
 import { spaceText } from '@/lib/utils'
 
 const props = defineProps({
@@ -23,6 +24,10 @@ const props = defineProps({
 		default: DEFAULT_ID
 	},
 	courseDept: {
+		type: String,
+		default: ''
+	},
+	termId: {
 		type: String,
 		default: ''
 	}
@@ -95,7 +100,7 @@ const category_rows = computed(() => props.categories.map(category =>
 								<col class="w-[40%]" />
 								<col class="w-16" />
 								<col class="w-16" />
-								<col class="w-24" />
+								<col class="w-28" />
 								<col />
 							</colgroup>
 							<tbody class="block md:table-row-group">
@@ -120,7 +125,7 @@ const category_rows = computed(() => props.categories.map(category =>
 											class="text-color-10 underline decoration-dotted underline-offset-2 hover:text-color-9"
 											@click="emit('count-click', { course: row.course, courses: row.open_courses })"
 										>{{ row.open_courses.length }} 門開課</button>
-										<span v-else-if="courseMap.size" class="text-color-5">未開課</span>
+										<span v-else-if="courseMap.size" class="text-color-5">{{ formatTermShort(termId) }} 未開課</span>
 									</td>
 									<td
 										class="col-span-3 mt-1 text-xs break-words text-color-7 md:col-span-1 md:mt-0 md:table-cell md:px-4 md:py-2 md:text-sm md:text-inherit"

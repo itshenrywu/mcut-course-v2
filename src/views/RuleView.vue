@@ -366,6 +366,7 @@ watch(() => route.path, () => {
 							:cross-program="cross_program"
 							:dept-id="selected_dept"
 							:course-dept="selected_dept_item?.course_dept"
+							:term-id="enroll_course_term_id"
 							@count-click="openCount"
 						/>
 
@@ -378,6 +379,7 @@ watch(() => route.path, () => {
 							:cross-program="cross_program"
 							:dept-id="selected_dept"
 							:course-dept="selected_dept_item?.course_dept"
+							:term-id="enroll_course_term_id"
 							@count-click="openCount"
 						/>
 
