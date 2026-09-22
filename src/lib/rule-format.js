@@ -84,6 +84,23 @@ export function findRule(rule_map, dept_map, year, dept_id, rule_id) {
 	return null
 }
 
+export function deptIds(dept_map, year) {
+	return deptGroups(dept_map, year).flatMap(item => item.depts.map(option => option.id))
+}
+
+export function ruleIds(rule_map, dept_map, year, dept_id) {
+	return [
+		...(findSelfRule(rule_map, dept_map, year, dept_id) ? [DEFAULT_ID] : []),
+		...ruleGroups(rule_map, dept_map, year, dept_id).flatMap(group => group.rules.filter(rule => !rule.disabled).map(rule => rule.id))
+	]
+}
+
+export function hasRuleSelection(rule_map, dept_map, year, dept_id, rule_id) {
+	if (!rule_map[year]) return false
+	if (dept_id !== DEFAULT_ID && !deptIds(dept_map, year).includes(dept_id)) return false
+	return !rule_id || ruleIds(rule_map, dept_map, year, dept_id).includes(rule_id)
+}
+
 export function ruleDescriptionText(description) {
 	const list = description?.rule || []
 	if (!list.length) return ''

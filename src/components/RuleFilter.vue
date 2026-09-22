@@ -1,6 +1,6 @@
 <script setup>
 import { computed, nextTick, watch } from 'vue'
-import { findRule, findSelfRule, ruleGroups, deptGroups, findDept, ruleFavoriteId, DEFAULT_ID } from '@/lib/rule'
+import { findRule, findSelfRule, ruleGroups, deptGroups, deptIds, ruleIds, findDept, ruleFavoriteId, DEFAULT_ID } from '@/lib/rule'
 import { spaceText } from '@/lib/utils'
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectGroup, SelectLabel, SelectItem } from '@/components/ui/select'
 import { Combobox, ComboboxTrigger, ComboboxContent, ComboboxGroup, ComboboxLabel, ComboboxItem } from '@/components/ui/combobox'
@@ -29,6 +29,10 @@ const props = defineProps({
 		default: () => []
 	},
 	disabled: {
+		type: Boolean,
+		default: false
+	},
+	notFound: {
 		type: Boolean,
 		default: false
 	}
@@ -68,20 +72,15 @@ function ruleDescription(rule) {
 }
 
 function syncDeptRule(next_year) {
-	const dept_ids = deptGroups(props.deptMap, next_year).flatMap(item => item.depts.map(option => option.id))
-	const next_dept = dept.value !== DEFAULT_ID && !dept_ids.includes(dept.value) ? DEFAULT_ID : dept.value
+	const next_dept = dept.value !== DEFAULT_ID && !deptIds(props.deptMap, next_year).includes(dept.value) ? DEFAULT_ID : dept.value
 	if (next_dept !== dept.value) dept.value = next_dept
 	syncRule(next_year, next_dept)
 }
 
 function syncRule(next_year, next_dept) {
-	const self = findSelfRule(props.ruleMap, props.deptMap, next_year, next_dept)
-	const rule_ids = [
-		...(self ? [DEFAULT_ID] : []),
-		...ruleGroups(props.ruleMap, props.deptMap, next_year, next_dept).flatMap(group => group.rules.filter(rule => !rule.disabled).map(rule => rule.id))
-	]
+	const rule_ids = ruleIds(props.ruleMap, props.deptMap, next_year, next_dept)
 	if (rule_ids.includes(rule_id.value)) return
-	rule_id.value = self ? DEFAULT_ID : ''
+	rule_id.value = rule_ids.includes(DEFAULT_ID) ? DEFAULT_ID : ''
 }
 
 async function applyFavorite(row) {
@@ -95,7 +94,7 @@ async function applyFavorite(row) {
 }
 
 watch(() => props.ruleMap, () => {
-	if (!year_options.value.length) return
+	if (!year_options.value.length || props.notFound) return
 	const next_year = year_options.value.includes(year.value) ? year.value : year_options.value[0]
 	if (next_year !== year.value) year.value = next_year
 	syncDeptRule(next_year)
@@ -140,7 +139,10 @@ watch(() => props.enrollTermList, () => {
 		<FilterField label="入學系所 / 學程 / 組別" :disabled="disabled">
 			<Select v-model="dept" :disabled="disabled">
 				<SelectTrigger class="w-full bg-color-1" aria-label="入學系所 / 學程 / 組別">
-					<SelectValue>{{ dept_name || '不限' }}</SelectValue>
+					<SelectValue>
+						<span v-if="dept_name || dept === DEFAULT_ID">{{ dept_name || '不限' }}</span>
+						<span v-else class="text-color-6">選擇系所</span>
+					</SelectValue>
 				</SelectTrigger>
 				<SelectContent>
 					<SelectItem :value="DEFAULT_ID">不限</SelectItem>

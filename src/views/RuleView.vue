@@ -1,8 +1,8 @@
 <script setup>
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { ChevronDown, ChevronsDownUp, ChevronsUpDown, Copy, FileDown, Mail, Phone, Star } from '@lucide/vue'
-import { findRule, findDept, ruleRoutePath, ruleDisplayName, splitRuleName, sortRuleCourses, useRuleList, useRuleDetail, useEnrollCourses, CROSS_DEPT_BADGE_CLASS, DEFAULT_ID } from '@/lib/rule'
+import { ChevronDown, ChevronsDownUp, ChevronsUpDown, Copy, FileDown, Mail, Phone, SearchX, Star } from '@lucide/vue'
+import { findRule, findDept, hasRuleSelection, ruleRoutePath, ruleDisplayName, splitRuleName, sortRuleCourses, useRuleList, useRuleDetail, useEnrollCourses, CROSS_DEPT_BADGE_CLASS, DEFAULT_ID } from '@/lib/rule'
 import { conflictingCourses, favoriteCourseId } from '@/lib/course'
 import { formatTermLabel, useSelectedTerm } from '@/lib/term'
 import { useEnrollTime } from '@/lib/enroll-time'
@@ -10,12 +10,13 @@ import { useFavorite } from '@/lib/favorite'
 import { useRuleFavorite, resyncRuleFavorite, countRuleFavorites, RULE_FAVORITE_MAX } from '@/lib/rule-favorite'
 import { useLocalRef } from '@/lib/storage'
 import { schoolTel } from '@/lib/utils'
-import { rulePageMeta } from '@/config/page-meta'
+import { rulePageMeta, NOT_FOUND_META } from '@/config/page-meta'
 import { setPageMeta } from '@/lib/meta'
 import { sendPageView } from '@/lib/analytics'
 import LoadingOverlay from '@/components/LoadingOverlay.vue'
 import InlineLoading from '@/components/InlineLoading.vue'
 import LoadError from '@/components/LoadError.vue'
+import StateBlock from '@/components/StateBlock.vue'
 import RuleFilter from '@/components/RuleFilter.vue'
 import FilterSidebar from '@/components/FilterSidebar.vue'
 import FilterSummary from '@/components/FilterSummary.vue'
@@ -57,7 +58,7 @@ const selected_sort_mode = useLocalRef('mcv2-rule-sort', 'grade')
 const count_dialog_open = ref(false)
 const count_dialog_course = ref(null)
 
-const { rule_map, dept_map, loading, load_error, loadRuleList } = useRuleList()
+const { rule_map, dept_map, loading, loaded, load_error, loadRuleList } = useRuleList()
 const { enroll_term_list, loadEnrollTime } = useEnrollTime()
 
 onMounted(() => {
@@ -69,6 +70,13 @@ onUnmounted(() => {
 	window.removeEventListener('beforeprint', openAllSubs)
 })
 const { detail, loading: detail_loading, load_error: detail_load_error, loadRuleDetail } = useRuleDetail()
+
+const not_found = computed(() => {
+	const { year, dept_id, rule_id } = route.params
+	if (!loaded.value || load_error.value || route.name !== 'rule' || !year) return false
+	if (![year, dept_id, rule_id].every(value => !value || /^\d+$/.test(value))) return false
+	return !hasRuleSelection(rule_map.value, dept_map.value, year, dept_id || DEFAULT_ID, rule_id)
+})
 
 const selected_rule = computed(() => findRule(rule_map.value, dept_map.value, selected_year.value, selected_dept.value, selected_rule_id.value))
 
@@ -231,8 +239,8 @@ watch([selected_year, selected_dept, selected_rule_id], ([year, dept, rule_id]) 
 	loadRuleDetail(year, dept, rule_id)
 }, { immediate: true })
 
-watch([selected_year, selected_rule], ([year, rule]) => {
-	setPageMeta(rulePageMeta(year, rule?.name))
+watch([selected_year, selected_rule, not_found], ([year, rule, missing]) => {
+	setPageMeta(missing ? NOT_FOUND_META : rulePageMeta(year, rule?.name))
 	sendPageView(route.fullPath)
 }, { immediate: true })
 
@@ -269,6 +277,7 @@ watch(() => route.path, () => {
 					:dept-map="dept_map"
 					:enroll-term-list="enroll_term_list"
 					:disabled="loading"
+					:not-found="not_found"
 					@favorite-select="sidebar_open = false"
 				/>
 			</FilterSidebar>
@@ -315,7 +324,15 @@ watch(() => route.path, () => {
 				</div>
 
 				<div class="flex min-h-0 flex-1 flex-col px-0">
-					<InlineLoading v-if="detail_loading" text="課程總表讀取中…" container-class="m-auto py-16" />
+					<StateBlock
+						v-if="not_found"
+						:icon="SearchX"
+						title="找不到這個課程總表"
+						description="總表可能已下架，請重新選擇入學年 / 系所 / 總表"
+						container-class="flex-1 px-6 py-24"
+					/>
+
+					<InlineLoading v-else-if="detail_loading" text="課程總表讀取中…" container-class="m-auto py-16" />
 
 					<LoadError
 						v-else-if="detail_load_error"
