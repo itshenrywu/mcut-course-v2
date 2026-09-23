@@ -2,7 +2,7 @@
 import { ref, computed } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { List, Dumbbell, BookOpen, Users, Globe, Leaf, Palette, ChevronRight } from '@lucide/vue'
-import { isAltCourse, useCourseList, courseRoutePath, isClassScheduleDept, canShowMixedGrade, collectGradeInfo, formatDeptClass, courseMatchesKeyword, courseKeywordIndex, GRADE_LABELS } from '@/lib/course'
+import { isAltCourse, useCourseList, courseRoutePath, isClassScheduleDept, canShowMixedGrade, collectGradeInfo, formatCourseMeta, courseMatchesKeyword, courseKeywordIndex, GRADE_LABELS } from '@/lib/course'
 import { deptShortNameInClass } from '@/lib/dept'
 import { isSummerTerm, applyUrlTermId } from '@/lib/term'
 import { useDebouncedRef } from '@/lib/utils'
@@ -332,7 +332,7 @@ function onLockedButton() {
 											@click="rememberKeyword()"
 										>
 											<span class="w-full truncate text-base font-medium sm:min-w-0 sm:flex-1">{{ course.name }}</span>
-											<span class="w-full text-xs text-color-6 sm:w-auto sm:shrink-0">{{ formatDeptClass(course) }}・{{ course.enroll_type }} {{ course.credit }} 學分・{{ course.teacher }} 老師</span>
+											<span class="w-full text-xs text-color-6 sm:w-auto sm:shrink-0">{{ formatCourseMeta(course, { with_id: false }) }}</span>
 										</RouterLink>
 									</template>
 									<template v-if="teacher_results.length">

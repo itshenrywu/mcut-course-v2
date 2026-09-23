@@ -272,14 +272,14 @@ export function courseDisplayName(course) {
 	return course.name || (isAltCourse(course) ? '' : course.id)
 }
 
-export function formatCourseMeta(course) {
+export function formatCourseMeta(course, { with_id = true } = {}) {
 	const parts = []
 	const dept_class = formatDeptClass(course)
 	if (dept_class) parts.push(dept_class)
 	if (teacherName(course)) parts.push(`${course.teacher} 老師`)
 	const enroll_credit = [course.enroll_type, course.credit ? `${course.credit} 學分` : ''].filter(Boolean).join(' ')
 	if (enroll_credit) parts.push(enroll_credit)
-	if (!isAltCourse(course)) parts.push(course.id)
+	if (with_id && !isAltCourse(course)) parts.push(course.id)
 	return parts.join('・')
 }
 
