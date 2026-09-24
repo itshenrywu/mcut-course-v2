@@ -130,10 +130,19 @@ function formatSection(section) {
 	return section.length > 1 ? `${section[0]}~${section[section.length - 1]}` : `${section[0]}`
 }
 
+function isSaturdayClassDept(dept) {
+	return SATURDAY_CLASS_DEPT_KEYWORDS.some(keyword => (dept || '').includes(keyword))
+}
+
+// 課表檢視會排進格子的星期 (一到五, 星期六只限正常上課的科系)
+export function isTableDay(day, course) {
+	if (day >= 1 && day <= 5) return true
+	return day === 6 && isSaturdayClassDept(course?.dept)
+}
+
 function formatWeekday(day, course) {
 	if (WEEKDAY_LABELS[day]) return WEEKDAY_LABELS[day]
-	const saturday_class_dept = SATURDAY_CLASS_DEPT_KEYWORDS.some(keyword => (course?.dept || '').includes(keyword))
-	if (day === 6 && saturday_class_dept) return '六'
+	if (day === 6 && isSaturdayClassDept(course?.dept)) return '六'
 	return ''
 }
 
@@ -385,7 +394,7 @@ export function maxTableStack(courses) {
 	let max = 0
 	for (const course of courses) {
 		for (const time of course.time || []) {
-			if (time.day < 1 || time.day > 5) continue
+			if (!isTableDay(time.day, course)) continue
 			for (const section of time.section || []) {
 				const key = `${time.day}-${section}`
 				const count = (cells.get(key) || 0) + 1

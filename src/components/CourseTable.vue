@@ -12,7 +12,7 @@ import SectionCard from '@/components/SectionCard.vue'
 import CourseBlock from '@/components/CourseBlock.vue'
 import CourseHoverDetail from '@/components/CourseHoverDetail.vue'
 import SectionTimeDialog from '@/components/SectionTimeDialog.vue'
-import { WEEKDAY_LABELS, MAX_TABLE_COLS, visibleSections, isAltCourse, isMultiAltCourse, courseOrAltRoutePath, otherClassGroupLabel, peInternationalLabel } from '@/lib/course'
+import { FULL_WEEKDAY_LABELS, MAX_TABLE_COLS, isTableDay, visibleSections, isAltCourse, isMultiAltCourse, courseOrAltRoutePath, otherClassGroupLabel, peInternationalLabel } from '@/lib/course'
 
 // 節次列高與左側時間欄寬 (rem)
 const SECTION_ROW_HEIGHT = 3.5
@@ -60,7 +60,11 @@ const { width: grid_width } = useElementSize(grid_ref)
 const overflow_dialog_open = ref(false)
 const overflow_dialog_courses = ref([])
 const section_dialog_open = ref(false)
-const weekdays = computed(() => props.narrowDays || [1, 2, 3, 4, 5])
+const has_saturday = computed(() => props.courses.some(course => (course.time || []).some(time => time.day === 6 && isTableDay(time.day, course))))
+const weekdays = computed(() => {
+	const days = props.narrowDays || [1, 2, 3, 4, 5]
+	return has_saturday.value ? [...days, 6] : days
+})
 const max_cols = computed(() => {
 	if (grid_width.value <= 0) return MAX_COLS_FALLBACK
 	const day_width = (grid_width.value - remToPx(TIME_COL_WIDTH)) / weekdays.value.length
@@ -134,7 +138,7 @@ function layoutBlocks(blocks, limit) {
 
 const visible_sections = computed(() => visibleSections(
 	props.courses.flatMap(course => (course.time || [])
-		.filter(time => time.day >= 1 && time.day <= 5)
+		.filter(time => isTableDay(time.day, course))
 		.map(time => time.section))
 ))
 
@@ -144,7 +148,7 @@ const day_columns = computed(() => {
 	const cols = days.map(day => ({ day, blocks: [] }))
 	for (const course of props.courses) {
 		for (const time of course.time || []) {
-			if (!day_index.has(time.day)) continue
+			if (!day_index.has(time.day) || !isTableDay(time.day, course)) continue
 			const indices = time.section.map(section => visible_sections.value.indexOf(section)).filter(i => i >= 0)
 			if (!indices.length) continue
 			cols[day_index.get(time.day)].blocks.push({
@@ -175,7 +179,7 @@ function internationalLabel(course) {
 }
 
 const unscheduled = computed(() =>
-	props.courses.filter(course => !(course.time || []).some(time => time.day >= 1 && time.day <= 5))
+	props.courses.filter(course => !(course.time || []).some(time => isTableDay(time.day, course)))
 )
 
 function openOverflow(item) {
@@ -221,7 +225,7 @@ function blockStyle(item) {
 				:key="day"
 				class="border-r border-b bg-color-2 py-2 text-center text-sm font-medium text-color-9"
 			>
-				{{ WEEKDAY_LABELS[day] }}
+				{{ FULL_WEEKDAY_LABELS[day] }}
 			</div>
 
 			<div class="flex flex-col border-r bg-color-2">
