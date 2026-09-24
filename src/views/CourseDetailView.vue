@@ -228,9 +228,12 @@ watch(course, c => {
 })
 
 function scheduleDate(row) {
+	// 107 學年以前的舊版進度表日期格式不一 (1.24, 9/22...) 且沒有節次, 原樣顯示
+	if (!/^\d{4}\/\d{1,2}\/\d{1,2}$/.test(row[0])) return row[0]
 	const [year, month, date] = row[0].split('/').map(Number)
 	const day = new Date(year, month - 1, date)
-	return `${month}/${date} (${FULL_WEEKDAY_LABELS[day.getDay()]}) ${row[1]}~${row[2]}`
+	const sections = row[1] ? ` ${row[1]}~${row[2]}` : ''
+	return `${month}/${date} (${FULL_WEEKDAY_LABELS[day.getDay()]})${sections}`
 }
 
 const schedule_rows = computed(() => schedule.value.map(row => ({ row, date_text: scheduleDate(row) })))
