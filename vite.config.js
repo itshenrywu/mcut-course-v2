@@ -8,7 +8,7 @@ import tailwindcss from '@tailwindcss/vite'
 import { PAGE_META, DEFAULT_META, SITEMAP_EXCLUDE_PATHS, coursePageMeta, rulePageMeta } from './src/config/page-meta.js'
 import { formatCourseTime, courseRoutePath, courseSummaryParts } from './src/lib/course-format.js'
 import { yearFromCourseId, termIdFromCourseId, formatTermLabel } from './src/lib/term-format.js'
-import { deptGroups, findSelfRule, ruleDescriptionText, ruleRoutePath, DEFAULT_ID } from './src/lib/rule-format.js'
+import { deptIds, ruleIds, findRule, ruleDescriptionText, ruleRoutePath, DEFAULT_ID } from './src/lib/rule-format.js'
 import { ogImageUrl } from './src/config/index.js'
 
 // .env 只會進 import.meta.env, 這裡補上 build 期用的 process.env (loadEnv 內部就讓實際的環境變數蓋過 .env)
@@ -183,31 +183,21 @@ async function generateRulePages(base_html, out_dir) {
 	const dept_map = data.depts || {}
 	const path_list = []
 	const missing_list = []
-	const written = new Set()
-	const writeRulePage = (route_path, year, id, rule) => {
-		if (written.has(route_path)) return
-		written.add(route_path)
-		const description = description_map[year]?.[id]
-		const description_text = ruleDescriptionText(description)
-		if (!description_text) missing_list.push(`${route_path} (${rule.name})`)
-		const meta = rulePageMeta(year, rule.name, description_text)
-		const html = injectAppContent(injectMeta(base_html, meta, route_path), renderRuleContent(year, rule, description))
-		const file = resolve(out_dir, `${route_path.slice(1)}.html`)
-		mkdirSync(dirname(file), { recursive: true })
-		writeFileSync(file, html)
-		path_list.push({ path: route_path, year })
-	}
 	for (const year of Object.keys(rule_map)) {
-		for (const group of deptGroups(dept_map, year)) {
-			for (const dept of group.depts) {
-				const rule = findSelfRule(rule_map, dept_map, year, dept.id)
-				if (!rule) continue
-				writeRulePage(ruleRoutePath(year, dept.id, DEFAULT_ID), year, dept.id, rule)
+		for (const dept_id of [DEFAULT_ID, ...deptIds(dept_map, year)]) {
+			for (const rule_id of ruleIds(rule_map, dept_map, year, dept_id)) {
+				const rule = findRule(rule_map, dept_map, year, dept_id, rule_id)
+				const route_path = ruleRoutePath(year, dept_id, rule_id)
+				const description = description_map[year]?.[rule_id === DEFAULT_ID ? dept_id : rule_id]
+				const description_text = ruleDescriptionText(description)
+				if (!description_text) missing_list.push(`${route_path} (${rule.name})`)
+				const meta = rulePageMeta(year, rule.name, description_text)
+				const html = injectAppContent(injectMeta(base_html, meta, route_path), renderRuleContent(year, rule, description))
+				const file = resolve(out_dir, `${route_path.slice(1)}.html`)
+				mkdirSync(dirname(file), { recursive: true })
+				writeFileSync(file, html)
+				path_list.push({ path: route_path, year, in_sitemap: dept_id === DEFAULT_ID || rule_id === DEFAULT_ID })
 			}
-		}
-		for (const group of rule_map[year] || []) {
-			if (group.group_name === '_') continue
-			for (const rule of group.rules) writeRulePage(ruleRoutePath(year, DEFAULT_ID, rule.id), year, rule.id, rule)
 		}
 	}
 	console.log(`[page-meta] 共產生 ${path_list.length} 個畢業學分門檻頁面`)
@@ -318,7 +308,7 @@ function pageMetaPlugin() {
 			const course_page_list = await generateCoursePages(base_html, out_dir)
 			const rule_page_list = await generateRulePages(base_html, out_dir)
 			const meta_paths = Object.keys(PAGE_META).filter(path => !SITEMAP_EXCLUDE_PATHS.includes(path))
-			generateSitemap(out_dir, ['/', ...meta_paths, ...latestYearPaths(course_page_list), ...latestYearPaths(rule_page_list)])
+			generateSitemap(out_dir, ['/', ...meta_paths, ...latestYearPaths(course_page_list), ...latestYearPaths(rule_page_list.filter(page => page.in_sitemap))])
 			generateRobots(out_dir)
 			checkPageMeta()
 		}
