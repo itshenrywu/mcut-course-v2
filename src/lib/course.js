@@ -181,6 +181,8 @@ export function useCourseList(options = {}) {
 			reconcileAltFavorites(data.course_list)
 		} catch (error) {
 			if (seq !== request_seq) return
+			// 網址參數或 localStorage 留下已不在學期清單的學期 (例如過舊學期) 時, 退回 API 預設學期
+			if (error.status === 404 && term_id) return loadCourseList('', options)
 			console.error(error)
 			// 背景重新驗證失敗就安靜留著現有課表, 使用者沒有操作卻被換成錯誤畫面才是更糟的結果
 			if (background) return
