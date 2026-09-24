@@ -93,7 +93,8 @@ export function rulePageMeta(year, name, description = '') {
 
 export function coursePageMeta(course) {
 	const summary = courseSummaryParts(course)
-	const parts = [summary.dept_class, summary.teacher, summary.credit, summary.general_type, summary.remark].filter(Boolean)
+	const credit = [course.enroll_type, summary.credit].filter(Boolean).join(' ')
+	const parts = [summary.dept_class, summary.teacher, credit, summary.general_type].filter(Boolean)
 	return {
 		title: `${yearFromCourseId(course.id)}-${termFromCourseId(course.id)} ${course.name} | ${SITE_NAME}`,
 		description: `${formatTermLabel(termIdFromCourseId(course.id))}・${parts.join('・')}`

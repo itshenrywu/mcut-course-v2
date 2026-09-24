@@ -33,6 +33,8 @@ const ROUTER_FILE = fileURLToPath(new URL('./src/router/index.js', import.meta.u
 const META_SKIP_PATHS = ['/']
 // 預渲染內容要注入的掛載點, 屬性 (v-cloak 等) 原樣保留
 const APP_ROOT_RE = /<div id="app"([^>]*)><\/div>/
+// 共同科目的開課單位, 班級是虛擬的 (一班幾十門課), 課程頁不列同班級的其他課程
+const COMMON_COURSE_DEPT_RE = /通識|^(外文|社會|體育)組-/
 // 首屏一定會用到的第三方套件, 抽成獨立 chunk 讓瀏覽器跨版本快取 (只列全部都是首屏相依的, 否則會把延後載入的部分拉進首屏)
 const VENDOR_CHUNKS = {
 	'vendor-vue': /node_modules\/(vue|@vue|vue-router)\//,
@@ -189,9 +191,11 @@ async function generateCoursePages(base_html, out_dir) {
 	for (const course of all_course_list) {
 		const route_path = courseRoutePath(course.id)
 		const term_id = termIdFromCourseId(course.id)
-		const class_course_list = class_map.get([shortTermIdFromCourseId(course.id), course.dept, course.grade, course.class_group].join('|')).filter(item => item.id !== course.id)
+		const class_course_list = COMMON_COURSE_DEPT_RE.test(course.dept)
+			? []
+			: class_map.get([shortTermIdFromCourseId(course.id), course.dept, course.grade, course.class_group].join('|')).filter(item => item.id !== course.id)
 		const other_term_map = new Map()
-		for (const item of name_map.get([course.dept, course.name].join('|'))) {
+		for (const item of name_map.get([course.dept, course.name].join('|')) || []) {
 			const item_term_id = termIdFromCourseId(item.id)
 			if (item_term_id !== term_id && !other_term_map.has(item_term_id)) other_term_map.set(item_term_id, item)
 		}
