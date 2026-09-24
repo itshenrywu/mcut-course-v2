@@ -318,16 +318,35 @@ function generateSitemap(out_dir, path_list) {
 	console.log(`[page-meta] sitemap.xml 共 ${path_list.length} 個網址`)
 }
 
-function renderHomeContent(rule_year_list) {
-	const page_links = Object.entries(PAGE_META)
+function pageLinks() {
+	return Object.entries(PAGE_META)
 		.filter(([path]) => !SITEMAP_EXCLUDE_PATHS.includes(path))
 		.map(([path, meta]) => [meta.title.split(' | ')[0], path])
-	const rule_links = [...rule_year_list].reverse().map(year => [`${year} 學年入學畢業學分門檻`, ruleRoutePath(year)])
+}
+
+function ruleYearLinks(rule_year_list) {
+	return [...rule_year_list].reverse().map(year => [`${year} 學年入學畢業學分門檻`, ruleRoutePath(year)])
+}
+
+function renderHomeContent(rule_year_list) {
 	return [
 		'<main>',
 		`<h1>${escapeHtml(DEFAULT_META.title)}</h1>`,
 		`<p>${escapeHtml(DEFAULT_META.description)}</p>`,
-		renderLinkList([...page_links, ...rule_links]),
+		renderLinkList([...pageLinks(), ...ruleYearLinks(rule_year_list)]),
+		'</main>'
+	].join('')
+}
+
+function renderPageContent(path, meta, rule_year_list) {
+	const own_links = path === '/rule' ? ruleYearLinks(rule_year_list) : []
+	const other_links = pageLinks().filter(([, link_path]) => link_path !== path)
+	return [
+		'<main>',
+		`<h1>${escapeHtml(meta.title.split(' | ')[0])}</h1>`,
+		`<p>${escapeHtml(meta.description)}</p>`,
+		own_links.length ? renderLinkList(own_links) : '',
+		renderLinkList([[DEFAULT_META.title, '/'], ...other_links]),
 		'</main>'
 	].join('')
 }
@@ -425,14 +444,14 @@ function pageMetaPlugin() {
 		},
 		async closeBundle() {
 			const base_html = readFileSync(resolve(out_dir, 'index.html'), 'utf-8')
-			for (const [path, meta] of Object.entries(PAGE_META)) {
-				const html = SITEMAP_EXCLUDE_PATHS.includes(path) ? injectMeta(base_html, meta, path) : injectCanonical(injectBreadcrumb(injectMeta(base_html, meta, path), [[DEFAULT_META.title, '/'], [meta.title.split(' | ')[0], path]]), path)
-				writePage(out_dir, path, html)
-			}
 			writeFileSync(resolve(out_dir, '404.html'), injectMeta(base_html, DEFAULT_META))
 			generateRedirectPages(base_html, out_dir)
 			const course_page_list = await generateCoursePages(base_html, out_dir)
 			const rule_page_list = await generateRulePages(base_html, out_dir)
+			for (const [path, meta] of Object.entries(PAGE_META)) {
+				const html = SITEMAP_EXCLUDE_PATHS.includes(path) ? injectMeta(base_html, meta, path) : injectAppContent(injectCanonical(injectBreadcrumb(injectMeta(base_html, meta, path), [[DEFAULT_META.title, '/'], [meta.title.split(' | ')[0], path]]), path), renderPageContent(path, meta, latestYears(rule_page_list)))
+				writePage(out_dir, path, html)
+			}
 			writeFileSync(resolve(out_dir, 'index.html'), injectAppContent(injectCanonical(injectMeta(base_html, DEFAULT_META, '/'), '/'), renderHomeContent(latestYears(rule_page_list))))
 			const meta_paths = Object.keys(PAGE_META).filter(path => !SITEMAP_EXCLUDE_PATHS.includes(path))
 			generateSitemap(out_dir, ['/', ...meta_paths, ...latestYearPaths(course_page_list), ...latestYearPaths(rule_page_list.filter(page => page.in_sitemap))])
