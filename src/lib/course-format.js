@@ -65,7 +65,7 @@ export const WEEKDAY_LABELS = [null, '一', '二', '三', '四', '五']
 export const FULL_WEEKDAY_LABELS = ['日', '一', '二', '三', '四', '五', '六']
 
 // index 為年級 - 1
-export const GRADE_LABELS = ['一', '二', '三', '四']
+export const GRADE_LABELS = ['一', '二', '三', '四', '五']
 
 export const ENROLL_TYPE_CLASSES = {
 	必修: 'bg-orange-400/10 text-orange-600 dark:text-orange-400 inset-ring inset-ring-orange-400/10 dark:inset-ring-orange-400/25',
