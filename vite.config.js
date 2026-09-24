@@ -1,5 +1,5 @@
 import { fileURLToPath, URL } from 'node:url'
-import { readFileSync, writeFileSync, mkdirSync } from 'node:fs'
+import { readFileSync, writeFileSync, mkdirSync, readdirSync, existsSync } from 'node:fs'
 import { execSync } from 'node:child_process'
 import { resolve, dirname } from 'node:path'
 import { defineConfig, loadEnv } from 'vite'
@@ -7,8 +7,8 @@ import vue from '@vitejs/plugin-vue'
 import tailwindcss from '@tailwindcss/vite'
 import { PAGE_META, DEFAULT_META, SITEMAP_EXCLUDE_PATHS, coursePageMeta, rulePageMeta } from './src/config/page-meta.js'
 import { formatCourseTime, courseRoutePath, courseSummaryParts, courseGradeClass, formatDeptClass } from './src/lib/course-format.js'
-import { yearFromCourseId, termIdFromCourseId, formatTermLabel, formatTermShort } from './src/lib/term-format.js'
-import { deptIds, ruleIds, findRule, ruleDescriptionText, ruleRoutePath, ruleDisplayName, DEFAULT_ID } from './src/lib/rule-format.js'
+import { yearFromCourseId, termIdFromCourseId, shortTermIdFromCourseId, formatTermLabel, formatTermShort } from './src/lib/term-format.js'
+import { deptIds, deptGroups, ruleGroups, ruleIds, findRule, findSelfRule, ruleDescriptionText, ruleRoutePath, ruleDisplayName, DEFAULT_ID } from './src/lib/rule-format.js'
 import { ogImageUrl } from './src/config/index.js'
 
 // .env 只會進 import.meta.env, 這裡補上 build 期用的 process.env (loadEnv 內部就讓實際的環境變數蓋過 .env)
@@ -80,6 +80,22 @@ function injectRedirect(html, target) {
 	return html.replace('</head>', `\t${tags}\n\t</head>`)
 }
 
+function injectCanonical(html, path) {
+	if (!SITE_URL) return html
+	const url = escapeHtml(SITE_URL + path)
+	return html.replace('</head>', `\t<link rel="canonical" href="${url}" />\n\t\t<meta property="og:url" content="${url}" />\n\t</head>`)
+}
+
+function writePage(out_dir, path, html) {
+	const file = resolve(out_dir, `${path.slice(1)}.html`)
+	mkdirSync(dirname(file), { recursive: true })
+	writeFileSync(file, html)
+}
+
+function renderLinkList(link_list) {
+	return `<ul>${link_list.map(([text, path]) => `<li><a href="${escapeHtml(path)}">${escapeHtml(text)}</a></li>`).join('')}</ul>`
+}
+
 function injectBreadcrumb(html, crumbs) {
 	if (!SITE_URL) return html
 	const item_list = crumbs.map(([name, path], index) => ({ '@type': 'ListItem', position: index + 1, name, item: SITE_URL + path }))
@@ -93,7 +109,7 @@ function injectAppContent(html, content) {
 	return html.replace(APP_ROOT_RE, (_, attrs) => `<div id="app"${attrs}>${content}</div>`)
 }
 
-function renderCourseContent(course) {
+function renderCourseContent(course, class_course_list, other_term_list) {
 	const summary = courseSummaryParts(course)
 	const times = (course.time || []).map(time => formatCourseTime(time, course)).join('　') || '未定'
 	const badges = [course.enroll_type, course.general_type ? `通識 · ${course.general_type}` : '']
@@ -113,8 +129,20 @@ function renderCourseContent(course) {
 		`<h1>${escapeHtml(course.name)}</h1>`,
 		`<p>${badges}</p>`,
 		`<ul>${rows}</ul>`,
+		class_course_list.length ? `<h2>${escapeHtml(formatDeptClass(course))} 的其他課程</h2>${renderLinkList(class_course_list.map(item => [item.name, courseRoutePath(item.id)]))}` : '',
+		other_term_list.length ? `<h2>其他學期的${escapeHtml(course.name)}</h2>${renderLinkList(other_term_list.map(item => [`${formatTermShort(termIdFromCourseId(item.id))} ${item.name}`, courseRoutePath(item.id)]))}` : '',
 		'</main>'
 	].join('')
+}
+
+function groupBy(list, keyOf) {
+	const map = new Map()
+	for (const item of list) {
+		const key = keyOf(item)
+		if (!map.has(key)) map.set(key, [])
+		map.get(key).push(item)
+	}
+	return map
 }
 
 function courseCrumbs(course, route_path) {
@@ -154,24 +182,34 @@ function fetchCourseList(term_id = '') {
 async function generateCoursePages(base_html, out_dir) {
 	const { term_list } = await fetchCourseList()
 	const term_data_list = await Promise.all(term_list.map(term_id => fetchCourseList(term_id)))
+	const all_course_list = term_data_list.flatMap(term_data => term_data.course_list || [])
+	const class_map = groupBy(all_course_list, course => [shortTermIdFromCourseId(course.id), course.dept, course.grade, course.class_group].join('|'))
+	const name_map = groupBy(all_course_list, course => [course.dept, course.name].join('|'))
 	const path_list = []
-	for (const term_data of term_data_list) {
-		const course_list = term_data.course_list || []
-		for (const course of course_list) {
-			const route_path = courseRoutePath(course.id)
-			const crumbs = courseCrumbs(course, route_path)
-			const html = injectAppContent(injectBreadcrumb(injectMeta(base_html, coursePageMeta(course), route_path), crumbs), renderCourseContent(course))
-			const file = resolve(out_dir, `${route_path.slice(1)}.html`)
-			mkdirSync(dirname(file), { recursive: true })
-			writeFileSync(file, html)
-			path_list.push({ path: route_path, year: yearFromCourseId(course.id) })
+	for (const course of all_course_list) {
+		const route_path = courseRoutePath(course.id)
+		const term_id = termIdFromCourseId(course.id)
+		const class_course_list = class_map.get([shortTermIdFromCourseId(course.id), course.dept, course.grade, course.class_group].join('|')).filter(item => item.id !== course.id)
+		const other_term_map = new Map()
+		for (const item of name_map.get([course.dept, course.name].join('|'))) {
+			const item_term_id = termIdFromCourseId(item.id)
+			if (item_term_id !== term_id && !other_term_map.has(item_term_id)) other_term_map.set(item_term_id, item)
 		}
+		const other_term_list = [...other_term_map.values()].sort((a, b) => b.id.localeCompare(a.id))
+		const head_html = injectCanonical(injectBreadcrumb(injectMeta(base_html, coursePageMeta(course), route_path), courseCrumbs(course, route_path)), route_path)
+		writePage(out_dir, route_path, injectAppContent(head_html, renderCourseContent(course, class_course_list, other_term_list)))
+		path_list.push({ path: route_path, year: yearFromCourseId(course.id) })
+	}
+	// /course/1151 這種學期資料夾沒有同名 .html 時, GitHub Pages 補斜線與 Cloudflare 去斜線會無限轉址
+	for (const short_term_id of new Set(all_course_list.map(course => shortTermIdFromCourseId(course.id)))) {
+		const target = `/course?term_id=${termIdFromCourseId(short_term_id)}`
+		writePage(out_dir, `/course/${short_term_id}`, injectRedirect(injectMeta(base_html, PAGE_META['/course'], '/course'), target))
 	}
 	console.log(`[page-meta] 共產生 ${path_list.length} 個課程頁面`)
 	return path_list
 }
 
-function renderRuleContent(year, rule, description) {
+function renderRuleContent(year, rule, description, program_list) {
 	const rows = [
 		rule.type,
 		rule.dept ? `開設單位：${rule.dept}` : '',
@@ -189,8 +227,24 @@ function renderRuleContent(year, rule, description) {
 		`<h1>${escapeHtml(rule.name)}</h1>`,
 		`<ul>${rows}</ul>`,
 		categories ? `<h2>應修學分</h2><ul>${categories}</ul>` : '',
+		program_list.length ? `<h2>學分學程</h2>${renderLinkList(program_list)}` : '',
+		`<p><a href="${ruleRoutePath(year)}">${escapeHtml(year)} 學年入學畢業學分門檻</a></p>`,
 		'</main>'
 	].join('')
+}
+
+function renderRuleYearContent(rule_map, dept_map, year) {
+	const dept_sections = deptGroups(dept_map, year).map(group => {
+		const link_list = group.depts
+			.map(dept => [dept.id, findSelfRule(rule_map, dept_map, year, dept.id)])
+			.filter(([, rule]) => rule)
+			.map(([dept_id, rule]) => [ruleDisplayName(rule), ruleRoutePath(year, dept_id, DEFAULT_ID)])
+		return link_list.length ? `<h2>${escapeHtml(group.group_name)}</h2>${renderLinkList(link_list)}` : ''
+	})
+	const program_sections = ruleGroups(rule_map, dept_map, year, DEFAULT_ID).map(group =>
+		`<h2>${escapeHtml(group.group_name)}</h2>${renderLinkList(group.rules.map(rule => [ruleDisplayName(rule), ruleRoutePath(year, DEFAULT_ID, rule.id)]))}`
+	)
+	return ['<main>', `<h1>${escapeHtml(year)} 學年入學畢業學分門檻</h1>`, ...dept_sections, ...program_sections, '</main>'].join('')
 }
 
 function fetchRuleList() {
@@ -209,27 +263,32 @@ async function generateRulePages(base_html, out_dir) {
 	const missing_list = []
 	for (const year of Object.keys(rule_map)) {
 		const year_path = ruleRoutePath(year)
+		const year_meta = rulePageMeta(year)
 		const year_crumbs = [[DEFAULT_META.title, '/'], ['畢業學分門檻', '/rule'], [`${year} 學年入學`, year_path]]
-		const year_html = injectBreadcrumb(injectMeta(base_html, rulePageMeta(year), year_path), year_crumbs)
-		const year_file = resolve(out_dir, `${year_path.slice(1)}.html`)
-		mkdirSync(dirname(year_file), { recursive: true })
-		writeFileSync(year_file, year_html)
+		const year_html = injectCanonical(injectBreadcrumb(injectMeta(base_html, year_meta, year_path), year_crumbs), year_path)
+		writePage(out_dir, year_path, injectAppContent(year_html, renderRuleYearContent(rule_map, dept_map, year)))
 		path_list.push({ path: year_path, year, in_sitemap: true })
+		// 只選學年或系所時的網址也是資料夾, 沒有同名 .html 會無限轉址 (見 generateCoursePages)
+		writePage(out_dir, `${year_path}/${DEFAULT_ID}`, injectRedirect(injectMeta(base_html, year_meta, year_path), year_path))
 		for (const dept_id of [DEFAULT_ID, ...deptIds(dept_map, year)]) {
+			if (dept_id !== DEFAULT_ID) writePage(out_dir, `${year_path}/${dept_id}`, injectCanonical(injectMeta(base_html, year_meta, year_path), year_path))
 			for (const rule_id of ruleIds(rule_map, dept_map, year, dept_id)) {
 				const rule = findRule(rule_map, dept_map, year, dept_id, rule_id)
 				const route_path = ruleRoutePath(year, dept_id, rule_id)
+				// 系所底下的學程與不選系所的版本內容相同, 統一以後者為準
+				const canonical_path = dept_id !== DEFAULT_ID && rule_id !== DEFAULT_ID ? ruleRoutePath(year, DEFAULT_ID, rule_id) : route_path
 				const description = description_map[year]?.[rule_id === DEFAULT_ID ? dept_id : rule_id]
 				const description_text = ruleDescriptionText(description)
 				if (!description_text) missing_list.push(`${route_path} (${rule.name})`)
 				const display_name = ruleDisplayName(rule)
 				const meta = rulePageMeta(year, display_name, description_text)
-				const crumbs = [...year_crumbs, [display_name, route_path]]
-				const html = injectAppContent(injectBreadcrumb(injectMeta(base_html, meta, route_path), crumbs), renderRuleContent(year, rule, description))
-				const file = resolve(out_dir, `${route_path.slice(1)}.html`)
-				mkdirSync(dirname(file), { recursive: true })
-				writeFileSync(file, html)
-				path_list.push({ path: route_path, year, in_sitemap: dept_id === DEFAULT_ID || rule_id === DEFAULT_ID })
+				const crumbs = [...year_crumbs, [display_name, canonical_path]]
+				const program_list = dept_id !== DEFAULT_ID && rule_id === DEFAULT_ID
+					? ruleGroups(rule_map, dept_map, year, dept_id).flatMap(group => group.rules.filter(item => !item.disabled)).map(item => [ruleDisplayName(item), ruleRoutePath(year, DEFAULT_ID, item.id)])
+					: []
+				const head_html = injectCanonical(injectBreadcrumb(injectMeta(base_html, meta, route_path), crumbs), canonical_path)
+				writePage(out_dir, route_path, injectAppContent(head_html, renderRuleContent(year, rule, description, program_list)))
+				path_list.push({ path: route_path, year, in_sitemap: canonical_path === route_path })
 			}
 		}
 	}
@@ -238,8 +297,12 @@ async function generateRulePages(base_html, out_dir) {
 	return path_list
 }
 
+function latestYears(page_list) {
+	return [...new Set(page_list.map(page => page.year))].sort((a, b) => a - b).slice(-3)
+}
+
 function latestYearPaths(page_list) {
-	const year_list = [...new Set(page_list.map(page => page.year))].sort((a, b) => a - b).slice(-3)
+	const year_list = latestYears(page_list)
 	return page_list.filter(page => year_list.includes(page.year)).map(page => page.path)
 }
 
@@ -249,6 +312,35 @@ function generateSitemap(out_dir, path_list) {
 	const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls}\n</urlset>\n`
 	writeFileSync(resolve(out_dir, 'sitemap.xml'), xml)
 	console.log(`[page-meta] sitemap.xml 共 ${path_list.length} 個網址`)
+}
+
+function renderHomeContent(rule_year_list) {
+	const page_links = Object.entries(PAGE_META)
+		.filter(([path]) => !SITEMAP_EXCLUDE_PATHS.includes(path))
+		.map(([path, meta]) => [meta.title.split(' | ')[0], path])
+	const rule_links = [...rule_year_list].reverse().map(year => [`${year} 學年入學畢業學分門檻`, ruleRoutePath(year)])
+	return [
+		'<main>',
+		`<h1>${escapeHtml(DEFAULT_META.title)}</h1>`,
+		`<p>${escapeHtml(DEFAULT_META.description)}</p>`,
+		renderLinkList([...page_links, ...rule_links]),
+		'</main>'
+	].join('')
+}
+
+function checkDirectoryPages(out_dir) {
+	const missing_list = []
+	const walk = dir => {
+		for (const entry of readdirSync(resolve(out_dir, dir), { withFileTypes: true })) {
+			if (!entry.isDirectory()) continue
+			const path = `${dir}/${entry.name}`
+			if (!existsSync(resolve(out_dir, `${path}.html`))) missing_list.push(`/${path}`)
+			walk(path)
+		}
+	}
+	for (const dir of ['course', 'rule']) walk(dir)
+	if (missing_list.length) console.warn(`[page-meta] ${missing_list.length} 個資料夾沒有同名 .html, 在正式站會無限轉址:\n\t${missing_list.join('\n\t')}`)
+	else console.log('[page-meta] 資料夾都有同名 .html')
 }
 
 function generateRobots(out_dir) {
@@ -329,21 +421,20 @@ function pageMetaPlugin() {
 		},
 		async closeBundle() {
 			const base_html = readFileSync(resolve(out_dir, 'index.html'), 'utf-8')
-			writeFileSync(resolve(out_dir, 'index.html'), injectMeta(base_html, DEFAULT_META, '/'))
 			for (const [path, meta] of Object.entries(PAGE_META)) {
-				const html = SITEMAP_EXCLUDE_PATHS.includes(path) ? injectMeta(base_html, meta, path) : injectBreadcrumb(injectMeta(base_html, meta, path), [[DEFAULT_META.title, '/'], [meta.title.split(' | ')[0], path]])
-				const file = path === '/' ? resolve(out_dir, 'index.html') : resolve(out_dir, `${path.slice(1)}.html`)
-				mkdirSync(dirname(file), { recursive: true })
-				writeFileSync(file, html)
+				const html = SITEMAP_EXCLUDE_PATHS.includes(path) ? injectMeta(base_html, meta, path) : injectCanonical(injectBreadcrumb(injectMeta(base_html, meta, path), [[DEFAULT_META.title, '/'], [meta.title.split(' | ')[0], path]]), path)
+				writePage(out_dir, path, html)
 			}
 			writeFileSync(resolve(out_dir, '404.html'), injectMeta(base_html, DEFAULT_META))
 			generateRedirectPages(base_html, out_dir)
 			const course_page_list = await generateCoursePages(base_html, out_dir)
 			const rule_page_list = await generateRulePages(base_html, out_dir)
+			writeFileSync(resolve(out_dir, 'index.html'), injectAppContent(injectCanonical(injectMeta(base_html, DEFAULT_META, '/'), '/'), renderHomeContent(latestYears(rule_page_list))))
 			const meta_paths = Object.keys(PAGE_META).filter(path => !SITEMAP_EXCLUDE_PATHS.includes(path))
 			generateSitemap(out_dir, ['/', ...meta_paths, ...latestYearPaths(course_page_list), ...latestYearPaths(rule_page_list.filter(page => page.in_sitemap))])
 			generateRobots(out_dir)
 			checkPageMeta()
+			checkDirectoryPages(out_dir)
 		}
 	}
 }
