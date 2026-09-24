@@ -6,9 +6,9 @@ import { defineConfig, loadEnv } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import tailwindcss from '@tailwindcss/vite'
 import { PAGE_META, DEFAULT_META, SITEMAP_EXCLUDE_PATHS, coursePageMeta, rulePageMeta } from './src/config/page-meta.js'
-import { formatCourseTime, courseRoutePath, courseSummaryParts } from './src/lib/course-format.js'
-import { yearFromCourseId, termIdFromCourseId, formatTermLabel } from './src/lib/term-format.js'
-import { deptIds, ruleIds, findRule, ruleDescriptionText, ruleRoutePath, DEFAULT_ID } from './src/lib/rule-format.js'
+import { formatCourseTime, courseRoutePath, courseSummaryParts, courseGradeClass, formatDeptClass } from './src/lib/course-format.js'
+import { yearFromCourseId, termIdFromCourseId, formatTermLabel, formatTermShort } from './src/lib/term-format.js'
+import { deptIds, ruleIds, findRule, ruleDescriptionText, ruleRoutePath, ruleDisplayName, DEFAULT_ID } from './src/lib/rule-format.js'
 import { ogImageUrl } from './src/config/index.js'
 
 // .env 只會進 import.meta.env, 這裡補上 build 期用的 process.env (loadEnv 內部就讓實際的環境變數蓋過 .env)
@@ -80,6 +80,14 @@ function injectRedirect(html, target) {
 	return html.replace('</head>', `\t${tags}\n\t</head>`)
 }
 
+function injectBreadcrumb(html, crumbs) {
+	if (!SITE_URL) return html
+	const item_list = crumbs.map(([name, path], index) => ({ '@type': 'ListItem', position: index + 1, name, item: SITE_URL + path }))
+	// JSON 本身不跳脫 <, 課名或規則名稱含 </script> 會提早結束標籤
+	const json = JSON.stringify({ '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: item_list }).replace(/</g, '\\u003c')
+	return html.replace('</head>', `\t<script type="application/ld+json">${json}</script>\n\t</head>`)
+}
+
 function injectAppContent(html, content) {
 	if (!APP_ROOT_RE.test(html)) throw new Error('[page-meta] index.html 找不到 <div id="app"></div>, 無法注入預渲染內容')
 	return html.replace(APP_ROOT_RE, (_, attrs) => `<div id="app"${attrs}>${content}</div>`)
@@ -109,6 +117,21 @@ function renderCourseContent(course) {
 	].join('')
 }
 
+function courseCrumbs(course, route_path) {
+	const term_id = termIdFromCourseId(course.id)
+	const grade_class = courseGradeClass(course)
+	const dept_query = `term_id=${term_id}&dept=${encodeURIComponent(course.dept)}`
+	const dept_crumb = grade_class
+		? [formatDeptClass(course), `/course?${dept_query}&grade_class=${encodeURIComponent(grade_class)}`]
+		: [course.dept, `/course?${dept_query}`]
+	return [
+		[DEFAULT_META.title, '/'],
+		[formatTermShort(term_id), `/course?term_id=${term_id}`],
+		course.dept && dept_crumb,
+		[course.name, route_path]
+	].filter(Boolean)
+}
+
 async function fetchJson(path, retries = 2) {
 	const url = `${BUILD_API_BASE_URL}${path}`
 	const started_at = Date.now()
@@ -136,7 +159,8 @@ async function generateCoursePages(base_html, out_dir) {
 		const course_list = term_data.course_list || []
 		for (const course of course_list) {
 			const route_path = courseRoutePath(course.id)
-			const html = injectAppContent(injectMeta(base_html, coursePageMeta(course), route_path), renderCourseContent(course))
+			const crumbs = courseCrumbs(course, route_path)
+			const html = injectAppContent(injectBreadcrumb(injectMeta(base_html, coursePageMeta(course), route_path), crumbs), renderCourseContent(course))
 			const file = resolve(out_dir, `${route_path.slice(1)}.html`)
 			mkdirSync(dirname(file), { recursive: true })
 			writeFileSync(file, html)
@@ -184,6 +208,13 @@ async function generateRulePages(base_html, out_dir) {
 	const path_list = []
 	const missing_list = []
 	for (const year of Object.keys(rule_map)) {
+		const year_path = ruleRoutePath(year)
+		const year_crumbs = [[DEFAULT_META.title, '/'], ['畢業學分門檻', '/rule'], [`${year} 學年入學`, year_path]]
+		const year_html = injectBreadcrumb(injectMeta(base_html, rulePageMeta(year), year_path), year_crumbs)
+		const year_file = resolve(out_dir, `${year_path.slice(1)}.html`)
+		mkdirSync(dirname(year_file), { recursive: true })
+		writeFileSync(year_file, year_html)
+		path_list.push({ path: year_path, year, in_sitemap: true })
 		for (const dept_id of [DEFAULT_ID, ...deptIds(dept_map, year)]) {
 			for (const rule_id of ruleIds(rule_map, dept_map, year, dept_id)) {
 				const rule = findRule(rule_map, dept_map, year, dept_id, rule_id)
@@ -191,8 +222,10 @@ async function generateRulePages(base_html, out_dir) {
 				const description = description_map[year]?.[rule_id === DEFAULT_ID ? dept_id : rule_id]
 				const description_text = ruleDescriptionText(description)
 				if (!description_text) missing_list.push(`${route_path} (${rule.name})`)
-				const meta = rulePageMeta(year, rule.name, description_text)
-				const html = injectAppContent(injectMeta(base_html, meta, route_path), renderRuleContent(year, rule, description))
+				const display_name = ruleDisplayName(rule)
+				const meta = rulePageMeta(year, display_name, description_text)
+				const crumbs = [...year_crumbs, [display_name, route_path]]
+				const html = injectAppContent(injectBreadcrumb(injectMeta(base_html, meta, route_path), crumbs), renderRuleContent(year, rule, description))
 				const file = resolve(out_dir, `${route_path.slice(1)}.html`)
 				mkdirSync(dirname(file), { recursive: true })
 				writeFileSync(file, html)
@@ -200,7 +233,7 @@ async function generateRulePages(base_html, out_dir) {
 			}
 		}
 	}
-	console.log(`[page-meta] 共產生 ${path_list.length} 個畢業學分門檻頁面`)
+	console.log(`[page-meta] 共產生 ${path_list.length} 個畢業學分門檻頁面 (含 ${Object.keys(rule_map).length} 個學年頁)`)
 	if (missing_list.length) console.warn(`[page-meta] ${missing_list.length} 個畢業學分門檻頁面沒有課程類別, 沿用預設 description:\n\t${missing_list.join('\n\t')}`)
 	return path_list
 }
@@ -298,7 +331,7 @@ function pageMetaPlugin() {
 			const base_html = readFileSync(resolve(out_dir, 'index.html'), 'utf-8')
 			writeFileSync(resolve(out_dir, 'index.html'), injectMeta(base_html, DEFAULT_META, '/'))
 			for (const [path, meta] of Object.entries(PAGE_META)) {
-				const html = injectMeta(base_html, meta, path)
+				const html = SITEMAP_EXCLUDE_PATHS.includes(path) ? injectMeta(base_html, meta, path) : injectBreadcrumb(injectMeta(base_html, meta, path), [[DEFAULT_META.title, '/'], [meta.title.split(' | ')[0], path]])
 				const file = path === '/' ? resolve(out_dir, 'index.html') : resolve(out_dir, `${path.slice(1)}.html`)
 				mkdirSync(dirname(file), { recursive: true })
 				writeFileSync(file, html)

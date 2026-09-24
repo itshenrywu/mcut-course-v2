@@ -118,6 +118,7 @@ export function ruleDescriptionText(description) {
 
 export function ruleRoutePath(year, dept_id, rule_id) {
 	if (!year) return '/rule'
+	if ((!dept_id || dept_id === DEFAULT_ID) && !rule_id) return `/rule/${year}`
 	const parts = [year, dept_id || DEFAULT_ID]
 	if (rule_id) parts.push(rule_id)
 	return `/rule/${parts.join('/')}`

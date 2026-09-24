@@ -80,7 +80,11 @@ export const PAGE_META = {
 export const SITEMAP_EXCLUDE_PATHS = ['/login']
 
 export function rulePageMeta(year, name, description = '') {
-	if (!year || !name) return PAGE_META['/rule']
+	if (!year) return PAGE_META['/rule']
+	if (!name) return {
+		title: `${year} 學年入學畢業學分門檻 | ${SITE_NAME}`,
+		description: `${year} 學年入學各系所的畢業學分門檻，以及第二專長、跨領域學程的總表、開設單位與承辦人聯絡方式`
+	}
 	return {
 		title: `${year} 學年入學 - ${name} | ${SITE_NAME}`,
 		description: description || `${year} 學年入學 ${name} 的應修學分與畢業學分門檻，包含修課指引、備註與承辦人聯絡方式`

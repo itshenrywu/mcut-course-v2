@@ -240,7 +240,7 @@ watch([selected_year, selected_dept, selected_rule_id], ([year, dept, rule_id]) 
 }, { immediate: true })
 
 watch([selected_year, selected_rule, not_found], ([year, rule, missing]) => {
-	setPageMeta(missing ? NOT_FOUND_META : rulePageMeta(year, rule?.name))
+	setPageMeta(missing ? NOT_FOUND_META : rulePageMeta(year, ruleDisplayName(rule)))
 	sendPageView(route.fullPath)
 }, { immediate: true })
 
@@ -429,7 +429,7 @@ watch(() => route.path, () => {
 						</SectionCard>
 					</div>
 
-					<p v-else-if="show_empty_hint" class="m-auto text-center text-sm text-color-6">請選擇入學系所或學分學程</p>
+					<p v-else-if="show_empty_hint" class="m-auto text-center text-sm text-color-6">請選擇入學系所或課程總表</p>
 				</div>
 			</div>
 		</div>
