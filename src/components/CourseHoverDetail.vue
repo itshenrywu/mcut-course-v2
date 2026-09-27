@@ -1,5 +1,5 @@
 <script setup>
-import { Users, Info, Clock } from '@lucide/vue'
+import { UsersRound, Info, Clock } from '@lucide/vue'
 import TeacherIcon from '@/components/icons/TeacherIcon.vue'
 import CourseBadges from '@/components/CourseBadges.vue'
 import { formatCourseTimes, formatDeptClass, hasRemark } from '@/lib/course'
@@ -19,7 +19,7 @@ defineProps({
 	</div>
 	<div class="flex flex-col gap-1.5 text-xs">
 		<div class="flex items-center gap-2">
-			<Users class="size-3 shrink-0 text-color-5" />
+			<UsersRound class="size-3 shrink-0 text-color-5" />
 			<span class="text-color-9">{{ formatDeptClass(course) || '—' }}</span>
 		</div>
 		<div v-if="course.teacher" class="flex items-center gap-2">

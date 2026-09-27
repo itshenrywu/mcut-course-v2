@@ -2,7 +2,7 @@
 import { computed, ref, watch, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useMediaQuery } from '@vueuse/core'
-import { Users, Clock, Info } from '@lucide/vue'
+import { UsersRound, Clock, Info } from '@lucide/vue'
 import TeacherIcon from '@/components/icons/TeacherIcon.vue'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
 import FavoriteStar from '@/components/FavoriteStar.vue'
@@ -146,7 +146,7 @@ const first_col_class = computed(() => props.bleed ? 'lg:pl-6' : '')
 			@click="onRowClick($event, row)"
 		>
 			<div class="order-4 flex items-center gap-1 pr-4 whitespace-nowrap md:order-none md:block md:py-2 md:pr-3 md:pl-4" :class="first_col_class">
-				<Users class="size-3.5 shrink-0 text-color-5 md:hidden" />{{ row.dept_class }}
+				<UsersRound class="size-3.5 shrink-0 text-color-5 md:hidden" />{{ row.dept_class }}
 			</div>
 			<div class="order-1 flex-1 pr-2 font-medium md:order-none md:flex-none md:px-3 md:py-2">{{ row.course.name }}</div>
 			<div class="order-6 flex w-full items-start gap-1 md:order-none md:block md:w-auto md:px-3 md:py-2">

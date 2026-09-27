@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
-import { Users, Clock, CalendarClock, Info, ChevronRight } from '@lucide/vue'
+import { UsersRound, Clock, CalendarClock, Info, ChevronRight } from '@lucide/vue'
 import TeacherIcon from '@/components/icons/TeacherIcon.vue'
 import { getCourseDetail, getSimilarCourses, getCachedSimilarCourses } from '@/api/course'
 import { formatCourseTime, formatCourseTimes, formatSectionRange, courseIdFromRoute, getCourseBasic, getCourseMap, formatLimit, formatDeptClass, courseGradeClass, teacherName, hasRemark, isNoFixedTime, isBlockCourse, isAltCourse, conflictingCourses, FULL_WEEKDAY_LABELS } from '@/lib/course'
@@ -281,7 +281,7 @@ watch([() => course.value?.id, favorite_ids], ([id]) => {
 
 			<div class="flex flex-wrap gap-x-6 gap-y-3 text-sm md:grid md:grid-cols-2">
 				<div class="flex items-center gap-2">
-					<Users class="size-4 shrink-0 text-color-5" />
+					<UsersRound class="size-4 shrink-0 text-color-5" />
 					<RouterLink
 						v-if="dept_class_query"
 						class="flex items-center gap-1 hover:text-color-6 md:gap-2"

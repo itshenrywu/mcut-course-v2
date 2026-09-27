@@ -1,7 +1,7 @@
 <script setup>
 import { computed } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
-import { School, Star, CircleUserRound, GraduationCap, TextAlignStart } from '@lucide/vue'
+import { School, Star, Sheet, GraduationCap, TextAlignStart } from '@lucide/vue'
 import { cn } from '@/lib/utils'
 import { useFavorite } from '@/lib/favorite'
 import { useSelectedTerm } from '@/lib/term'
@@ -13,7 +13,7 @@ import UserAvatar from '@/components/UserAvatar.vue'
 const menu_items = [
 	{ to: '/', label: '全校課程', icon: School, active_paths: ['/', '/course'] },
 	{ to: '/favorite', label: '收藏的課程', icon: Star },
-	{ to: '/my', label: '我的課表', icon: CircleUserRound },
+	{ to: '/my', label: '我的課表', icon: Sheet },
 	{ to: '/rule', label: '畢業學分門檻', icon: GraduationCap },
 	{ to: '/more', label: '更多功能', icon: TextAlignStart }
 ]

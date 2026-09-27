@@ -1,6 +1,6 @@
 <script setup>
 import { computed, ref, onMounted, watch } from 'vue'
-import { Clock, ExternalLink, SearchX, Users } from '@lucide/vue'
+import { Clock, ExternalLink, SearchX, UserRoundCheck } from '@lucide/vue'
 import { useRouteInfo, routeRowList, routeOptions, routeSignupUrl } from '@/lib/route'
 import { useUidSearch } from '@/lib/uid'
 import { useLocalRef } from '@/lib/storage'
@@ -143,7 +143,7 @@ watch(option_list, () => {
 						class="flex items-center gap-1"
 						:class="[option.signup.full && 'text-rose-600 dark:text-rose-400']"
 					>
-						<Users class="size-3 shrink-0" :class="[!option.signup.full && 'text-color-5']" />
+						<UserRoundCheck class="size-3 shrink-0" :class="[!option.signup.full && 'text-color-5']" />
 						<span class="font-num tabular-nums">{{ option.signup.count }}</span>
 					</span>
 				</template>

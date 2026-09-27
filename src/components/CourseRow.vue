@@ -1,7 +1,7 @@
 <script setup>
 import { computed } from 'vue'
 import { RouterLink } from 'vue-router'
-import { Clock, Info, Users } from '@lucide/vue'
+import { Clock, Info, UsersRound } from '@lucide/vue'
 import { courseRoutePath, formatCourseTimes, formatDeptClass, hasRemark } from '@/lib/course'
 import TeacherIcon from '@/components/icons/TeacherIcon.vue'
 import CourseBadges from '@/components/CourseBadges.vue'
@@ -50,7 +50,7 @@ const shown = computed(() => new Set(props.fields))
 					<CourseBadges :course="course" :general-type="false" />
 				</span>
 				<span v-if="shown.has('dept')" class="flex items-center gap-1">
-					<Users class="size-3.5 shrink-0 text-color-5" />
+					<UsersRound class="size-3.5 shrink-0 text-color-5" />
 					{{ formatDeptClass(course) }}
 				</span>
 				<span v-if="shown.has('teacher') && course.teacher" class="flex items-center gap-1">

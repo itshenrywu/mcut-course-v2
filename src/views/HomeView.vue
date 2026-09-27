@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
-import { List, Dumbbell, BookOpen, Users, Globe, Leaf, Palette, ChevronRight } from '@lucide/vue'
+import { List, Dumbbell, HeartHandshake, Landmark, Globe, Leaf, Feather, ChevronRight } from '@lucide/vue'
 import { isAltCourse, useCourseList, courseRoutePath, isClassScheduleDept, canShowMixedGrade, collectGradeInfo, formatCourseMeta, courseMatchesKeyword, courseKeywordIndex, GRADE_LABELS } from '@/lib/course'
 import { deptShortNameInClass } from '@/lib/dept'
 import { isSummerTerm, applyUrlTermId } from '@/lib/term'
@@ -39,7 +39,7 @@ const QUICK_BUTTONS = [{
 		key: 'ge_practice',
 		title: '永續發展與社會實踐',
 		description: '/ 經典教育與社會實踐',
-		icon: BookOpen,
+		icon: HeartHandshake,
 		lock: {
 			kind: 'ge_practice',
 			categories: ['永續發展與社會實踐', '經典教育與社會實踐']
@@ -49,7 +49,7 @@ const QUICK_BUTTONS = [{
 		key: 'ge_social',
 		title: '社會科學',
 		description: '通識選修類型',
-		icon: Users,
+		icon: Landmark,
 		lock: {
 			kind: 'ge',
 			categories: ['社會研究與未來趨勢', '社會科學']
@@ -79,7 +79,7 @@ const QUICK_BUTTONS = [{
 		key: 'ge_humanity',
 		title: '人文藝術',
 		description: '通識選修類型',
-		icon: Palette,
+		icon: Feather,
 		lock: {
 			kind: 'ge',
 			categories: ['人文藝術']
