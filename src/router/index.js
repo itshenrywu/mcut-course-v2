@@ -5,6 +5,7 @@ import { courseRoutePath } from '@/lib/course'
 import { setPageMeta } from '@/lib/meta'
 import { sendPageView } from '@/lib/analytics'
 import { startRouteLoading, clearRouteLoading } from '@/lib/route-loading'
+import { afterNextPaint } from '@/lib/utils'
 
 const routes = [
 	{
@@ -146,6 +147,12 @@ router.beforeEach((to, from) => {
 	if (from === START_LOCATION) return
 	const need_load = to.matched.some(record => typeof record.components?.default === 'function')
 	startRouteLoading(need_load)
+})
+
+// 換頁會在同一個 task 同步掛載新頁面, 先讓點擊畫出一幀, 重的渲染才不會算進 INP; 同一路由只換參數不用等
+router.beforeResolve((to, from) => {
+	if (from === START_LOCATION || to.name === from.name) return
+	return afterNextPaint()
 })
 
 router.afterEach((to) => {

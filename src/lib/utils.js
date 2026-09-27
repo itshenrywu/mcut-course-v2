@@ -4,6 +4,9 @@ import { twMerge } from 'tailwind-merge'
 
 const DEBOUNCE_DELAY = 250
 
+// 分頁在等待期間被切到背景時 rAF 不會觸發, 逾時後直接放行
+const NEXT_PAINT_TIMEOUT = 100
+
 // CJK 與英數字之間補空格用的字元範圍與 regex
 const CJK = '\\u2e80-\\u2fff\\u3040-\\u30ff\\u3400-\\u4dbf\\u4e00-\\u9fff\\uf900-\\ufaff'
 const CJK_BEFORE_WORD = new RegExp(`([${CJK}])([A-Za-z0-9])`, 'g')
@@ -24,6 +27,14 @@ export function useDebouncedRef(source, delay = DEBOUNCE_DELAY) {
 	})
 	onScopeDispose(() => clearTimeout(timer))
 	return debounced
+}
+
+export function afterNextPaint() {
+	if (document.hidden) return Promise.resolve()
+	return new Promise(resolve => {
+		requestAnimationFrame(() => setTimeout(resolve))
+		setTimeout(resolve, NEXT_PAINT_TIMEOUT)
+	})
 }
 
 export function cn(...inputs) {

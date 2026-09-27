@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref, watch, onUnmounted } from 'vue'
-import { RouterLink } from 'vue-router'
+import { useRouter } from 'vue-router'
+import { useMediaQuery } from '@vueuse/core'
 import { Users, Clock, Info } from '@lucide/vue'
 import TeacherIcon from '@/components/icons/TeacherIcon.vue'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
@@ -10,12 +11,26 @@ import CourseEmpty from '@/components/CourseEmpty.vue'
 import EnrollBadge from '@/components/EnrollBadge.vue'
 import { formatCourseTime, formatDeptClass, hasRemark, isMultiAltCourse, courseOrAltRoutePath } from '@/lib/course'
 
-// 首次渲染的列數上限, 超過的列在瀏覽器 idle 時一次補齊 (避免欄寬隨分批多次跳動)
+// 首次渲染的列數上限, 超過的列在瀏覽器 idle 時補齊
+// md 以上是 grid, 欄寬隨內容而定, 分批補會讓欄寬多次跳動, 只能一次補齊; 手機是 flex 沒有欄寬問題, 分批補才不會長時間卡住點擊
 const RENDER_CHUNK = 100
+const FILL_CHUNK = 50
 
 const emit = defineEmits(['alt-click'])
 
 const { toggleCourseFavorite } = useFavoriteToggle()
+
+const router = useRouter()
+
+const is_grid_layout = useMediaQuery('(min-width: 48rem)')
+
+// 不用 RouterLink: 列內容會變成它的 slot, slot 讀到的 conflictIds 算在每個 RouterLink 頭上, 收藏一變就整份列表重畫
+function onRowClick(event, row) {
+	if (row.is_multi_alt) return emit('alt-click', row.course)
+	if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return
+	event.preventDefault()
+	router.push(row.to)
+}
 
 const remove_dialog_open = ref(false)
 const remove_dialog_course = ref(null)
@@ -87,7 +102,8 @@ function scheduleIdleFill() {
 	if (visible_count.value >= props.courses.length) return
 	const fill = () => {
 		idle_id = 0
-		visible_count.value = props.courses.length
+		visible_count.value = is_grid_layout.value ? props.courses.length : visible_count.value + FILL_CHUNK
+		scheduleIdleFill()
 	}
 	idle_id = window.requestIdleCallback ? requestIdleCallback(fill) : setTimeout(fill, 50)
 }
@@ -120,14 +136,14 @@ const first_col_class = computed(() => props.bleed ? 'lg:pl-6' : '')
 			<div class="px-3 pt-0.5 pb-2"></div>
 		</div>
 		<component
-			:is="row.is_multi_alt ? 'button' : RouterLink"
+			:is="row.is_multi_alt ? 'button' : 'a'"
 			v-for="row in visible_rows"
 			:key="row.course.id"
 			v-memo="[row, conflictIds.has(row.course.id), embedded, confirmRemove, bleed]"
-			:to="row.to"
+			:href="row.to"
 			:type="row.is_multi_alt ? 'button' : undefined"
 			class="relative flex w-full cursor-pointer flex-wrap items-start gap-y-1 border-b px-4 py-2 text-left hover:bg-color-3 md:col-span-full md:grid md:grid-cols-subgrid md:gap-0 md:p-0"
-			@click="row.is_multi_alt && emit('alt-click', row.course)"
+			@click="onRowClick($event, row)"
 		>
 			<div class="order-4 flex items-center gap-1 pr-4 whitespace-nowrap md:order-none md:block md:py-2 md:pr-3 md:pl-4" :class="first_col_class">
 				<Users class="size-3.5 shrink-0 text-color-5 md:hidden" />{{ row.dept_class }}
