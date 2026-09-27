@@ -3,7 +3,7 @@ import HomeView from '@/views/HomeView.vue'
 import { PAGE_META, DEFAULT_META, NOT_FOUND_META } from '@/config/page-meta'
 import { courseRoutePath } from '@/lib/course'
 import { setPageMeta } from '@/lib/meta'
-import { sendPageView } from '@/lib/analytics'
+import { sendPageView, logRoutePath } from '@/lib/analytics'
 import { startRouteLoading, clearRouteLoading } from '@/lib/route-loading'
 import { afterNextPaint } from '@/lib/utils'
 
@@ -157,6 +157,7 @@ router.beforeResolve((to, from) => {
 
 router.afterEach((to) => {
 	clearRouteLoading()
+	logRoutePath(to.path)
 	if (to.name === 'course-detail' || to.name === 'rule') return
 	const meta = to.name === 'not-found' ? NOT_FOUND_META : (PAGE_META[to.path] || DEFAULT_META)
 	setPageMeta(meta)
