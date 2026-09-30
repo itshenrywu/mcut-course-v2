@@ -11,7 +11,11 @@ const props = defineProps({
 		type: Object,
 		required: true
 	},
-	loading: Boolean
+	loading: Boolean,
+	loadingText: {
+		type: String,
+		default: '搜尋其他學期…'
+	}
 })
 
 defineEmits(['select-term'])
@@ -20,7 +24,7 @@ const term_buttons = computed(() => props.result.term_counts.slice(0, MAX_TERM_B
 </script>
 
 <template>
-	<InlineLoading v-if="loading" text="搜尋其他學期…" />
+	<InlineLoading v-if="loading" :text="loadingText" />
 	<template v-else-if="result.total">
 		<Button
 			v-for="term in term_buttons"

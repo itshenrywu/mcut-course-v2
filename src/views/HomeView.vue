@@ -356,12 +356,13 @@ function onLockedButton() {
 										</div>
 									</template>
 								</template>
-								<div v-else class="px-5 py-8">
-									<p class="text-center text-base text-color-6">這個學期找不到符合的課程</p>
-									<div class="mt-4 flex flex-wrap justify-center gap-2">
+								<div v-else class="flex flex-col gap-4 px-5 py-8">
+									<p v-if="!cross_term_loading" class="text-center text-base text-color-6">找不到符合的課程</p>
+									<div v-if="cross_term_loading || cross_term_result.total" class="flex min-h-6 flex-wrap justify-center gap-2">
 										<CrossTermResult
 											:result="cross_term_result"
 											:loading="cross_term_loading"
+											loading-text="搜尋中…"
 											@select-term="switchTermAndSearch($event)"
 										/>
 									</div>
