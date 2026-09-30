@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
-import { UsersRound, Clock, CalendarClock, Info, ChevronRight } from '@lucide/vue'
+import { UsersRound, BookCheck, Clock, CalendarClock, Info, ChevronRight } from '@lucide/vue'
 import TeacherIcon from '@/components/icons/TeacherIcon.vue'
 import { getCourseDetail, getSimilarCourses, getCachedSimilarCourses } from '@/api/course'
 import { formatCourseTime, formatCourseTimes, formatSectionRange, courseIdFromRoute, getCourseBasic, getCourseMap, formatLimit, formatDeptClass, courseGradeClass, teacherName, hasRemark, isNoFixedTime, isBlockCourse, isAltCourse, conflictingCourses, FULL_WEEKDAY_LABELS } from '@/lib/course'
@@ -267,7 +267,7 @@ watch([() => course.value?.id, favorite_ids], ([id]) => {
 					</div>
 					<h1 class="text-2xl font-bold tracking-tight">{{ course.name }}</h1>
 					<div class="flex flex-wrap items-center gap-2">
-						<CourseBadges :course="course" credit-class="text-sm" />
+						<CourseBadges :course="course" />
 					</div>
 				</div>
 				<FavoriteStar
@@ -279,7 +279,7 @@ watch([() => course.value?.id, favorite_ids], ([id]) => {
 				/>
 			</div>
 
-			<div class="flex flex-wrap gap-x-6 gap-y-3 text-sm md:grid md:grid-cols-2">
+			<div class="flex flex-wrap gap-x-6 gap-y-3 text-sm md:grid md:grid-cols-3">
 				<div class="flex items-center gap-2">
 					<UsersRound class="size-4 shrink-0 text-color-5" />
 					<RouterLink
@@ -305,6 +305,10 @@ watch([() => course.value?.id, favorite_ids], ([id]) => {
 						<ChevronRight class="size-4 shrink-0 text-color-5" />
 					</RouterLink>
 					<span v-else>{{ course.teacher }} 老師</span>
+				</div>
+				<div class="flex items-center gap-2">
+					<BookCheck class="size-4 shrink-0 text-color-5" />
+					<span class="font-num tabular-nums">{{ course.credit }} 學分</span>
 				</div>
 				<div class="flex items-start gap-2 md:col-span-full">
 					<Clock class="size-4 h-[1lh] shrink-0 text-color-5" />
@@ -367,7 +371,7 @@ watch([() => course.value?.id, favorite_ids], ([id]) => {
 						v-for="_course in group.courses"
 						:key="_course.id"
 						:course="_course"
-						:fields="['badges', 'dept', 'teacher']"
+						:fields="['badges', 'dept', 'teacher', 'credit']"
 						@click="similar_open = false"
 					/>
 				</div>

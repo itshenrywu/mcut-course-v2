@@ -2,7 +2,7 @@
 import { computed, ref, watch, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useMediaQuery } from '@vueuse/core'
-import { UsersRound, Clock, Info } from '@lucide/vue'
+import { UsersRound, BookCheck, Clock, Info } from '@lucide/vue'
 import TeacherIcon from '@/components/icons/TeacherIcon.vue'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
 import FavoriteStar from '@/components/FavoriteStar.vue'
@@ -125,12 +125,13 @@ const first_col_class = computed(() => props.bleed ? 'lg:pl-6' : '')
 
 <template>
 	<CourseEmpty v-if="courses.length === 0" />
-	<div v-else class="flex w-full flex-col text-sm md:grid md:grid-cols-[3fr_4fr_5rem_2fr_6rem_3fr_2.5rem_0.75rem] [&>*:last-child]:border-b-0" :class="bleed_class">
+	<div v-else class="flex w-full flex-col text-sm md:grid md:grid-cols-[3fr_4fr_5rem_6rem_3.5rem_6rem_3fr_2.5rem_0.75rem] [&>*:last-child]:border-b-0" :class="bleed_class">
 		<div class="hidden border-b bg-color-2/95 text-sm font-medium text-color-6 md:col-span-full md:grid md:grid-cols-subgrid" :class="header_class">
 			<div class="pt-0.5 pr-3 pb-2 pl-4" :class="first_col_class">開課班級</div>
 			<div class="px-3 pt-0.5 pb-2">課程名稱</div>
 			<div class="px-3 pt-0.5 pb-2">上課時間</div>
-			<div class="px-3 pt-0.5 pb-2">修別/學分</div>
+			<div class="px-3 pt-0.5 pb-2">修別</div>
+			<div class="px-3 pt-0.5 pb-2">學分</div>
 			<div class="px-3 pt-0.5 pb-2">授課老師</div>
 			<div class="px-3 pt-0.5 pb-2">備註</div>
 			<div class="px-3 pt-0.5 pb-2"></div>
@@ -149,7 +150,7 @@ const first_col_class = computed(() => props.bleed ? 'lg:pl-6' : '')
 				<UsersRound class="size-3.5 shrink-0 text-color-5 md:hidden" />{{ row.dept_class }}
 			</div>
 			<div class="order-1 flex-1 pr-2 font-medium md:order-none md:flex-none md:px-3 md:py-2">{{ row.course.name }}</div>
-			<div class="order-6 flex w-full items-start gap-1 md:order-none md:block md:w-auto md:px-3 md:py-2">
+			<div class="order-7 flex w-full items-start gap-1 md:order-none md:block md:w-auto md:px-3 md:py-2">
 				<Clock class="size-3.5 h-[1lh] shrink-0 text-color-5 md:hidden" />
 				<div class="flex flex-wrap md:flex-col">
 					<span v-for="(time, index) in row.times" :key="index" class="whitespace-nowrap">
@@ -158,24 +159,24 @@ const first_col_class = computed(() => props.bleed ? 'lg:pl-6' : '')
 				</div>
 			</div>
 			<div class="order-2 shrink-0 md:order-none md:px-3 md:py-2 md:whitespace-nowrap">
-				<div class="flex items-center gap-2 whitespace-nowrap">
-					<EnrollBadge :type="row.course.enroll_type">{{ row.enroll_label }}</EnrollBadge>
-					<span>{{ row.course.credit }} 學分</span>
-				</div>
+				<EnrollBadge :type="row.course.enroll_type">{{ row.enroll_label }}</EnrollBadge>
+			</div>
+			<div class="order-6 flex items-center gap-1 font-num whitespace-nowrap tabular-nums md:order-none md:block md:px-3 md:py-2">
+				<BookCheck class="size-3.5 shrink-0 text-color-5 md:hidden" />{{ row.course.credit }}<span class="md:hidden">學分</span>
 			</div>
 			<div class="order-3 w-full md:hidden" aria-hidden="true"></div>
-			<div class="order-5 flex items-center gap-1 whitespace-nowrap md:order-none md:block md:px-3 md:py-2">
+			<div class="order-5 flex items-center gap-1 pr-4 whitespace-nowrap md:order-none md:block md:px-3 md:py-2">
 				<TeacherIcon class="size-3.5 shrink-0 text-color-5 md:hidden" />
 				<span v-for="(teacher, index) in row.teachers" :key="index" class="md:block">
 					<span v-if="index > 0" class="md:hidden"> / </span>{{ teacher }}
 				</span>
 			</div>
-			<div v-if="row.remark" class="order-7 flex w-full items-start gap-1 md:order-none md:block md:w-auto md:px-3 md:py-2">
+			<div v-if="row.remark" class="order-8 flex w-full items-start gap-1 md:order-none md:block md:w-auto md:px-3 md:py-2">
 				<Info class="size-3.5 h-[1lh] shrink-0 text-color-5 md:hidden" />{{ row.remark }}
 			</div>
 			<FavoriteStar
 				v-if="!embedded"
-				class="absolute right-0 bottom-0 flex items-center justify-center px-4 py-2 md:static md:right-auto md:bottom-auto md:col-start-7 md:px-3 print:hidden"
+				class="absolute right-0 bottom-0 flex items-center justify-center px-4 py-2 md:static md:right-auto md:bottom-auto md:col-start-8 md:px-3 print:hidden"
 				:course="row.course"
 				:conflict="conflictIds.has(row.course.id)"
 				:confirm-remove="confirmRemove"

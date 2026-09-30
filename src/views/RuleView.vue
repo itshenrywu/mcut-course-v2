@@ -442,7 +442,7 @@ watch(() => route.path, () => {
 				v-for="course in count_dialog_course.course_info"
 				:key="course.id"
 				:course="course"
-				:fields="['badges', 'dept', 'teacher', 'time', 'remark']"
+				:fields="['badges', 'dept', 'teacher', 'credit', 'time', 'remark']"
 				target_blank
 				favorite
 				:conflict="count_dialog_conflict_ids.has(course.id)"

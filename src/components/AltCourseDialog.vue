@@ -13,6 +13,7 @@ export function useAltCourseDialog() {
 <script setup>
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { BookCheck, Clock } from '@lucide/vue'
 import { altCourseIds, courseRoutePath, formatCourseTimes, favoriteCourseId, conflictingCourses } from '@/lib/course'
 import { useFavorite } from '@/lib/favorite'
 import CourseListDialog from '@/components/CourseListDialog.vue'
@@ -70,9 +71,17 @@ defineExpose({ openAlt })
 			<FavoriteStar class="-m-1 p-1" :course="alt_course" :conflict="alt_conflict" />
 		</template>
 		<template #description>
-			<CourseBadges :course="alt_course" :general-type="false">
-				<span>{{ formatCourseTimes(alt_course) }}</span>
-			</CourseBadges>
+			<span class="mb-1 flex w-full flex-wrap items-center gap-1.5">
+				<CourseBadges :course="alt_course" :general-type="false" />
+			</span>
+			<span class="flex items-center gap-1 font-num tabular-nums">
+				<BookCheck class="size-3.5 shrink-0 text-color-5" />
+				{{ alt_course.credit }} 學分
+			</span>
+			<span class="flex items-center gap-1">
+				<Clock class="size-3.5 shrink-0 text-color-5" />
+				{{ formatCourseTimes(alt_course) }}
+			</span>
 		</template>
 		<CourseRow
 			v-for="course in alt_course_info"
