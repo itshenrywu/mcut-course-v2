@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import { CircleUserRound, LogIn, LogOut } from '@lucide/vue'
+import { CircleUserRound, LoaderCircle, LogIn, LogOut } from '@lucide/vue'
 import { Button } from '@/components/ui/button'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
 import InlineLoading from '@/components/InlineLoading.vue'
@@ -12,6 +12,7 @@ const route = useRoute()
 const { profile, loading, load_error, is_logged_in, profile_image_url, loginWithLine, loadProfile, logout } = useAuth()
 
 const logout_open = ref(false)
+const logging_out = ref(false)
 
 onMounted(() => {
 	loadProfile()
@@ -21,9 +22,9 @@ function onLogin() {
 	loginWithLine(route.fullPath)
 }
 
-async function onLogout() {
-	await logout()
-	window.location.reload()
+function onLogout() {
+	logging_out.value = true
+	logout()
 }
 </script>
 
@@ -39,9 +40,10 @@ async function onLogout() {
 						<span class="truncate text-sm font-medium">{{ profile?.name }}</span>
 					</template>
 				</div>
-				<Button variant="outline" size="sm" class="ml-auto shrink-0" @click="logout_open = true">
+				<Button variant="outline" size="sm" class="ml-auto shrink-0" :disabled="logging_out" @click="logout_open = true">
 					登出
-					<LogOut />
+					<LoaderCircle v-if="logging_out" class="animate-spin" />
+					<LogOut v-else />
 				</Button>
 			</template>
 			<template v-else>

@@ -17,6 +17,12 @@ if (auth_token.value) {
 	}).catch(() => {})
 }
 
+window.addEventListener('storage', event => {
+	if (event.key !== null && event.key !== 'mcv2-auth-token') return
+	if (event.key && (event.newValue || '') === auth_token.value) return
+	window.location.reload()
+})
+
 const is_logged_in = computed(() => Boolean(auth_token.value))
 const hide_ad = computed(() => Boolean(profile.value?.hide_ad))
 
@@ -120,19 +126,15 @@ async function updateUid(uid) {
 }
 
 async function logout() {
-	const token = auth_token.value
-	setToken('')
-	setProfile(null)
-	setAvatarBlob(null)
-	load_error.value = false
-	loaded.value = false
-	clearOnLogout()
-	if (!token) return
-	try {
-		await deleteSession(token)
-	} catch (error) {
-		console.error(error)
+	if (auth_token.value) {
+		try {
+			await deleteSession(auth_token.value)
+		} catch (error) {
+			console.error(error)
+		}
 	}
+	await clearOnLogout()
+	window.location.reload()
 }
 
 export function useAuth() {

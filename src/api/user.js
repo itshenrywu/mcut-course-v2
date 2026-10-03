@@ -119,5 +119,5 @@ export async function deleteMyImage(token) {
 }
 
 export async function deleteSession(token) {
-	await authFetch(`${AUTH_BASE_URL}/logout`, token, { method: 'DELETE' })
+	await authFetch(`${AUTH_BASE_URL}/logout`, token, { method: 'DELETE', signal: AbortSignal.timeout(3000) })
 }

@@ -11,8 +11,7 @@ const KEEP_KEYS = [
 	'mcv2-search-view',
 	'mcv2-favorite-view',
 	'mcv2-conflict-mode',
-	'mcv2-calendar-view',
-	'mcv2-calendar-hidden'
+	'mcv2-calendar-view'
 ]
 
 export function writeJsonItem(key, value) {
@@ -41,8 +40,8 @@ export function useLocalRef(key, default_value = '', initial, validate) {
 	return value
 }
 
-export function clearOnLogout() {
-	clearBlobs()
+export async function clearOnLogout() {
+	await clearBlobs()
 	for (const key of Object.keys(localStorage)) {
 		if (!key.startsWith('mcv2-')) continue
 		if (KEEP_KEYS.includes(key)) continue
