@@ -12,7 +12,14 @@ function openDb() {
 				}
 			}
 		}
-		request.onsuccess = () => resolve(request.result)
+		request.onsuccess = () => {
+			const db = request.result
+			db.onversionchange = () => {
+				db.close()
+				db_promise = null
+			}
+			resolve(db)
+		}
 		request.onerror = () => reject(request.error)
 	})
 	db_promise.catch(() => {

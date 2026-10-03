@@ -2,7 +2,7 @@ import { fileURLToPath, URL } from 'node:url'
 import { readFileSync, writeFileSync, mkdirSync, readdirSync, existsSync } from 'node:fs'
 import { execSync } from 'node:child_process'
 import { resolve, dirname } from 'node:path'
-import { defineConfig, loadEnv } from 'vite'
+import { defineConfig, loadEnv, build } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import tailwindcss from '@tailwindcss/vite'
 import { PAGE_META, DEFAULT_META, SITEMAP_EXCLUDE_PATHS, coursePageMeta, rulePageMeta } from './src/config/page-meta.js'
@@ -50,6 +50,19 @@ const GIT_SHA = (() => {
 		return 'unknown'
 	}
 })()
+const DEFINE = {
+	__BUILD_TIME__: JSON.stringify(BUILD_TIME),
+	__IS_PROD__: JSON.stringify(IS_PROD),
+	__GIT_SHA__: JSON.stringify(GIT_SHA),
+	__VUE_OPTIONS_API__: false,
+	__VUE_PROD_DEVTOOLS__: false,
+	__VUE_PROD_HYDRATION_MISMATCH_DETAILS__: false
+}
+const RESOLVE = {
+	alias: {
+		'@': fileURLToPath(new URL('./src', import.meta.url))
+	}
+}
 
 function escapeHtml(text) {
 	return text
@@ -462,17 +475,43 @@ function pageMetaPlugin() {
 	}
 }
 
+// /debug 另外 build 一次, 跟主程式完全不共用 chunk: 主程式壞掉時它照樣能清資料;
+// 放進同一次 build 當第二個入口的話, 共用模組會打亂 experimentalMinChunkSize 的合併, 主程式首屏會多載入原本延後的程式碼
+function debugPagePlugin() {
+	let out_dir = 'dist'
+	return {
+		name: 'debug-page',
+		apply: 'build',
+		configResolved(config) {
+			out_dir = resolve(config.root, config.build.outDir)
+		},
+		async closeBundle() {
+			await build({
+				configFile: false,
+				root: fileURLToPath(new URL('.', import.meta.url)),
+				publicDir: false,
+				logLevel: 'warn',
+				plugins: [vue(), tailwindcss()],
+				define: DEFINE,
+				resolve: RESOLVE,
+				build: {
+					outDir: out_dir,
+					emptyOutDir: false,
+					target: 'es2022',
+					rollupOptions: {
+						input: fileURLToPath(new URL('./debug.html', import.meta.url))
+					}
+				}
+			})
+			console.log('[debug-page] debug.html 已輸出')
+		}
+	}
+}
+
 export default defineConfig({
-	plugins: [vue(), tailwindcss(), analyticsPlugin(), pageMetaPlugin()],
+	plugins: [vue(), tailwindcss(), analyticsPlugin(), pageMetaPlugin(), debugPagePlugin()],
 	envPrefix: ['VITE_', 'API_BASE'],
-	define: {
-		__BUILD_TIME__: JSON.stringify(BUILD_TIME),
-		__IS_PROD__: JSON.stringify(IS_PROD),
-		__GIT_SHA__: JSON.stringify(GIT_SHA),
-		__VUE_OPTIONS_API__: false,
-		__VUE_PROD_DEVTOOLS__: false,
-		__VUE_PROD_HYDRATION_MISMATCH_DETAILS__: false
-	},
+	define: DEFINE,
 	build: {
 		target: 'es2022',
 		minify: 'terser',
@@ -491,11 +530,7 @@ export default defineConfig({
 			}
 		}
 	},
-	resolve: {
-		alias: {
-			'@': fileURLToPath(new URL('./src', import.meta.url))
-		}
-	},
+	resolve: RESOLVE,
 	server: {
 		port: 10010,
 		allowedHosts: ['.mcut-course.com'],
