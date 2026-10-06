@@ -8,7 +8,7 @@ import tailwindcss from '@tailwindcss/vite'
 import { PAGE_META, DEFAULT_META, SITEMAP_EXCLUDE_PATHS, coursePageMeta, rulePageMeta } from './src/config/page-meta.js'
 import { formatCourseTime, courseRoutePath, courseSummaryParts, courseGradeClass, formatDeptClass } from './src/lib/course-format.js'
 import { yearFromCourseId, termIdFromCourseId, shortTermIdFromCourseId, formatTermLabel, formatTermShort } from './src/lib/term-format.js'
-import { deptIds, deptGroups, ruleGroups, ruleIds, findRule, findSelfRule, ruleDescriptionText, ruleRoutePath, ruleDisplayName, DEFAULT_ID } from './src/lib/rule-format.js'
+import { deptIds, deptGroups, ruleGroups, ruleIds, findRule, findSelfRule, ruleDescriptionText, ruleRoutePath, ruleDocPath, ruleDisplayName, DEFAULT_ID } from './src/lib/rule-format.js'
 import { ogImageUrl } from './src/config/index.js'
 
 // .env 只會進 import.meta.env, 這裡補上 build 期用的 process.env (loadEnv 內部就讓實際的環境變數蓋過 .env)
@@ -278,9 +278,11 @@ async function generateRulePages(base_html, out_dir) {
 	const dept_map = data.depts || {}
 	const path_list = []
 	const missing_list = []
+	const meta_map = new Map()
 	for (const year of Object.keys(rule_map)) {
 		const year_path = ruleRoutePath(year)
 		const year_meta = rulePageMeta(year)
+		meta_map.set(year_path, year_meta)
 		const year_crumbs = [[DEFAULT_META.title, '/'], ['畢業學分門檻', '/rule'], [`${year} 學年入學`, year_path]]
 		const year_html = injectCanonical(injectBreadcrumb(injectMeta(base_html, year_meta, year_path), year_crumbs), year_path)
 		writePage(out_dir, year_path, injectAppContent(year_html, renderRuleYearContent(rule_map, dept_map, year)))
@@ -299,6 +301,7 @@ async function generateRulePages(base_html, out_dir) {
 				if (!description_text) missing_list.push(`${route_path} (${rule.name})`)
 				const display_name = ruleDisplayName(rule)
 				const meta = rulePageMeta(year, display_name, description_text)
+				meta_map.set(route_path, meta)
 				const crumbs = [...year_crumbs, [display_name, canonical_path]]
 				const program_list = dept_id !== DEFAULT_ID && rule_id === DEFAULT_ID
 					? ruleGroups(rule_map, dept_map, year, dept_id).flatMap(group => group.rules.filter(item => !item.disabled)).map(item => [ruleDisplayName(item), ruleRoutePath(year, DEFAULT_ID, item.id)])
@@ -309,7 +312,14 @@ async function generateRulePages(base_html, out_dir) {
 			}
 		}
 	}
-	console.log(`[page-meta] 共產生 ${path_list.length} 個畢業學分門檻頁面 (含 ${Object.keys(rule_map).length} 個學年頁)`)
+	const doc_id_list = Object.values(rule_map).flatMap(group_list => group_list.flatMap(group => group.rules.map(rule => rule.doc_id))).filter(Boolean)
+	for (const doc_id of doc_id_list) {
+		const target = ruleDocPath(rule_map, dept_map, doc_id)
+		writePage(out_dir, `/rule/doc/${doc_id}`, injectRedirect(injectMeta(base_html, meta_map.get(target), target), target))
+	}
+	// /rule/doc 也是資料夾, 沒有同名 .html 會無限轉址 (見 generateCoursePages)
+	writePage(out_dir, '/rule/doc', injectRedirect(injectMeta(base_html, PAGE_META['/rule'], '/rule'), '/rule'))
+	console.log(`[page-meta] 共產生 ${path_list.length} 個畢業學分門檻頁面 (含 ${Object.keys(rule_map).length} 個學年頁), ${doc_id_list.length} 個 doc_id 轉址頁`)
 	if (missing_list.length) console.warn(`[page-meta] ${missing_list.length} 個畢業學分門檻頁面沒有課程類別, 沿用預設 description:\n\t${missing_list.join('\n\t')}`)
 	return path_list
 }

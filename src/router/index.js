@@ -2,6 +2,8 @@ import { createRouter, createWebHistory, START_LOCATION } from 'vue-router'
 import HomeView from '@/views/HomeView.vue'
 import { PAGE_META, DEFAULT_META, NOT_FOUND_META } from '@/config/page-meta'
 import { courseRoutePath } from '@/lib/course'
+import { getRuleList } from '@/api/rule'
+import { ruleDocPath } from '@/lib/rule-format'
 import { setPageMeta } from '@/lib/meta'
 import { sendPageView, logRoutePath } from '@/lib/analytics'
 import { startRouteLoading, clearRouteLoading } from '@/lib/route-loading'
@@ -82,6 +84,18 @@ const routes = [
 		path: '/goal-course-route',
 		name: 'goal-course-route',
 		component: () => import('@/views/GoalCourseRouteView.vue')
+	},
+	{
+		path: '/rule/doc/:doc_id',
+		component: () => import('@/views/RuleView.vue'),
+		beforeEnter: async to => {
+			try {
+				const { rules, depts } = await getRuleList()
+				return ruleDocPath(rules || {}, depts || {}, to.params.doc_id) || { name: 'not-found', params: { pathMatch: to.path.slice(1).split('/') } }
+			} catch {
+				return '/rule'
+			}
+		}
 	},
 	{
 		path: '/rule/:year?/:dept_id?/:rule_id?',

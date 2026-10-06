@@ -124,6 +124,19 @@ export function ruleRoutePath(year, dept_id, rule_id) {
 	return `/rule/${parts.join('/')}`
 }
 
+export function ruleDocPath(rule_map, dept_map, doc_id) {
+	for (const [year, group_list] of Object.entries(rule_map)) {
+		for (const group of group_list) {
+			const rule = group.rules.find(item => item.doc_id === doc_id)
+			if (!rule) continue
+			if (group.group_name !== '_') return ruleRoutePath(year, DEFAULT_ID, rule.id)
+			const dept = deptGroups(dept_map, year).flatMap(item => item.depts).find(item => item.name === rule.name)
+			return dept ? ruleRoutePath(year, dept.id, DEFAULT_ID) : ruleRoutePath(year)
+		}
+	}
+	return ''
+}
+
 export function ruleDisplayName(rule) {
 	if (!rule) return ''
 	return rule.name + (['跨領域', '第二專長'].includes(rule.type) ? rule.type : '入學課程總表')
