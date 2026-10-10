@@ -301,7 +301,7 @@ function onLockedButton() {
 								@blur="search_open = false"
 							/>
 
-							<div v-if="search_open" class="absolute top-full right-0 left-0 z-50 mt-4 max-h-[60dvh] overflow-y-auto rounded-lg border bg-color-1 text-left shadow-sm sm:-right-3" @mousedown.prevent>
+							<div v-if="search_open && !loading" class="absolute top-full right-0 left-0 z-50 mt-4 max-h-[60dvh] overflow-y-auto rounded-lg border bg-color-1 text-left shadow-sm sm:-right-3" @mousedown.prevent>
 								<template v-if="!debounced_keyword.trim()">
 									<SearchHistory v-if="search_history.length" @select="keyword = $event" />
 									<p v-else class="px-5 py-8 text-center text-base text-color-6">請輸入關鍵字</p>
