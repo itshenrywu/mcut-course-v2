@@ -29,6 +29,19 @@ export function useDebouncedRef(source, delay = DEBOUNCE_DELAY) {
 	return debounced
 }
 
+export function useAfterPaintRef(source) {
+	const deferred = ref(toValue(source))
+	let pending = false
+	watch(source, async () => {
+		if (pending) return
+		pending = true
+		await afterNextPaint()
+		pending = false
+		deferred.value = toValue(source)
+	})
+	return deferred
+}
+
 export function afterNextPaint() {
 	if (document.hidden) return Promise.resolve()
 	return new Promise(resolve => {

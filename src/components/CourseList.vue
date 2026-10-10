@@ -10,6 +10,7 @@ import { useFavoriteToggle } from '@/lib/favorite'
 import CourseEmpty from '@/components/CourseEmpty.vue'
 import EnrollBadge from '@/components/EnrollBadge.vue'
 import { formatCourseTime, formatDeptClass, hasRemark, isMultiAltCourse, courseOrAltRoutePath } from '@/lib/course'
+import { overlay_open } from '@/lib/overlay'
 
 // 首次渲染的列數上限, 超過的列在瀏覽器 idle 時補齊
 // md 以上是 grid, 欄寬隨內容而定, 分批補會讓欄寬多次跳動, 只能一次補齊; 手機是 flex 沒有欄寬問題, 分批補才不會長時間卡住點擊
@@ -99,7 +100,7 @@ function cancelIdleFill() {
 
 function scheduleIdleFill() {
 	cancelIdleFill()
-	if (visible_count.value >= props.courses.length) return
+	if (overlay_open.value || visible_count.value >= props.courses.length) return
 	const fill = () => {
 		idle_id = 0
 		visible_count.value = is_grid_layout.value ? props.courses.length : visible_count.value + FILL_CHUNK
@@ -112,6 +113,9 @@ watch(() => props.courses, () => {
 	visible_count.value = RENDER_CHUNK
 	scheduleIdleFill()
 }, { immediate: true })
+
+// 抽屜或下拉選單開著時列表被蓋住, 先不補列, 免得在選條件時卡住下一次點擊
+watch(overlay_open, scheduleIdleFill)
 
 onUnmounted(cancelIdleFill)
 

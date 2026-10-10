@@ -8,7 +8,7 @@ import { formatTermShort, termIdFromCourseId, applyUrlTermId } from '@/lib/term'
 import { useFavorite } from '@/lib/favorite'
 import { useCrossTermSearch } from '@/lib/course-search'
 import { useLocalRef } from '@/lib/storage'
-import { useDebouncedRef } from '@/lib/utils'
+import { useDebouncedRef, useAfterPaintRef } from '@/lib/utils'
 import { isDayBachelorDept } from '@/lib/dept'
 import LoadingOverlay from '@/components/LoadingOverlay.vue'
 import LoadError from '@/components/LoadError.vue'
@@ -50,12 +50,17 @@ const is_wide_filter = computed(() => selected_dept.value === 'any' && !keyword.
 
 const { selected_term_id, term_list, course_list, loading, loaded, load_error, loadCourseList } = useCourseList({ is_heavy: is_wide_filter })
 
-const current_filter = computed(() => ({
+const filter_state = computed(() => ({
 	dept: selected_dept.value,
 	grade_class: selected_grade_class.value,
 	enroll_type: selected_enroll_type.value,
-	kw: debounced_keyword.value.trim().toLowerCase()
+	kw: debounced_keyword.value.trim()
 }))
+
+// 選完條件先讓下拉選單關閉並畫出一幀, 再重算列表與網址, 重繪才不會算進這次點擊的 INP
+const applied_filter = useAfterPaintRef(filter_state)
+
+const current_filter = computed(() => ({ ...applied_filter.value, kw: applied_filter.value.kw.toLowerCase() }))
 
 const base_filtered_list = computed(() => matchCourses(course_list.value, current_filter.value))
 
@@ -157,14 +162,15 @@ const table_view_disabled = computed(() => {
 })
 
 const table_grade_class = computed(() => {
-	if (selected_enroll_type.value !== 'mixed') return 'any'
-	if (!hasMultiClassElective(course_list.value, selected_dept.value, selected_grade_class.value)) return 'any'
-	return selected_grade_class.value
+	const { dept, grade_class, enroll_type } = applied_filter.value
+	if (enroll_type !== 'mixed') return 'any'
+	if (!hasMultiClassElective(course_list.value, dept, grade_class)) return 'any'
+	return grade_class
 })
 
 const table_filter = computed(() => ({
-	dept: selected_dept.value,
-	grade_class: selected_grade_class.value
+	dept: applied_filter.value.dept,
+	grade_class: applied_filter.value.grade_class
 }))
 
 const filter_summary = computed(() => {
@@ -239,13 +245,12 @@ function clearThenFavoriteClassRequired() {
 	toast.success(`已清除 ${removed} 門舊收藏，並收藏 ${added} 門本班必修課`)
 }
 
-watch([debounced_keyword, selected_dept, selected_grade_class, selected_enroll_type], () => {
+watch(applied_filter, ({ dept, grade_class, enroll_type, kw }) => {
 	const query = {}
-	const kw = debounced_keyword.value.trim()
 	if (kw) query.kw = kw
-	if (selected_dept.value !== 'any') query.dept = selected_dept.value
-	if (selected_grade_class.value !== 'any') query.grade_class = selected_grade_class.value
-	if (selected_enroll_type.value !== 'any') query.enroll_type = selected_enroll_type.value
+	if (dept !== 'any') query.dept = dept
+	if (grade_class !== 'any') query.grade_class = grade_class
+	if (enroll_type !== 'any') query.enroll_type = enroll_type
 	router.replace({ query })
 })
 
