@@ -27,7 +27,7 @@ export const PAGE_META = {
 		description: '自己安排一份專屬課表，可自由新增課程名稱、星期、節次與備註，並下載成課表圖片！'
 	},
 	'/rule': {
-		title: `畢業學分門檻 | ${SITE_NAME}`,
+		title: `畢業學分門檻查詢 | ${SITE_NAME}`,
 		description: '依入學學年度與系所查詢各系所畢業學分門檻，以及第二專長、跨領域學程的總表、開設單位與承辦人聯絡方式'
 	},
 	'/more': {
@@ -48,10 +48,10 @@ export const PAGE_META = {
 	},
 	'/calendar': {
 		title: `行事曆 | ${SITE_NAME}`,
-		description: '以月曆或清單檢視校內行事曆、社團活動行事曆與體育室場地借用的時間、地點，並可依分類篩選要顯示的活動'
+		description: '依大一到博士班查詢學校行事曆的開學日、網路初選、加退選、期中停修、期中期末考週、暑修選課與放假日期，另有社團活動與體育室場地借用時間'
 	},
 	'/enroll-time': {
-		title: `選課時間及說明 | ${SITE_NAME}`,
+		title: `選課及加退選時間 | ${SITE_NAME}`,
 		description: '各學制年級的網路初選、加退選時間與選課學分上下限，以及選課注意事項與相關聯絡電話'
 	},
 	'/enroll-guide': {

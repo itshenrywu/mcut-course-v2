@@ -22,7 +22,7 @@ const MENU_SECTIONS = [
 	{
 		title: '說明與支援',
 		items: [
-			{ to: '/enroll-time', label: '選課時間及說明', icon: CalendarClock },
+			{ to: '/enroll-time', label: '選課及加退選時間', icon: CalendarClock },
 			{ to: '/guide', label: '選課指南', icon: BookOpen },
 			{ to: '/about', label: '關於本站、資料來源及免責聲明', icon: Info },
 			{ to: '/changelog', label: '更新紀錄', icon: History },

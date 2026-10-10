@@ -33,7 +33,7 @@ watch(enroll_list, markEnrollTimeSeen, { immediate: true })
 <template>
 	<LoadingOverlay v-if="loading" text="選課時間讀取中…" />
 
-	<PageContainer title="選課時間及說明" container-class="max-w-5xl">
+	<PageContainer title="選課及加退選時間" container-class="max-w-5xl">
 		<template #title-extra>
 			<Button as="a" size="sm" variant="outline" href="http://day.course.mcut.edu.tw/?openExternalBrowser=1" target="_blank" rel="nofollow noopener noreferrer">
 				前往選課系統

@@ -129,7 +129,7 @@ const filter_summary = computed(() => {
 	return info
 })
 
-const page_heading = computed(() => filter_summary.value.join(' ') || '畢業學分門檻')
+const page_heading = computed(() => filter_summary.value.join(' ') || '畢業學分門檻查詢')
 
 const rule_favorited = computed(() => isRuleFavorite(selected_year.value, selected_dept.value, selected_rule_id.value))
 

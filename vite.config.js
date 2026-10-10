@@ -283,7 +283,7 @@ async function generateRulePages(base_html, out_dir) {
 		const year_path = ruleRoutePath(year)
 		const year_meta = rulePageMeta(year)
 		meta_map.set(year_path, year_meta)
-		const year_crumbs = [[DEFAULT_META.title, '/'], ['畢業學分門檻', '/rule'], [`${year} 學年入學`, year_path]]
+		const year_crumbs = [[DEFAULT_META.title, '/'], ['畢業學分門檻查詢', '/rule'], [`${year} 學年入學`, year_path]]
 		const year_html = injectCanonical(injectBreadcrumb(injectMeta(base_html, year_meta, year_path), year_crumbs), year_path)
 		writePage(out_dir, year_path, injectAppContent(year_html, renderRuleYearContent(rule_map, dept_map, year)))
 		path_list.push({ path: year_path, year, in_sitemap: true })
