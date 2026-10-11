@@ -1,8 +1,7 @@
-import { ref, computed } from 'vue'
+import { computed } from 'vue'
 import { createInfoStore } from '@/lib/info-store'
 import { parseRowFields } from '@/lib/utils'
-import { isSummerTerm, normalizeTermId, getStoredTermList } from '@/lib/term'
-import { checkCourseRev } from '@/lib/course-rev'
+import { isSummerTerm, normalizeTermId } from '@/lib/term'
 
 // 選課時程每列的欄位順序
 const ENROLL_TIME_FIELDS = ['name', 'term_id', 'first_enroll', 'add_drop']
@@ -15,27 +14,20 @@ export const CREDIT_LIMITS = [
 	['四年級', 9, 27, 9, 27, 15]
 ]
 
-const { data: info_list, loading, loaded, load_error, load, has_item, has_update, markSeen: markEnrollTimeSeen } = createInfoStore('enroll-time', {
+const { data: info, loading, loaded, load_error, load: loadEnrollTime, has_item, has_update, markSeen: markEnrollTimeSeen } = createInfoStore('enroll-time', {
 	label: '選課時程',
 	pre_key: 'mcv2-enroll-time-id',
-	parse: data => Array.isArray(data?.data) ? data.data : [],
-	empty: () => []
+	parse: data => ({
+		list: Array.isArray(data?.data) ? data.data : [],
+		term_list: Array.isArray(data?.term_list) ? data.term_list.map(normalizeTermId) : [],
+		default_term_id: normalizeTermId(data?.default_term_id)
+	}),
+	empty: () => ({ list: [], term_list: [], default_term_id: '' })
 })
 
-const enroll_list = computed(() => info_list.value.map(parseEnrollTimeItem))
-const data_term_list = computed(() => [...new Set(enroll_list.value.map(item => normalizeTermId(item.term_id)).filter(Boolean))].sort())
-const fallback_term_list = ref([])
-const enroll_term_list = computed(() => data_term_list.value.length ? data_term_list.value : fallback_term_list.value)
-
-async function loadEnrollTime(options) {
-	await load(options)
-	if (!data_term_list.value.length) await loadFallbackTermList()
-}
-
-async function loadFallbackTermList() {
-	if (!getStoredTermList().length) await checkCourseRev()
-	fallback_term_list.value = [...new Set(getStoredTermList().map(normalizeTermId))].slice(0, 2).sort()
-}
+const enroll_list = computed(() => info.value.list.map(parseEnrollTimeItem))
+const enroll_term_list = computed(() => [...info.value.term_list].sort())
+const enroll_default_term_id = computed(() => info.value.default_term_id)
 
 function parseEnrollTimeItem(row) {
 	const item = parseRowFields(row, ENROLL_TIME_FIELDS)
@@ -56,5 +48,5 @@ function findCreditLimit(name, term_id) {
 }
 
 export function useEnrollTime() {
-	return { enroll_list, enroll_term_list, loading, loaded, load_error, has_item, has_update, loadEnrollTime, markEnrollTimeSeen }
+	return { enroll_list, enroll_term_list, enroll_default_term_id, loading, loaded, load_error, has_item, has_update, loadEnrollTime, markEnrollTimeSeen }
 }

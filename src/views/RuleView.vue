@@ -59,7 +59,7 @@ const count_dialog_open = ref(false)
 const count_dialog_course = ref(null)
 
 const { rule_map, dept_map, loading, loaded, load_error, loadRuleList } = useRuleList()
-const { enroll_term_list, loadEnrollTime } = useEnrollTime()
+const { enroll_term_list, enroll_default_term_id, loadEnrollTime } = useEnrollTime()
 
 onMounted(() => {
 	if (!enroll_term_list.value.length) loadEnrollTime()
@@ -276,6 +276,7 @@ watch(() => route.path, () => {
 					:rule-map="rule_map"
 					:dept-map="dept_map"
 					:enroll-term-list="enroll_term_list"
+					:default-enroll-term-id="enroll_default_term_id"
 					:disabled="loading"
 					:not-found="not_found"
 					@favorite-select="sidebar_open = false"

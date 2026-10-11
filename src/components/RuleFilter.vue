@@ -28,6 +28,10 @@ const props = defineProps({
 		type: Array,
 		default: () => []
 	},
+	defaultEnrollTermId: {
+		type: String,
+		default: ''
+	},
 	disabled: {
 		type: Boolean,
 		default: false
@@ -113,7 +117,7 @@ watch(dept, () => {
 watch(() => props.enrollTermList, () => {
 	if (!props.enrollTermList.length) return
 	if (props.enrollTermList.includes(enroll_term_id.value)) return
-	enroll_term_id.value = props.enrollTermList[0]
+	enroll_term_id.value = props.enrollTermList.includes(props.defaultEnrollTermId) ? props.defaultEnrollTermId : props.enrollTermList.at(-1)
 }, { immediate: true })
 </script>
 
