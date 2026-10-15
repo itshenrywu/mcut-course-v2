@@ -11,10 +11,10 @@ const MENU_SECTIONS = [
 	{
 		title: '其他查詢',
 		items: [
-			{ to: '/calendar', label: '行事曆', icon: CalendarDays },
 			{ to: '/english-exam', label: '英文段考時間與考場', icon: ClipboardList },
-			{ to: '/english-passport', label: '英語學習護照點數查詢', icon: BookUser },
 			{ to: '/goal-course-route', label: '大學之道「環境與行動」路線查詢', icon: Road },
+			{ to: '/calendar', label: '行事曆', icon: CalendarDays },
+			{ to: '/english-passport', label: '英語學習護照點數查詢', icon: BookUser },
 			{ href: 'https://line.me/R/ti/p/@161acthp', label: '學餐菜單 LINE 機器人', icon: Utensils },
 			{ href: 'https://mcut-run.henrywu.tw/', label: '歷年校園路跑成績', icon: Footprints }
 		]
