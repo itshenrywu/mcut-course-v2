@@ -40,11 +40,8 @@ async function fetchCourseList(id) {
 	data.term_id = normalizeTermId(data.term_id)
 	data.term_list = [...new Set(data.term_list.map(normalizeTermId))]
 	course_list_cache.set(data.term_id, data.course_list)
-	try {
-		await idbSet('course_list', data.term_id, { course_list: data.course_list, rev: data.rev || '' })
-	} catch (error) {
-		console.error(error)
-	}
+	// 整學期課表寫進 IndexedDB 要一段時間, 不等它完成, 首次渲染才不會被擋住; 之後讀 rev 的交易排在這筆寫入後面
+	idbSet('course_list', data.term_id, { course_list: data.course_list, rev: data.rev || '' }).catch(error => console.error(error))
 	saveTermList(data.term_list)
 	return data
 }

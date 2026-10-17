@@ -21,6 +21,8 @@ const BUILD_API_BASE_URL = `${API_BASE}/api`
 const BUILD_OG_BASE_URL = `${API_BASE}/og`
 // dev 與 preview 共用的反向代理, 讓前端不設 API_BASE 也能用相對路徑打本機 API
 const DEV_PROXY = { '/api': API_BASE, '/auth': API_BASE, '/og': API_BASE }
+// 前端實際打的 API 主機; 沒設 API_BASE 時前端走相對路徑, 不注入 preconnect 與 preload, 免得指到 build 期的 localhost
+const RUNTIME_API_BASE = process.env.API_BASE || ''
 // 站台網址, 沒指定就不產生 sitemap 也不注入 canonical, 避免寫出錯誤的絕對網址
 const SITE_URL = process.env.SITE_BASE || ''
 // 只有正式站開放收錄, stage 與本機 build 一律注入 noindex 並讓 robots.txt 全站 Disallow
@@ -99,6 +101,20 @@ function injectCanonical(html, path) {
 	if (!SITE_URL) return html
 	const url = escapeHtml(SITE_URL + path)
 	return html.replace('</head>', `\t<link rel="canonical" href="${url}" />\n\t\t<meta property="og:url" content="${url}" />\n\t</head>`)
+}
+
+function injectPreconnect(html) {
+	if (!RUNTIME_API_BASE) return html
+	return html.replace('</head>', `\t<link rel="preconnect" href="${escapeHtml(RUNTIME_API_BASE)}" crossorigin />\n\t</head>`)
+}
+
+// 課程頁的 LCP 卡在這兩支 API, 讓它們在 HTML 解析時就開始抓, 不必等主程式與課程頁 chunk 載完; 網址與模式要跟前端 fetch 一致才會被重用
+// 只給正式站: Chrome 比對 preload 不看 header, stage 前端帶 X-Stage-Key 的 fetch 會拿到 preload 沒帶 key 的 403, 解鎖後又被鎖回去
+function injectCoursePreload(html, course_id) {
+	if (!RUNTIME_API_BASE || !IS_PROD) return html
+	const id = encodeURIComponent(course_id)
+	const links = ['detail', 'similar'].map(type => `<link rel="preload" href="${escapeHtml(`${RUNTIME_API_BASE}/api/course/${type}/${id}`)}" as="fetch" crossorigin />`)
+	return html.replace('</head>', `\t${links.join('\n\t\t')}\n\t</head>`)
 }
 
 function writePage(out_dir, path, html) {
@@ -213,7 +229,7 @@ async function generateCoursePages(base_html, out_dir) {
 			if (item_term_id !== term_id && !other_term_map.has(item_term_id)) other_term_map.set(item_term_id, item)
 		}
 		const other_term_list = [...other_term_map.values()].sort((a, b) => b.id.localeCompare(a.id))
-		const head_html = injectCanonical(injectBreadcrumb(injectMeta(base_html, coursePageMeta(course), route_path), courseCrumbs(course, route_path)), route_path)
+		const head_html = injectCoursePreload(injectCanonical(injectBreadcrumb(injectMeta(base_html, coursePageMeta(course), route_path), courseCrumbs(course, route_path)), route_path), course.id)
 		writePage(out_dir, route_path, injectAppContent(head_html, renderCourseContent(course, class_course_list, other_term_list)))
 		path_list.push({ path: route_path, year: yearFromCourseId(course.id) })
 	}
@@ -466,7 +482,7 @@ function pageMetaPlugin() {
 			out_dir = config.build.outDir
 		},
 		async closeBundle() {
-			const base_html = readFileSync(resolve(out_dir, 'index.html'), 'utf-8')
+			const base_html = injectPreconnect(readFileSync(resolve(out_dir, 'index.html'), 'utf-8'))
 			writeFileSync(resolve(out_dir, '404.html'), injectMeta(base_html, DEFAULT_META))
 			generateRedirectPages(base_html, out_dir)
 			const course_page_list = await generateCoursePages(base_html, out_dir)

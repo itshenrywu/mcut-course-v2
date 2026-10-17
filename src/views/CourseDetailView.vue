@@ -132,7 +132,10 @@ async function loadBasic(id, isLatest) {
 	try {
 		const basic = await getCourseBasic(id)
 		if (!isLatest()) return null
-		if (basic) course.value = basic
+		if (basic) {
+			course.value = course.value ? { ...basic, ...course.value } : basic
+			loading.value = false
+		}
 		return basic
 	} catch (error) {
 		console.error(error)
@@ -141,16 +144,16 @@ async function loadBasic(id, isLatest) {
 	}
 }
 
-async function loadDetail(id, basic_promise, isLatest) {
+async function loadDetail(id, isLatest) {
 	detail_loading.value = true
 	try {
 		const data = await getCourseDetail(id)
-		await basic_promise
 		if (!isLatest()) return false
 		if (data.course) course.value = { ...course.value, ...data.course }
 		detail.value = data.detail || []
 		office_time.value = data.office_time || []
 		schedule.value = data.schedule || []
+		if (course.value) loading.value = false
 		return true
 	} catch (error) {
 		console.error(error)
@@ -208,13 +211,10 @@ async function load(id = courseIdFromRoute(route.params.short_term_id, route.par
 	similar_open.value = false
 	loading.value = true
 	loadSimilar(id, isLatest)
-	const basic_promise = loadBasic(id, isLatest)
-	const detail_promise = loadDetail(id, basic_promise, isLatest)
-	const basic = await basic_promise
+	// 詳細資料也帶有課程基本欄位, 哪個先回來就先畫, 首次進站不必等整學期課表下載完
+	const [basic, detail_ok] = await Promise.all([loadBasic(id, isLatest), loadDetail(id, isLatest)])
 	if (!isLatest()) return
 	loading.value = false
-	const detail_ok = await detail_promise
-	if (!isLatest()) return
 	if (!basic && !detail_ok) {
 		course.value = null
 		load_error.value = loadErrorInfo(last_load_failure)
