@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, watch } from 'vue'
+import { computed, ref } from 'vue'
 import { Star } from '@lucide/vue'
 import { findRule, findDept, parseRuleFavoriteId, ruleDisplayName } from '@/lib/rule'
 import { useRuleFavorite } from '@/lib/rule-favorite'
@@ -7,6 +7,7 @@ import { spaceText } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import CourseListDialog from '@/components/CourseListDialog.vue'
 import ConfirmDialog from '@/components/ConfirmDialog.vue'
+import EmptyHint from '@/components/EmptyHint.vue'
 
 const props = defineProps({
 	ruleMap: {
@@ -71,18 +72,12 @@ function askRemove(entry) {
 function confirmRemove() {
 	removeRuleFavorite(remove_entry.value.id)
 }
-
-watch(entries, list => {
-	if (!list.length) dialog_open.value = false
-})
 </script>
 
 <template>
 	<Button
-		v-if="entries.length"
 		variant="outline"
-		size="sm"
-		class="w-full justify-start bg-color-1 has-[>svg]:px-3 hover:bg-color-2"
+		class="w-full justify-start bg-color-1 hover:bg-color-2"
 		:disabled="disabled"
 		@click="dialog_open = true"
 	>
@@ -92,6 +87,7 @@ watch(entries, list => {
 	</Button>
 
 	<CourseListDialog v-model:open="dialog_open" title="收藏的總表" :count="entries.length">
+		<EmptyHint v-if="!entries.length">尚未收藏任何總表，點總表標題旁的星號即可收藏</EmptyHint>
 		<div v-for="entry in entries" :key="entry.id" class="relative">
 			<button
 				type="button"
