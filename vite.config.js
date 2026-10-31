@@ -25,7 +25,7 @@ const DEV_PROXY = { '/api': API_BASE, '/auth': API_BASE, '/og': API_BASE }
 const RUNTIME_API_BASE = process.env.API_BASE || ''
 // 站台網址, 沒指定就不產生 sitemap 也不注入 canonical, 避免寫出錯誤的絕對網址
 const SITE_URL = process.env.SITE_BASE || ''
-// 只有正式站開放收錄, stage 與本機 build 一律注入 noindex 並讓 robots.txt 全站 Disallow
+// 只有正式站開放收錄, stage 與本機 build 一律注入 noindex; robots.txt 不能 Disallow, Google 讀不到頁面就看不到 noindex, 被連到的網址反而會以「已建立索引，但遭到 robots.txt 封鎖」收錄
 const PROD_SITE_URL = 'https://mcut-course.com'
 const IS_PROD = SITE_URL === PROD_SITE_URL
 // 非正式站要拿掉 GA 與 AdSense, index.html 用這對註解標出範圍
@@ -406,11 +406,10 @@ function checkDirectoryPages(out_dir) {
 }
 
 function generateRobots(out_dir) {
-	const lines = IS_PROD
-		? ['User-agent: *', 'Allow: /', '', `Sitemap: ${SITE_URL}/sitemap.xml`]
-		: ['User-agent: *', 'Disallow: /']
+	const lines = ['User-agent: *', 'Allow: /']
+	if (IS_PROD) lines.push('', `Sitemap: ${SITE_URL}/sitemap.xml`)
 	writeFileSync(resolve(out_dir, 'robots.txt'), `${lines.join('\n')}\n`)
-	console.log(`[page-meta] robots.txt ${IS_PROD ? `開放收錄, sitemap 指向 ${SITE_URL}` : '全站 Disallow'}`)
+	console.log(`[page-meta] robots.txt ${IS_PROD ? `開放收錄, sitemap 指向 ${SITE_URL}` : '開放檢索, 由 noindex 擋收錄'}`)
 }
 
 function routeBlocks() {
