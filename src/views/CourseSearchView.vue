@@ -295,7 +295,7 @@ watch(selected_enroll_type, enroll_type => {
 
 				<template #footer>
 					<HelpDialog button-class="-ml-2">
-						<li>點課程名稱可查看詳細資訊，點課程右側的 <Star class="inline-block size-3.5 align-middle text-amber-400" /> 可收藏課程</li>
+						<li>點課程名稱可查看詳細資訊，點課程右側的 <Star class="inline-block size-3.5 align-middle text-color-5" /> 可收藏課程</li>
 						<li>與<b class="font-medium">已收藏課程</b>時間重疊的課程會標示 <TriangleAlert class="inline-block size-3.5 align-middle text-red-500" />，並可設定是否要顯示</li>
 						<li>建議可以先<b class="font-medium">選擇自己的班級後，用「收藏本班必修課」一次收藏整班必修</b>，再去看其他想修的課程</li>
 						<li>如想查詢通識課，開課單位請選「通識中心四技」；如想查詢自選體育課程，開課單位請選「體育組」</li>

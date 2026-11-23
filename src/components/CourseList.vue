@@ -180,7 +180,7 @@ const first_col_class = computed(() => props.bleed ? 'lg:pl-6' : '')
 			</div>
 			<FavoriteStar
 				v-if="!embedded"
-				class="absolute right-0 bottom-0 flex items-center justify-center px-4 py-2 md:static md:right-auto md:bottom-auto md:col-start-8 md:px-3 print:hidden"
+				class="absolute right-0 bottom-0 flex items-center justify-center px-4 py-2 md:static md:right-auto md:bottom-auto md:col-start-8 md:px-3 md:pr-0 print:hidden"
 				:course="row.course"
 				:conflict="conflictIds.has(row.course.id)"
 				:confirm-remove="confirmRemove"
